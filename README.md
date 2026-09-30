@@ -23,3 +23,10 @@ npm start
 - `/lost`: Interactive desktop pet and interesting websites
 
 The Linear Algebra module includes Explore Mode and Matrix Mode with rank 0, 1, and 2 examples.
+
+## Deployment
+
+This repository is connected to the existing Vercel project `lawson-dong`.
+Commits to `main` trigger production deployments; other branches can be used for previews.
+
+Live site: https://lawson-dong.vercel.app
