@@ -38,14 +38,16 @@ function Plot({id,range,children,onDrag,point,label}:{id:string;range:number;chi
   </svg>;
 }
 
-function Arrow({v,from=[0,0],range,color,label,dashed=false,offset=[8,-9]}:{v:Vec;from?:Vec;range:number;color:string;label:string;dashed?:boolean;offset?:Vec}){
+function Arrow({v,from=[0,0],range,color,label,dashed=false,offset=[8,-9],highlight=false,labelAtMiddle=false}:{v:Vec;from?:Vec;range:number;color:string;label:string;dashed?:boolean;offset?:Vec;highlight?:boolean;labelAtMiddle?:boolean}){
   const x=(n:number)=>250+n*210/range,y=(n:number)=>250-n*210/range;
   if(![...v,...from].every(Number.isFinite))return null;
   const end:Vec=[from[0]+v[0],from[1]+v[1]],angle=Math.atan2(-v[1],v[0]);
   const ex=x(end[0]),ey=y(end[1]);
-  return <g stroke={color} fill={color}><line x1={x(from[0])} y1={y(from[1])} x2={ex} y2={ey} strokeWidth="2.5" strokeDasharray={dashed?'7 5':undefined}/>
+  const labelX=labelAtMiddle?(x(from[0])+ex)/2:ex,labelY=labelAtMiddle?(y(from[1])+ey)/2:ey;
+  return <g stroke={color} fill={color} aria-label={`${label}: ${pair(v)}`}>
+    {highlight&&<line x1={x(from[0])} y1={y(from[1])} x2={ex} y2={ey} stroke="var(--paper)" strokeWidth="8"/>}<line x1={x(from[0])} y1={y(from[1])} x2={ex} y2={ey} strokeWidth={highlight?4:2.5} strokeDasharray={dashed?'7 5':undefined}/>
     {Math.hypot(...v)>0&&<path d={`M ${ex-10*Math.cos(angle-.4)} ${ey-10*Math.sin(angle-.4)} L ${ex} ${ey} L ${ex-10*Math.cos(angle+.4)} ${ey-10*Math.sin(angle+.4)}`} fill="none" strokeWidth="2.5"/>}
-    <circle cx={ex} cy={ey} r="4"/><text x={ex+offset[0]} y={ey+offset[1]} stroke="none" fontSize="14" paintOrder="stroke" style={{stroke:'var(--paper)',strokeWidth:3}}>{label}</text></g>;
+    <circle cx={ex} cy={ey} r="4"/><text x={labelX+offset[0]} y={labelY+offset[1]} stroke="none" fontSize="14" paintOrder="stroke" style={{stroke:'var(--paper)',strokeWidth:3}}>{label}</text></g>;
 }
 
 export function ColumnSpaceLab(){
@@ -64,6 +66,12 @@ export function ColumnSpaceLab(){
   const ax=multiply(m,coefficients),a1:Vec=[m[0],m[3]],a2:Vec=[m[1],m[4]],target:Vec=[m[2],m[5]];
   const term1:Vec=[a1[0]*coefficients[0],a1[1]*coefficients[0]],term2:Vec=[a2[0]*coefficients[1],a2[1]*coefficients[1]];
   const finite=[...ax,...coefficients].every(Number.isFinite);
+  function updateX(next:Vec){
+    setX(next);
+    const total=multiply(m,next),first:Vec=[m[0]*next[0],m[3]*next[0]];
+    const extent=Math.max(2,...[...total,...first,...a1,...a2,...target].filter(Number.isFinite).map(Math.abs));
+    setRange(previous=>extent>previous*.86?extent*1.25:previous);
+  }
   function preset(i:number){editMatrix(examples[i].m.map(String));setX([1,1]);setRange(6);}
   function setTarget(v:Vec){editMatrix(values.map((n,i)=>i===2?String(v[0]):i===5?String(v[1]):n));}
   const line=a1.some(n=>n!==0)?a1:a2, norm=Math.hypot(...line);
@@ -75,7 +83,7 @@ export function ColumnSpaceLab(){
     setTarget(v.map(n=>Math.round(n*100)/100) as Vec);
   }
   function changeMode(next:'explore'|'matrix'){
-    if(next==='explore'&&mode==='matrix'&&valid&&result.consistent&&result.x.every(Number.isFinite))setX(result.x);
+    if(next==='explore'&&mode==='matrix'&&valid&&result.consistent&&result.x.every(Number.isFinite))updateX(result.x);
     setMode(next);
   }
   const inputRange=Math.max(6,Math.ceil(Math.max(...x.map(Math.abs))*1.15));
@@ -95,16 +103,22 @@ export function ColumnSpaceLab(){
         <div className={`cs-status ${result.consistent?'':'cs-inconsistent'}`} role="status"><strong>{result.consistent?'Consistent':'Inconsistent'}</strong><span>{result.consistent?'b is a linear combination of the columns of A':'b is not a linear combination of the columns of A'}</span><span>rank(A) = {result.rank} · Col(A) = {result.rank===2?'ℝ²':result.rank===1?'a line through the origin':'{0}'}</span></div>
         <p className="cs-explanation">{result.rank===2?'The columns span the entire plane. Every target b is reachable.':result.rank===1?'The columns span one line. Ax always stays on this line; b is reachable exactly when it lies on the line.':'Both columns are zero. Every Ax equals zero; only b = 0 is reachable.'}</p>
         <div className={`cs-workspace ${mode==='matrix'?'cs-matrix-mode':''}`}>
-          {mode==='explore'&&<div className="la-geometry"><h3>Input space · x = (x₁, x₂)</h3><p>Drag the blue x handle or adjust x₁ and x₂ below.</p><div className="la-step-actions"><button onClick={()=>setTarget(ax)}>Set b = Ax</button><button disabled={!result.consistent || !result.x.every(Number.isFinite)} onClick={()=>setX(result.x)}>Use a solution for b</button></div><Plot id={`${id}-input`} range={inputRange} point={x} label="Input plane. Drag the blue x handle to set x1 and x2." onDrag={v=>setX(v.map(n=>Math.round(n*100)/100) as Vec)}><Arrow v={x} range={inputRange} color="var(--accent)" label="x"/></Plot>{[0,1].map(i=><div className="cs-coefficient" key={i}><label htmlFor={`${id}-x${i}`}>x{i===0?'₁':'₂'} = {fmt(x[i])}</label><input aria-label={`Coefficient x${i+1}`} className="cs-number" type="number" step=".1" key={`${i}-${x[i]}`} defaultValue={Number(x[i].toPrecision(6))} title="Press Enter to apply" onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}} onBlur={e=>{if(e.target.value!==''&&Number.isFinite(Number(e.target.value))&&Math.abs(Number(e.target.value))<=1e6)setX(old=>old.map((n,j)=>i===j?Number(e.target.value):n) as Vec);else e.target.value=fmt(x[i]);}}/><input id={`${id}-x${i}`} type="range" min={Math.min(-6,x[i])} max={Math.max(6,x[i])} step=".01" value={x[i]} onChange={e=>setX(old=>old.map((n,j)=>i===j?Number(e.target.value):n) as Vec)}/></div>)}</div>}
+          {mode==='explore'&&<div className="la-geometry"><h3>Input space · x = (x₁, x₂)</h3><p>Drag the blue x handle or adjust x₁ and x₂ below. Watch the purple first step and pink second step combine in the output plane.</p><div className="la-step-actions"><button onClick={()=>setTarget(ax)}>Set b = Ax</button><button disabled={!result.consistent || !result.x.every(Number.isFinite)} onClick={()=>updateX(result.x)}>Use a solution for b</button></div><Plot id={`${id}-input`} range={inputRange} point={x} label="Input plane. Drag the blue x handle to set x1 and x2." onDrag={v=>updateX(v.map(n=>Math.round(n*100)/100) as Vec)}><Arrow v={x} range={inputRange} color="var(--accent)" label="x"/></Plot>{[0,1].map(i=><div className="cs-coefficient" key={i}><label htmlFor={`${id}-x${i}`}>x{i===0?'₁':'₂'} = {fmt(x[i])}</label><input aria-label={`Coefficient x${i+1}`} className="cs-number" type="number" step=".1" key={`${i}-${x[i]}`} defaultValue={Number(x[i].toPrecision(6))} title="Press Enter to apply" onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}} onBlur={e=>{if(e.target.value!==''&&Number.isFinite(Number(e.target.value))&&Math.abs(Number(e.target.value))<=1e6)updateX(x.map((n,j)=>i===j?Number(e.target.value):n) as Vec);else e.target.value=fmt(x[i]);}}/><input id={`${id}-x${i}`} type="range" min={Math.min(-6,x[i])} max={Math.max(6,x[i])} step=".01" value={x[i]} onChange={e=>updateX(x.map((n,j)=>i===j?Number(e.target.value):n) as Vec)}/></div>)}</div>}
           <div className="la-geometry"><h3>Output space · Ax and b</h3><p>{mode==='explore'?'Drag the red b handle to test which targets are reachable.':'The system automatically draws a solution when one exists.'}</p>
             <div className="cs-plot-options"><label><input type="checkbox" checked={showColumns} onChange={e=>setShowColumns(e.target.checked)}/> Show original columns</label>{mode==='explore'&&<label><input type="checkbox" checked={snap} onChange={e=>setSnap(e.target.checked)}/> Snap b to the line and origin</label>}</div><Plot id={`${id}-output`} range={range} point={target} label="Output plane showing column space, columns, target and vector combination." onDrag={mode==='explore'?dragTarget:undefined}>
               {result.rank===2?<rect x="40" y="40" width="420" height="420" fill="var(--accent)" opacity=".09"/>:result.rank===1?<line x1={250-unit[0]*700} y1={250+unit[1]*700} x2={250+unit[0]*700} y2={250-unit[1]*700} stroke="var(--accent)" strokeWidth="14" opacity=".19"/>:<circle cx="250" cy="250" r="10" fill="var(--accent)" opacity=".3"/>}
               {showColumns&&<><Arrow v={a1} range={range} color="#477aa8" label="a₁" offset={[-26,20]}/><Arrow v={a2} range={range} color="#a16e39" label="a₂" offset={[-26,20]}/></>}
-              {(mode==='explore'||result.consistent)&&finite&&<><Arrow v={term1} range={range} color="#8464ac" label="x₁a₁" offset={[10,28]} dashed/><Arrow v={term2} from={term1} range={range} color="#8464ac" label="x₂a₂" offset={[-56,-28]} dashed/><Arrow v={ax} range={range} color="#328577" label={same?'Ax = b':'Ax'} offset={[10,-12]}/></>}
               {!result.consistent&&<Arrow v={[target[0]-result.projection[0],target[1]-result.projection[1]]} from={result.projection} range={range} color="#bc5757" label="unreachable gap" dashed/>}
               {!same&&<Arrow v={target} range={range} color="#bc5757" label="b" offset={[12,24]}/>}
+              {(mode==='explore'||result.consistent)&&finite&&<>
+                <Arrow v={ax} range={range} color="#328577" label={same?'Ax = b':'Ax'} offset={[10,-12]}/>
+                <Arrow v={term1} range={range} color="#8464ac" label={Math.hypot(...term1)===0?'x₁a₁ = 0':'x₁a₁'} offset={[-48,26]} highlight labelAtMiddle/>
+                <Arrow v={term2} from={term1} range={range} color="#b23b88" label={Math.hypot(...term2)===0?'x₂a₂ = 0':'x₂a₂'} offset={[10,26]} highlight labelAtMiddle/>
+                <circle cx={250+term1[0]*210/range} cy={250-term1[1]*210/range} r="5" fill="var(--paper)" stroke="#b23b88" strokeWidth="2"/>
+              </>}
+
             </Plot>
-            <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁</span><span style={{color:'#a16e39'}}>a₂</span><span style={{color:'#8464ac'}}>Scaled columns · head to tail</span><span style={{color:'#328577'}}>Ax</span><span style={{color:'#bc5757'}}>b</span><span>Shading · Col(A)</span></div>
+            <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁</span><span style={{color:'#a16e39'}}>a₂</span><span style={{color:'#8464ac'}}>x₁a₁</span><span style={{color:'#b23b88'}}>x₂a₂ · starts at the tip of x₁a₁</span><span style={{color:'#328577'}}>Ax</span><span style={{color:'#bc5757'}}>b</span><span>Shading · Col(A)</span></div>
             {clipped&&<p className="cs-caption">Some vectors extend beyond this view. Use “Fit vectors” to see them.</p>}
           </div>
         </div>
