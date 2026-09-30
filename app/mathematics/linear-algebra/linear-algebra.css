@@ -7,3 +7,9 @@
 
 /* Direct manipulation: only endpoint handles drag; empty canvas permits scrolling. */
 .cs-plot{cursor:default;touch-action:pan-y}.cs-drag-handle{cursor:grab;touch-action:none}.cs-drag-handle:active{cursor:grabbing}.cs-plot-options{display:flex;gap:12px 20px;flex-wrap:wrap;margin:14px 0;font-size:14px;line-height:1.6}.cs-plot-options label{display:flex;align-items:center;gap:8px;cursor:pointer}.cs-plot-options input{accent-color:var(--accent);width:17px;height:17px}.cs-coefficient{display:grid;grid-template-columns:1fr 100px;align-items:center;gap:10px}.cs-coefficient>input[type=range]{grid-column:1/-1}.cs-coefficient .cs-number{width:100%;padding:8px;border:1px solid var(--rule);background:var(--paper);color:var(--ink);font:16px ui-monospace,monospace}.cs-explanation{margin:18px 0 24px}.cs-match{color:#328577!important}.cs-calculation{background:var(--blue-wash);padding:20px 24px;border:1px solid var(--rule)}.cs-status{margin-top:2px}.cs-workspace .la-step-actions{margin:15px 0}.cs-workspace .la-step-actions button{font-size:14px}.cs-workspace .la-step-actions button:disabled{opacity:.45;cursor:not-allowed}
+
+/* Four visualizations form two balanced rows on desktop. */
+.la-index{grid-template-columns:repeat(2,minmax(0,1fr))}
+.la-index a:nth-child(2){border-right:0}
+.la-index a:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+@media(max-width:720px){.la-index{grid-template-columns:1fr}.la-index a:not(:last-child){border-right:0;border-bottom:1px solid var(--rule)}}
