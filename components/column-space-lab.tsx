@@ -1,5 +1,5 @@
 'use client';
-import { useId, useRef, useState, type PointerEvent } from 'react';
+import { useEffect, useId, useRef, useState, type PointerEvent } from 'react';
 import { multiply, solveColumns, type Vec, type Augmented } from './column-space-math';
 
 const examples:{name:string;m:Augmented}[]=[
@@ -13,14 +13,26 @@ const examples:{name:string;m:Augmented}[]=[
 const fmt=(n:number)=>Number.isFinite(n)?(Math.abs(n)<1e-10?'0':Number(n.toPrecision(5)).toString()):'Outside numeric range';
 const pair=(v:Vec)=>`(${fmt(v[0])}, ${fmt(v[1])})`;
 
-function Plot({id,range,children,onDrag,point,label}:{id:string;range:number;children:React.ReactNode;onDrag?:(v:Vec)=>void;point?:Vec;label:string}){
+function Plot({id,range,children,onDrag,point,label,onZoom}:{id:string;range:number;children:React.ReactNode;onDrag?:(v:Vec)=>void;point?:Vec;label:string;onZoom?:(factor:number)=>void}){
   const drag=useRef<{pointer:number;offset:Vec}|null>(null);
+  const svg=useRef<SVGSVGElement>(null);
+  useEffect(()=>{
+    const element=svg.current;if(!element||!onZoom)return;
+    function wheel(event:WheelEvent){
+      event.preventDefault();
+      if(drag.current)return;
+      const pixels=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?500:1);
+      onZoom!(Math.exp(Math.max(-160,Math.min(160,pixels))*.004));
+    }
+    element.addEventListener('wheel',wheel,{passive:false});
+    return ()=>element.removeEventListener('wheel',wheel);
+  },[onZoom]);
   function coordinates(e:PointerEvent<SVGSVGElement>):Vec|null{
     const ctm=e.currentTarget.getScreenCTM(); if(!ctm)return null;
     const pt=new DOMPoint(e.clientX,e.clientY).matrixTransform(ctm.inverse());
     return [(pt.x-250)*range/210,(250-pt.y)*range/210];
   }
-  return <svg className="cs-plot" viewBox="0 0 500 500" role="img" aria-label={label}
+  return <svg ref={svg} className="cs-plot" viewBox="0 0 500 500" role="img" aria-label={label}
     onPointerDown={e=>{const v=coordinates(e);if(!onDrag||!point||!v||e.button!==0)return;
       if(Math.hypot(v[0]-point[0],v[1]-point[1])*210/range>24)return;
       e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);
@@ -57,6 +69,8 @@ export function ColumnSpaceLab(){
   const [x,setX]=useState<Vec>([1,1]);
   const [lastMatrix,setLastMatrix]=useState<Augmented>(examples[1].m);
   const [range,setRange]=useState(6);
+  const [autoFit,setAutoFit]=useState(true);
+  function zoomOutput(factor:number){setAutoFit(false);setRange(previous=>Math.max(.05,Math.min(1e13,previous*factor)));}
   const [snap,setSnap]=useState(true);
   const [showColumns,setShowColumns]=useState(true);
   const valid=values.every(v=>v.trim()!==''&&Number.isFinite(Number(v))&&Math.abs(Number(v))<=1e12);
@@ -70,9 +84,9 @@ export function ColumnSpaceLab(){
     setX(next);
     const total=multiply(m,next),first:Vec=[m[0]*next[0],m[3]*next[0]];
     const extent=Math.max(2,...[...total,...first,...a1,...a2,...target].filter(Number.isFinite).map(Math.abs));
-    setRange(previous=>extent>previous*.86?extent*1.25:previous);
+    if(autoFit)setRange(previous=>extent>previous*.86?extent*1.25:previous);
   }
-  function preset(i:number){editMatrix(examples[i].m.map(String));setX([1,1]);setRange(6);}
+  function preset(i:number){editMatrix(examples[i].m.map(String));setX([1,1]);setRange(6);setAutoFit(true);}
   function setTarget(v:Vec){editMatrix(values.map((n,i)=>i===2?String(v[0]):i===5?String(v[1]):n));}
   const line=a1.some(n=>n!==0)?a1:a2, norm=Math.hypot(...line);
   const unit:Vec=norm?[line[0]/norm,line[1]/norm]:[0,0];
@@ -91,6 +105,7 @@ export function ColumnSpaceLab(){
   const same=finite&&Math.hypot(ax[0]-target[0],ax[1]-target[1])<=1e-8*Math.max(1,Math.hypot(...target));
   const drawn=[...a1,...a2,...target,...ax,...term1].filter(Number.isFinite);
   const clipped=drawn.some(n=>Math.abs(n)>range);
+  function fitOutput(){setRange(Math.max(2,...drawn.map(Math.abs))*1.25);setAutoFit(true);}
   return <section id="column-space" className="la-module cs-lab" aria-labelledby="cs-title">
     <div className="la-module-head"><div><span className="la-label">03 / VISUALIZATION</span><h2 id="cs-title">Column space &amp; <em>consistency.</em></h2></div><p>Can the columns of A combine to reach b? Explore the geometry or enter an augmented matrix.</p></div>
     <div className="cs-equivalence"><strong>b is a linear combination of columns of A</strong><span>⇔ Ax = b has a solution</span><span>⇔ Ax = b is consistent</span></div>
@@ -98,14 +113,18 @@ export function ColumnSpaceLab(){
     <div id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${mode}-tab`}>
       <div className="cs-controls"><div><label htmlFor={`${id}-example`}>Examples</label><select id={`${id}-example`} value={example<0?"custom":String(example)} onChange={e=>preset(Number(e.target.value))}><option value="custom" disabled>Custom matrix</option>{examples.map((p,i)=><option key={i} value={i}>{p.name}</option>)}</select></div>
       <div><span className="cs-caption">[A | b]</span><div className="la-matrix cs-matrix">{[0,1].map(row=><div className="cs-matrix-row" key={row}>{[0,1,2].map(col=><input key={col} type="number" step="any" value={values[row*3+col]} aria-label={`Row ${row+1}, ${col===2?'target b':`column ${col+1}`}`} onChange={e=>editMatrix(values.map((n,i)=>i===row*3+col?e.target.value:n))}/>)}</div>)}</div></div>
-      <div className="cs-zoom"><label htmlFor={`${id}-zoom`}>Plot extent: ±{fmt(range)}</label><input id={`${id}-zoom`} type="range" min="1" max={Math.max(20,Math.ceil(range))} step=".5" value={range} onChange={e=>setRange(Number(e.target.value))}/><button className="la-reset" onClick={()=>setRange(Math.max(2,...drawn.map(Math.abs))*1.25)}>Fit vectors</button></div></div>
+      <div className="cs-zoom"><label htmlFor={`${id}-zoom`}>Plot extent: ±{fmt(range)}</label><input id={`${id}-zoom`} type="range" min=".05" max={Math.max(20,Math.ceil(range))} step=".05" value={range} onChange={e=>{setAutoFit(false);setRange(Number(e.target.value));}}/><button className="la-reset" onClick={fitOutput}>Fit vectors</button></div></div>
       {!valid&&<p role="alert" className="la-warning">Finish entering six finite numbers between −10¹² and 10¹². The plot keeps the last valid matrix while you edit.</p>}<>
         <div className={`cs-status ${result.consistent?'':'cs-inconsistent'}`} role="status"><strong>{result.consistent?'Consistent':'Inconsistent'}</strong><span>{result.consistent?'b is a linear combination of the columns of A':'b is not a linear combination of the columns of A'}</span><span>rank(A) = {result.rank} · Col(A) = {result.rank===2?'ℝ²':result.rank===1?'a line through the origin':'{0}'}</span></div>
         <p className="cs-explanation">{result.rank===2?'The columns span the entire plane. Every target b is reachable.':result.rank===1?'The columns span one line. Ax always stays on this line; b is reachable exactly when it lies on the line.':'Both columns are zero. Every Ax equals zero; only b = 0 is reachable.'}</p>
         <div className={`cs-workspace ${mode==='matrix'?'cs-matrix-mode':''}`}>
           {mode==='explore'&&<div className="la-geometry"><h3>Input space · x = (x₁, x₂)</h3><p>Drag the blue x handle or adjust x₁ and x₂ below. Watch the purple first step and pink second step combine in the output plane.</p><div className="la-step-actions"><button onClick={()=>setTarget(ax)}>Set b = Ax</button><button disabled={!result.consistent || !result.x.every(Number.isFinite)} onClick={()=>updateX(result.x)}>Use a solution for b</button></div><Plot id={`${id}-input`} range={inputRange} point={x} label="Input plane. Drag the blue x handle to set x1 and x2." onDrag={v=>updateX(v.map(n=>Math.round(n*100)/100) as Vec)}><Arrow v={x} range={inputRange} color="var(--accent)" label="x"/></Plot>{[0,1].map(i=><div className="cs-coefficient" key={i}><label htmlFor={`${id}-x${i}`}>x{i===0?'₁':'₂'} = {fmt(x[i])}</label><input aria-label={`Coefficient x${i+1}`} className="cs-number" type="number" step=".1" key={`${i}-${x[i]}`} defaultValue={Number(x[i].toPrecision(6))} title="Press Enter to apply" onKeyDown={e=>{if(e.key==='Enter')e.currentTarget.blur();}} onBlur={e=>{if(e.target.value!==''&&Number.isFinite(Number(e.target.value))&&Math.abs(Number(e.target.value))<=1e6)updateX(x.map((n,j)=>i===j?Number(e.target.value):n) as Vec);else e.target.value=fmt(x[i]);}}/><input id={`${id}-x${i}`} type="range" min={Math.min(-6,x[i])} max={Math.max(6,x[i])} step=".01" value={x[i]} onChange={e=>updateX(x.map((n,j)=>i===j?Number(e.target.value):n) as Vec)}/></div>)}</div>}
           <div className="la-geometry"><h3>Output space · Ax and b</h3><p>{mode==='explore'?'Drag the red b handle to test which targets are reachable.':'The system automatically draws a solution when one exists.'}</p>
-            <div className="cs-plot-options"><label><input type="checkbox" checked={showColumns} onChange={e=>setShowColumns(e.target.checked)}/> Show original columns</label>{mode==='explore'&&<label><input type="checkbox" checked={snap} onChange={e=>setSnap(e.target.checked)}/> Snap b to the line and origin</label>}</div><Plot id={`${id}-output`} range={range} point={target} label="Output plane showing column space, columns, target and vector combination." onDrag={mode==='explore'?dragTarget:undefined}>
+            <div className="cs-plot-options"><label><input type="checkbox" checked={showColumns} onChange={e=>setShowColumns(e.target.checked)}/> Show original columns</label>{mode==='explore'&&<label><input type="checkbox" checked={snap} onChange={e=>setSnap(e.target.checked)}/> Snap b to the line and origin</label>}</div><div style={{position:'relative'}}><div role="group" aria-label="Output space zoom" style={{position:'absolute',top:8,right:8,zIndex:2,display:'flex',gap:5,background:'var(--paper)',padding:4,border:'1px solid var(--rule)'}}>
+              <button type="button" className="la-reset" aria-label="Zoom in output space" title="Zoom in" style={{minWidth:44,minHeight:44,fontSize:20}} onClick={()=>zoomOutput(1/1.25)}>+</button>
+              <button type="button" className="la-reset" aria-label="Zoom out output space" title="Zoom out" style={{minWidth:44,minHeight:44,fontSize:20}} onClick={()=>zoomOutput(1.25)}>−</button>
+              <button type="button" className="la-reset" aria-label="Fit output space vectors" style={{minHeight:44,fontSize:14}} onClick={fitOutput}>Fit</button>
+            </div><Plot id={`${id}-output`} range={range} point={target} onZoom={zoomOutput} label="Output plane showing column space, columns, target and vector combination." onDrag={mode==='explore'?dragTarget:undefined}>
               {result.rank===2?<rect x="40" y="40" width="420" height="420" fill="var(--accent)" opacity=".09"/>:result.rank===1?<line x1={250-unit[0]*700} y1={250+unit[1]*700} x2={250+unit[0]*700} y2={250-unit[1]*700} stroke="var(--accent)" strokeWidth="14" opacity=".19"/>:<circle cx="250" cy="250" r="10" fill="var(--accent)" opacity=".3"/>}
               {showColumns&&<><Arrow v={a1} range={range} color="#477aa8" label="a₁" offset={[-26,20]}/><Arrow v={a2} range={range} color="#a16e39" label="a₂" offset={[-26,20]}/></>}
               {!result.consistent&&<Arrow v={[target[0]-result.projection[0],target[1]-result.projection[1]]} from={result.projection} range={range} color="#bc5757" label="unreachable gap" dashed/>}
@@ -117,7 +136,8 @@ export function ColumnSpaceLab(){
                 <circle cx={250+term1[0]*210/range} cy={250-term1[1]*210/range} r="5" fill="var(--paper)" stroke="#b23b88" strokeWidth="2"/>
               </>}
 
-            </Plot>
+            </Plot></div>
+            <p className="cs-caption">Scroll over this canvas to zoom, or use + / −. Zoom is centered on the origin. {autoFit?'Auto-fit follows x.':'Manual zoom stays fixed while x moves. Choose Fit to resume auto-fit.'}</p>
             <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁</span><span style={{color:'#a16e39'}}>a₂</span><span style={{color:'#8464ac'}}>x₁a₁</span><span style={{color:'#b23b88'}}>x₂a₂ · starts at the tip of x₁a₁</span><span style={{color:'#328577'}}>Ax</span><span style={{color:'#bc5757'}}>b</span><span>Shading · Col(A)</span></div>
             {clipped&&<p className="cs-caption">Some vectors extend beyond this view. Use “Fit vectors” to see them.</p>}
           </div>
