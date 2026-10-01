@@ -4,7 +4,7 @@ import './measuring-tools.css';
 
 export const metadata = {
   title: 'The measuring tools — Lawson Dong',
-  description: 'Adjacent Linear CKA and raw-vector Fisher ratio: concise definitions and formulas.',
+  description: 'Adjacent Linear CKA, raw-vector Fisher ratio, and Local Label Entropy: concise definitions and formulas.',
 };
 
 export default function MeasuringTools() {
@@ -62,6 +62,28 @@ export default function MeasuringTools() {
       </details>
       <p>Higher F does not by itself guarantee better classification accuracy.</p>
       <p className="tools-source"><a href="https://github.com/Lawson-Dong/representation-alignment-/blob/representation-vector-geometric-dynamics/experiments/geometric_dynamics/scripts/metrics.py" target="_blank" rel="noopener noreferrer">Experiment implementation</a></p>
+    </article>
+    <article id="lle" aria-labelledby="lle-title">
+      <p className="eyebrow">03 / LOCAL LABEL MIXING</p>
+      <h2 id="lle-title">Local Label Entropy (LLE)</h2>
+      <p><strong>Neighborhood purity · Label mixing · Local class organization</strong></p>
+      <p>Find each sample’s k nearest neighbors by cosine distance in the full representation space. Exclude the sample itself.</p>
+      <MathTex display tex={String.raw`d_{\cos}(z_i,z_j)=1-\frac{z_i^\top z_j}{\|z_i\|_2\|z_j\|_2},\qquad \mathcal N_k(i)=\operatorname{kNN}_{j\ne i}(z_i)`} />
+      <MathTex display tex={String.raw`p_{i,c}=\frac1k\sum_{j\in\mathcal N_k(i)}\mathbf1[y_j=c],\quad c\in\{\mathrm{cat},\mathrm{dog}\}`} />
+      <div className="tools-formula"><MathTex display tex={String.raw`H_i^{(k)}=-\sum_{c\in\{\mathrm{cat},\mathrm{dog}\}}p_{i,c}\log_2p_{i,c},\qquad \mathrm{LLE}_\ell(k)=\frac1n\sum_{i=1}^n H_i^{(k)}`} /></div>
+      <div className="tools-reading">
+        <div><h3>0 bits</h3><p>One label · pure neighborhood</p><MathTex tex={String.raw`(p_{i,\mathrm{cat}},p_{i,\mathrm{dog}})=(1,0)\text{ or }(0,1)`} /></div>
+        <div><h3>1 bit</h3><p>Equal mix · maximum entropy</p><MathTex tex={String.raw`p_{i,\mathrm{cat}}=p_{i,\mathrm{dog}}=\tfrac12`} /></div>
+      </div>
+      <p>Lower LLE → less local label mixing. High entropy can also occur near an organized class boundary; low entropy alone does not guarantee correct classification.</p>
+      <details><summary>Neighborhood scale &amp; baseline</summary>
+        <p>k: neighbors per sample · n: total samples · ℓ: layer · <MathTex tex={String.raw`0\log_2 0:=0`} /></p>
+        <MathTex display tex={String.raw`k\uparrow\ \Rightarrow\ \text{broader neighborhood},\qquad 0\le H_i^{(k)}\le1`} />
+        <p>Compare layers using the same samples and k. Shuffling labels keeps the geometry fixed and provides a reference for local organization.</p>
+        <MathTex display tex={String.raw`\mathrm{Order}(k)=1-\frac{\mathrm{LLE}(k)}{\mathbb E_{\mathrm{shuffle}}[\mathrm{LLE}(k)]}`} />
+        <p>Defined for a positive shuffled mean; negative values indicate more mixing than the shuffled baseline.</p>
+      </details>
+      <p className="tools-source"><a href="https://github.com/Lawson-Dong/representation-alignment-/blob/representation-vector-geometric-dynamics/experiments/geometric_dynamics/scripts/run_lle.py#L73-L85" target="_blank" rel="noopener noreferrer">Experiment implementation</a> · <a href="https://github.com/Lawson-Dong/representation-alignment-/blob/representation-vector-geometric-dynamics/experiments/geometric_dynamics/scripts/run_densenet_geometry.py#L118-L143" target="_blank" rel="noopener noreferrer">DenseNet implementation</a></p>
     </article>
   </main>;
 }
