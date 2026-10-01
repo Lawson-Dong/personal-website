@@ -15,3 +15,5 @@
 .cs-row-space{scroll-margin-top:94px;margin-top:44px;padding-top:24px;border-top:1px solid var(--rule)}
 .cs-shared-matrix-row{display:grid;grid-template-columns:32px repeat(2,minmax(60px,1fr));gap:12px;text-align:center;font:18px ui-monospace,monospace;overflow-wrap:anywhere}
 @media(max-width:720px){.la-index{grid-template-columns:1fr}.la-index a:not(:last-child){border-right:0;border-bottom:1px solid var(--rule)}}
+
+.cs-equation-list p{font:14px/1.7 ui-monospace,monospace;overflow-wrap:anywhere;margin:10px 0}.cs-row-equations .cs-status{font-size:14px;padding:12px}.cs-row-equations .cs-status>span:last-child{font-family:inherit}.cs-row-equations .la-step-actions{margin:12px 0}

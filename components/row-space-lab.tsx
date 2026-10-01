@@ -1,103 +1,66 @@
 'use client';
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useRef, useState, type PointerEvent } from 'react';
 import { solveColumns, type Augmented, type Vec } from './column-space-math';
 
-type Matrix = [number, number, number, number];
-const number=(n:number)=>Math.abs(n)<1e-10?'0':Number(n.toPrecision(5)).toString();
-const vector=(v:Vec)=>'('+v.map(number).join(', ')+')';
+const fmt=(n:number)=>Math.abs(n)<1e-10?'0':Number(n.toPrecision(5)).toString();
+const equation=(a:number,b:number,c:number)=>`${fmt(a)}x₁ ${b<0?'−':'+'} ${fmt(Math.abs(b))}x₂ = ${fmt(c)}`;
 
-function RowArrow({v,from=[0,0],range,color,label,middle=false,thick=false,dashed=false,offset=[10,-12]}:{
-  v:Vec;from?:Vec;range:number;color:string;label:string;middle?:boolean;thick?:boolean;dashed?:boolean;offset?:Vec;
-}){
-  const px=(n:number)=>250+n*210/range,py=(n:number)=>250-n*210/range;
-  const end:Vec=[from[0]+v[0],from[1]+v[1]];
-  const ex=px(end[0]),ey=py(end[1]),angle=Math.atan2(-v[1],v[0]);
-  const tx=middle?(px(from[0])+ex)/2:ex,ty=middle?(py(from[1])+ey)/2:ey;
-  return <g aria-label={label+': '+vector(v)} fill={color} stroke={color}>
-    {thick&&<line x1={px(from[0])} y1={py(from[1])} x2={ex} y2={ey} stroke="var(--paper)" strokeWidth="8"/>}
-    <line x1={px(from[0])} y1={py(from[1])} x2={ex} y2={ey} strokeWidth={thick?4:2} strokeDasharray={dashed?'7 5':undefined}/>
-    {Math.hypot(...v)>0&&<path d={'M '+(ex-11*Math.cos(angle-.4))+' '+(ey-11*Math.sin(angle-.4))+' L '+ex+' '+ey+' L '+(ex-11*Math.cos(angle+.4))+' '+(ey-11*Math.sin(angle+.4))} fill="none" strokeWidth="2.5"/>}
-    <circle cx={ex} cy={ey} r="4"/>
-    <text x={tx+offset[0]} y={ty+offset[1]} fontSize="14" stroke="var(--paper)" strokeWidth="3" paintOrder="stroke">{label}</text>
-  </g>;
+// Intersect an implicit line with the visible square. This also handles vertical lines.
+export function equationSegment(a:number,b:number,c:number,range:number):Vec[] {
+  const scale=Math.max(Math.abs(a),Math.abs(b));if(scale===0)return [];
+  a/=scale;b/=scale;c/=scale;
+  const points:Vec[]=[];
+  const add=(x:number,y:number)=>{if(Number.isFinite(x)&&Number.isFinite(y)&&Math.abs(x)<=range*(1+1e-9)&&Math.abs(y)<=range*(1+1e-9)&&!points.some(p=>Math.hypot(p[0]-x,p[1]-y)<range*1e-9))points.push([x,y]);};
+  if(b!==0){add(-range,(c+a*range)/b);add(range,(c-a*range)/b);}
+  if(a!==0){add((c+b*range)/a,-range);add((c-b*range)/a,range);}
+  return points.slice(0,2);
 }
 
-export function RowSpaceLab({matrix}:{matrix:Matrix}){
+export function RowSpaceLab({matrix,x,onChange}:{matrix:Augmented;x?:Vec;onChange?:(v:Vec)=>void}){
   const id=useId().replace(/[^a-zA-Z0-9_-]/g,'');
-  const [weights,setWeights]=useState<Vec>([1,1]);
-  const [showNull,setShowNull]=useState(true);
-  const [nullWeight,setNullWeight]=useState(2);
-  const [extent,setExtent]=useState(8);
-  const [manual,setManual]=useState(false);
-  const svg=useRef<SVGSVGElement>(null);
-  const row1:Vec=[matrix[0],matrix[1]],row2:Vec=[matrix[2],matrix[3]];
-  const transpose:Augmented=[matrix[0],matrix[2],0,matrix[1],matrix[3],0];
-  const rank=solveColumns(transpose).rank;
-  const first:Vec=[row1[0]*weights[0],row1[1]*weights[0]];
-  const second:Vec=[row2[0]*weights[1],row2[1]*weights[1]];
-  const sum:Vec=[first[0]+second[0],first[1]+second[1]];
-  const base=Math.hypot(...row1)>=Math.hypot(...row2)?row1:row2,length=Math.hypot(...base);
-  const direction:Vec=length?[base[0]/length,base[1]/length]:[0,0];
-  const normal:Vec=[-direction[1],direction[0]];
-  const n:Vec=rank===1?[normal[0]*nullWeight,normal[1]*nullWeight]:[0,0];
-  const autoExtent=Math.max(2,...[...row1,...row2,...first,...sum,...(showNull?n:[])].map(Math.abs))*1.25;
-  const range=manual?extent:autoExtent;
-  const zoom=(factor:number)=>{setExtent(previous=>Math.max(.05,Math.min(1e8,(manual?previous:autoExtent)*factor)));setManual(true);};
-  useEffect(()=>{
-    const element=svg.current;if(!element)return;
-    const wheel=(event:WheelEvent)=>{event.preventDefault();const delta=event.deltaY*(event.deltaMode===1?16:event.deltaMode===2?500:1);zoom(Math.exp(Math.max(-160,Math.min(160,delta))*.004));};
-    element.addEventListener('wheel',wheel,{passive:false});
-    return ()=>element.removeEventListener('wheel',wheel);
-  },[manual,autoExtent]);
+  const drag=useRef<{pointer:number;offset:Vec}|null>(null);
+  const result=solveColumns(matrix);
+  const rows=[matrix.slice(0,3),matrix.slice(3,6)];
+  const [extent,setExtent]=useState<number|null>(null);
+  const distances=rows.map(([a,b,c])=>Math.hypot(a,b)>0?Math.abs(c)/Math.hypot(a,b):0).filter(Number.isFinite);
+  const solutionFinite=result.x.every(Number.isFinite);
+  const autoRange=Math.min(1e15,Math.max(4,...distances,...(x?x.map(Math.abs):[]),...(result.consistent&&solutionFinite?result.x.map(Math.abs):[]))*1.35);
+  const range=extent??autoRange;
   const px=(v:number)=>250+v*210/range,py=(v:number)=>250-v*210/range;
-  const hidden=[...row1,...row2,...first,...sum,...(showNull?n:[])].some(v=>Math.abs(v)>range);
-  return <section id="row-space" className="cs-row-space" aria-labelledby="row-space-title">
-    <h3 id="row-space-title" className="cs-subtitle">Row space &amp; null space</h3><p className="cs-explanation">The same matrix A from above, viewed through its rows. Edit A in the column-space controls to update both views; changing b does not change either space.</p>
-    <div className="cs-equivalence"><strong>Row(A) = span&#123;r₁, r₂&#125; = Col(Aᵀ)</strong><span>Row(A) ⟂ Null(A)</span></div>
-    <div className="cs-status"><strong>rank(A) = {rank}</strong><span>Row(A) = {rank===2?'ℝ²':rank===1?'a line through the origin':'{0}'}</span><span>dim Row(A) = {rank} · dim Null(A) = {2-rank}</span></div>
-    <div className="cs-workspace" style={{marginTop:24}}>
-      <div className="la-geometry">
-        <h3>Rows as vectors</h3>
-        <p>For this 2 × 2 matrix, both rows have two entries, so we can draw them in the input coordinate plane.</p>
-        <div className="la-matrix" aria-label="Shared matrix A">{[0,1].map(row=><div key={row} className="cs-shared-matrix-row"><span>r{row===0?'₁':'₂'}</span>{[0,1].map(col=><span key={col}>{number(matrix[row*2+col])}</span>)}</div>)}</div>
-        <p className="cs-caption">A is shared with the column-space view above.</p>
-        <p style={{fontFamily:'monospace'}}>r₁ = {vector(row1)}<br/>r₂ = {vector(row2)}</p>
-        {[0,1].map(i=><div key={i} className="la-slider"><label htmlFor={id+'-y'+i}>y{i===0?'₁':'₂'} <output>{number(weights[i])}</output></label><input id={id+'-y'+i} type="range" min="-4" max="4" step=".05" value={weights[i]} onChange={e=>setWeights(old=>old.map((v,j)=>i===j?Number(e.target.value):v) as Vec)}/></div>)}
-        <div className="cs-plot-options"><label><input type="checkbox" checked={showNull} onChange={e=>setShowNull(e.target.checked)}/> Show Null(A)</label></div>
-        {showNull&&rank===1&&<div className="la-slider"><label htmlFor={id+'-null'}>Move n along Null(A)<output>{number(nullWeight)}</output></label><input id={id+'-null'} type="range" min="-4" max="4" step=".05" value={nullWeight} onChange={e=>setNullWeight(Number(e.target.value))}/></div>}
-        <p>{rank===2?'Independent rows span the whole plane. Null(A) contains only the zero vector.':rank===1?'Dependent rows span a line. Every vector perpendicular to that line is sent to zero by A.':'Both rows are zero. Row(A) contains only zero, and every input vector belongs to Null(A).'}</p>
-      </div>
-      <div className="la-geometry">
-        <h3>y₁r₁ + y₂r₂</h3><p>Adjust y₁ and y₂ to combine the rows. Scroll over the canvas to zoom.</p>
-        <div role="group" aria-label="Row space zoom" className="la-step-actions" style={{margin:'12px 0'}}><button aria-label="Zoom in row space" onClick={()=>zoom(.8)}>+</button><button aria-label="Zoom out row space" onClick={()=>zoom(1.25)}>−</button><button onClick={()=>setManual(false)}>Fit</button></div>
-        <svg ref={svg} className="cs-plot" viewBox="0 0 500 500" role="img" aria-label={'Row space rank '+rank+'. Row vectors and their linear combination, with optional perpendicular null space.'}>
-          <defs><clipPath id={id+'-clip'}><rect x="40" y="40" width="420" height="420"/></clipPath></defs>
-          <g clipPath={'url(#'+id+'-clip)'}>
-            {rank===2&&<rect x="40" y="40" width="420" height="420" fill="var(--accent)" opacity=".12"/>}
-            {showNull&&rank===0&&<rect x="40" y="40" width="420" height="420" fill="#c48b3a" opacity=".12"/>}
-            {Array.from({length:11},(_,i)=>40+i*42).map(t=><g key={t} stroke="var(--rule)" strokeWidth=".6"><line x1={t} x2={t} y1="40" y2="460"/><line x1="40" x2="460" y1={t} y2={t}/></g>)}
-            <g stroke="var(--muted)"><line x1="40" x2="460" y1="250" y2="250"/><line x1="250" x2="250" y1="40" y2="460"/></g>
-            {rank===1&&<line x1={250-direction[0]*700} y1={250+direction[1]*700} x2={250+direction[0]*700} y2={250-direction[1]*700} stroke="var(--accent)" opacity=".22" strokeWidth="14"/>}
-            {showNull&&rank===1&&<><line x1={250-normal[0]*700} y1={250+normal[1]*700} x2={250+normal[0]*700} y2={250-normal[1]*700} stroke="#c48b3a" strokeWidth="3" strokeDasharray="8 6"/><RowArrow v={n} range={range} color="#c48b3a" label="n ∈ Null(A)" offset={[10,-25]} dashed/></>}
-            {rank===0&&<circle cx="250" cy="250" r="9" fill="var(--accent)"/>}
-            {showNull&&rank===2&&<circle cx="250" cy="250" r="7" fill="#c48b3a"/>}
-            <RowArrow v={row1} range={range} color="#477aa8" label="r₁" offset={[-28,-12]}/>
-            <RowArrow v={row2} range={range} color="#a16e39" label="r₂" offset={[-28,-12]}/>
-            <RowArrow v={sum} range={range} color="#328577" label="Aᵀy" offset={[10,-16]}/>
-            <RowArrow v={first} range={range} color="#8464ac" label={Math.hypot(...first)===0?'y₁r₁ = 0':'y₁r₁'} offset={[-42,26]} thick middle/>
-            <RowArrow v={second} from={first} range={range} color="#b23b88" label={Math.hypot(...second)===0?'y₂r₂ = 0':'y₂r₂'} offset={[10,26]} thick middle/>
-            <circle cx={px(first[0])} cy={py(first[1])} r="5" fill="var(--paper)" stroke="#b23b88" strokeWidth="2"/>
-          </g>
-          <g fill="var(--muted)" fontSize="14"><text x="40" y="480">{number(-range)}</text><text x="245" y="480">0</text><text x="420" y="480">{number(range)}</text><text x="260" y="30">{number(range)}</text></g>
-        </svg>
-        <div className="cs-legend"><span style={{color:'#477aa8'}}>r₁</span><span style={{color:'#a16e39'}}>r₂</span><span style={{color:'#8464ac'}}>y₁r₁</span><span style={{color:'#b23b88'}}>y₂r₂ · head to tail</span><span style={{color:'#328577'}}>Aᵀy</span>{showNull&&<span style={{color:'#c48b3a'}}>Null(A)</span>}</div>
-        {hidden&&<p className="cs-caption">Some vectors are outside the view. Choose Fit to see them.</p>}
-      </div>
-    </div>
-    <div className="cs-calculation"><strong>{number(weights[0])} r₁ + {number(weights[1])} r₂ = {vector(sum)} = Aᵀy</strong>
-      <p>Rows are drawn as coordinate vectors. This combination always lies in Row(A).</p>
-      {showNull&&rank===1&&<p>n = {vector(n)} · r₁ · n = {number(row1[0]*n[0]+row1[1]*n[1])} · r₂ · n = {number(row2[0]*n[0]+row2[1]*n[1])}<br/>An = {vector([row1[0]*n[0]+row1[1]*n[1],row2[0]*n[0]+row2[1]*n[1]])}</p>}
-    </div>
-    <p className="cs-caption">For an m × n matrix, Row(A) lives in ℝⁿ (input coordinates); Col(A) lives in ℝᵐ (output coordinates). Row rank equals column rank. Rank uses relative numerical tolerance 10⁻¹⁰.</p>
-  </section>;
+  function coordinates(e:PointerEvent<SVGSVGElement>):Vec|null {
+    const ctm=e.currentTarget.getScreenCTM();if(!ctm)return null;
+    const point=new DOMPoint(e.clientX,e.clientY).matrixTransform(ctm.inverse());
+    return [(point.x-250)*range/210,(250-point.y)*range/210];
+  }
+  const lines=rows.map(([a,b,c])=>equationSegment(a,b,c,range));
+  const ordinary=rows.every(([a,b])=>a!==0||b!==0);
+  const description=!result.consistent?(ordinary?'Parallel, distinct lines: no intersection and no solution.':'A zero row requires 0 to equal a nonzero value, so no solution exists.'):
+    result.rank===2?'The lines intersect at one point: a unique solution.':
+    result.rank===1?(ordinary?'The lines coincide: every point on their shared line is a solution.':'One equation imposes no restriction. Every point on the remaining line is a solution.'):
+    'Both equations are 0 = 0. Every point in the input plane is a solution.';
+  const offscreen=lines.some((line,i)=>line.length<2&&(rows[i][0]!==0||rows[i][1]!==0));
+  return <div className="cs-row-equations">
+    <div className={`cs-status ${result.consistent?'':'cs-inconsistent'}`} role="status"><strong>{result.consistent?'Consistent':'Inconsistent'}</strong><span>{description}</span></div>
+    <div className="cs-equation-list">{rows.map(([a,b,c],i)=><p key={i} style={{color:i===0?'#477aa8':'#a16e39'}}>R{i+1}: {equation(a,b,c)}{a===0&&b===0?c===0?' · whole plane':' · empty set':''}</p>)}</div>
+    <div className="la-step-actions" role="group" aria-label="Equation plot zoom"><button aria-label="Zoom in equations" onClick={()=>setExtent(Math.max(.00001,range*.8))}>+</button><button aria-label="Zoom out equations" onClick={()=>setExtent(Math.min(1e15,range*1.25))}>−</button><button onClick={()=>setExtent(null)}>Fit</button></div>
+    <svg className="cs-plot" viewBox="0 0 500 500" role="img"
+      onPointerDown={e=>{const v=coordinates(e);if(!x||!onChange||!v||e.button!==0||Math.hypot(v[0]-x[0],v[1]-x[1])*210/range>24)return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);drag.current={pointer:e.pointerId,offset:[x[0]-v[0],x[1]-v[1]]};}}
+      onPointerMove={e=>{const v=coordinates(e),d=drag.current;if(!v||!d||d.pointer!==e.pointerId||!onChange)return;onChange([Math.round((v[0]+d.offset[0])*100)/100,Math.round((v[1]+d.offset[1])*100)/100]);}}
+      onPointerUp={()=>{drag.current=null;}} onPointerCancel={()=>{drag.current=null;}} onLostPointerCapture={()=>{drag.current=null;}}
+ aria-label={`Row equations in the x1 x2 input plane. ${result.consistent?'Consistent':'Inconsistent'}. ${description}`}>
+      <defs><clipPath id={id+'-clip'}><rect x="40" y="40" width="420" height="420"/></clipPath></defs>
+      <g clipPath={`url(#${id}-clip)`}>
+        {result.consistent&&result.rank===0&&<rect x="40" y="40" width="420" height="420" fill="var(--accent)" opacity=".1"/>}
+        {Array.from({length:11},(_,i)=>40+i*42).map(t=><g key={t} stroke="var(--rule)" strokeWidth=".6"><line x1={t} x2={t} y1="40" y2="460"/><line x1="40" x2="460" y1={t} y2={t}/></g>)}
+        <g stroke="var(--muted)"><line x1="40" x2="460" y1="250" y2="250"/><line x1="250" x2="250" y1="40" y2="460"/></g>
+        {lines.map((line,i)=>line.length===2&&<line key={i} x1={px(line[0][0])} y1={py(line[0][1])} x2={px(line[1][0])} y2={py(line[1][1])} stroke={i===0?'#477aa8':'#a16e39'} strokeWidth={i===0?5:3} strokeDasharray={i===1?'10 7':undefined}/>)}
+        {result.consistent&&result.rank===2&&solutionFinite&&<g><circle cx={px(result.x[0])} cy={py(result.x[1])} r="7" fill="#328577" stroke="var(--paper)" strokeWidth="2"/><text x={px(result.x[0])+10} y={py(result.x[1])-12} fill="#328577" fontSize="14" stroke="var(--paper)" strokeWidth="3" paintOrder="stroke">({fmt(result.x[0])}, {fmt(result.x[1])})</text></g>}
+        {x&&<g><circle className="cs-drag-handle" cx={px(x[0])} cy={py(x[1])} r="12" fill="var(--paper)" fillOpacity=".5" stroke="var(--accent)" strokeWidth="3"><title>Drag x to change the column-combination coefficients</title></circle><text x={px(x[0])+15} y={py(x[1])+22} fill="var(--accent)" fontSize="14">x</text></g>}
+      </g>
+      <g fill="var(--muted)" fontSize="14"><text x="440" y="240">x₁</text><text x="260" y="54">x₂</text><text x="40" y="480">{fmt(-range)}</text><text x="245" y="480">0</text><text x="418" y="480">{fmt(range)}</text></g>
+    </svg>
+    <div className="cs-legend"><span style={{color:'#477aa8'}}>R1 · solid line</span><span style={{color:'#a16e39'}}>R2 · dashed line</span>{x&&<span>x · draggable coefficients</span>}</div>
+    {offscreen&&<p className="cs-caption">A line is outside this view. Choose Fit or zoom out.</p>}
+    <p className="cs-caption">Each row of [A | b] defines an equation in the input plane. Its coefficients form a normal vector to the line; these equation lines are not the subspace Row(A).</p>
+  </div>;
 }
