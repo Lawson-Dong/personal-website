@@ -39,6 +39,10 @@ export default function MeasuringTools() {
       <p><strong>How far apart are the class centers compared with the spread inside each class?</strong></p>
       <p>In our cat–dog experiments, this ratio compares the squared distance between the two class centroids with the sum of their within-class spreads. A centroid is simply the average representation vector for a class.</p>
       <p>“Raw-vector” means we use the extracted feature vectors before normalizing each sample to unit length. Both vector direction and magnitude can therefore contribute.</p>
+      <h3>Why use raw vectors?</h3>
+      <p>We want to measure class separation in the features the network actually produces, including differences in vector length. Normalizing every sample to unit length removes those magnitude differences and changes the class centroids and within-class spread.</p>
+      <p>For example, two vectors pointing in the same direction but having different lengths become identical after unit normalization. If their lengths help distinguish the classes, that information is lost. Raw-vector Fisher ratio preserves it and complements our cosine-based measurements, which focus on direction.</p>
+      <p>This does not make raw vectors universally better: the choice depends on the question. A common rescaling of all vectors cancels in the ratio, while differences in scale between samples or features can still affect it.</p>
       <div className="tools-reading">
         <div><h3>Higher ratio</h3><p>The class centers are farther apart relative to the spread within each class.</p></div>
         <div><h3>Lower ratio</h3><p>The class centers are closer together relative to the spread within each class.</p></div>
