@@ -1,4 +1,5 @@
 'use client';
+import { MathTex, mathNotation } from './math';
 import { useId, useRef, useState, type PointerEvent } from 'react';
 import { solveColumns, type Augmented, type Vec } from './column-space-math';
 
@@ -41,7 +42,7 @@ export function RowSpaceLab({matrix,x,onChange}:{matrix:Augmented;x?:Vec;onChang
   const offscreen=lines.some((line,i)=>line.length<2&&(rows[i][0]!==0||rows[i][1]!==0));
   return <div className="cs-row-equations">
     <div className={`cs-status ${result.consistent?'':'cs-inconsistent'}`} role="status"><strong>{result.consistent?'Consistent':'Inconsistent'}</strong><span>{description}</span></div>
-    <div className="cs-equation-list">{rows.map(([a,b,c],i)=><p key={i} style={{color:i===0?'#477aa8':'#a16e39'}}>R{i+1}: {equation(a,b,c)}{a===0&&b===0?c===0?' · whole plane':' · empty set':''}</p>)}</div>
+    <div className="cs-equation-list">{rows.map(([a,b,c],i)=><p key={i} style={{color:i===0?'#477aa8':'#a16e39'}}><MathTex tex={mathNotation(`R${i===0?'₁':'₂'}: ${equation(a,b,c)}`)} />{a===0&&b===0?c===0?' · whole plane':' · empty set':''}</p>)}</div>
     <div className="la-step-actions" role="group" aria-label="Equation plot zoom"><button aria-label="Zoom in equations" onClick={()=>setExtent(Math.max(.00001,range*.8))}>+</button><button aria-label="Zoom out equations" onClick={()=>setExtent(Math.min(1e15,range*1.25))}>−</button><button onClick={()=>setExtent(null)}>Fit</button></div>
     <svg className="cs-plot" viewBox="0 0 500 500" role="img"
       onPointerDown={e=>{const v=coordinates(e);if(!x||!onChange||!v||e.button!==0||Math.hypot(v[0]-x[0],v[1]-x[1])*210/range>24)return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);drag.current={pointer:e.pointerId,offset:[x[0]-v[0],x[1]-v[1]]};}}
