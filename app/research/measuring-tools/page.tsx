@@ -3,7 +3,7 @@ import './measuring-tools.css';
 
 export const metadata = {
   title: 'The measuring tools — Lawson Dong',
-  description: 'A short introduction to Adjacent Linear CKA and how it tracks representation structure between consecutive neural-network layers.',
+  description: 'Short introductions to Adjacent Linear CKA and raw-vector Fisher ratio for measuring representation similarity and class separation.',
 };
 
 export default function MeasuringTools() {
@@ -31,6 +31,25 @@ export default function MeasuringTools() {
         <p>The Frobenius norm is the square root of the sum of squared matrix entries. This normalized score lies between 0 and 1 when the denominator is nonzero. It is unchanged by rotations or uniform scaling, so it measures structural similarity rather than exact coordinates.</p>
       </details>
       <p className="tools-source">Further reading: <a href="https://proceedings.mlr.press/v97/kornblith19a.html" target="_blank" rel="noopener noreferrer">Kornblith et al. (2019), Similarity of Neural Network Representations Revisited</a>.</p>
+    </article>
+    <article id="fisher-ratio" aria-labelledby="fisher-title">
+      <p className="eyebrow">02 / CLASS SEPARATION</p>
+      <h2 id="fisher-title">Raw-vector Fisher ratio</h2>
+      <p><strong>How far apart are the class centers compared with the spread inside each class?</strong></p>
+      <p>In our cat–dog experiments, this ratio compares the squared distance between the two class centroids with the sum of their within-class spreads. A centroid is simply the average representation vector for a class.</p>
+      <p>“Raw-vector” means we use the extracted feature vectors before normalizing each sample to unit length. Both vector direction and magnitude can therefore contribute.</p>
+      <div className="tools-reading">
+        <div><h3>Higher ratio</h3><p>The class centers are farther apart relative to the spread within each class.</p></div>
+        <div><h3>Lower ratio</h3><p>The class centers are closer together relative to the spread within each class.</p></div>
+      </div>
+      <p>Tracking this ratio across layers shows how class separation changes. An increase can reflect centers moving apart, tighter clusters, or both; it does not by itself guarantee better classification accuracy. Unlike CKA, the ratio is not bounded by 1.</p>
+      <details><summary>The formula, briefly</summary>
+        <div className="tools-formula" role="math" aria-label="F equals squared distance between the cat and dog centroids divided by the sum of cat and dog within-class mean squared deviations">F = ‖μ<sub>cat</sub> − μ<sub>dog</sub>‖² / (v<sub>cat</sub> + v<sub>dog</sub>)</div>
+        <p>Here μ is a class centroid, and v is the mean squared Euclidean distance from that class’s samples to its centroid. The implementation floors the denominator at 10⁻²⁰ to avoid division by zero.</p>
+        <p>For a nonzero denominator above that numerical floor, multiplying all vectors by the same nonzero scalar leaves the ratio unchanged. Scaling individual features differently can change it.</p>
+      </details>
+      <p>CKA compares representation structure between layers; the Fisher ratio measures label-based class separation within a layer.</p>
+      <p className="tools-source">Implementation: <a href="https://github.com/Lawson-Dong/representation-alignment-/blob/representation-vector-geometric-dynamics/experiments/geometric_dynamics/scripts/metrics.py" target="_blank" rel="noopener noreferrer">Fisher_raw in the experiment metrics</a>.</p>
     </article>
   </main>;
 }
