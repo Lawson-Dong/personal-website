@@ -34,6 +34,7 @@ export default function MeasuringTools() {
         <p>Invariant to orthogonal rotations and uniform scaling.</p>
       </details>
       <p className="tools-source"><a href="https://proceedings.mlr.press/v97/kornblith19a.html" target="_blank" rel="noopener noreferrer">Kornblith et al. (2019)</a></p>
+      <p className="tools-source"><a href="https://github.com/Lawson-Dong/representation-alignment-/blob/representation-vector-geometric-dynamics/experiments/geometric_dynamics/scripts/metrics.py#L32-L39" target="_blank" rel="noopener noreferrer">Experiment implementation</a></p>
     </article>
     <article id="fisher-ratio" aria-labelledby="fisher-title">
       <p className="eyebrow">02 / CLASS SEPARATION</p>
