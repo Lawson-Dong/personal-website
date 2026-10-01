@@ -19,6 +19,7 @@ export default function MeasuringTools() {
       <h2 id="cka-title">Adjacent Linear CKA</h2>
       <p><strong>Structure preserved between consecutive layers.</strong></p>
       <p>Centered Kernel Alignment · same samples · centered features</p>
+      <p>Subtracting the mean removes absolute position, so CKA compares the internal geometry of the representations.</p>
       <MathTex display tex={String.raw`X=Z_\ell-\mathbf1\bar z_\ell^\top,\qquad Y=Z_{\ell+1}-\mathbf1\bar z_{\ell+1}^\top`} />
       <div className="tools-formula"><MathTex display tex={String.raw`\operatorname{CKA}(X,Y)=\frac{\|X^\top Y\|_F^2}{\|X^\top X\|_F\,\|Y^\top Y\|_F}`} /></div>
       <div className="tools-reading">
