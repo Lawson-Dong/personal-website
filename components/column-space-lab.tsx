@@ -1,5 +1,6 @@
 'use client';
 import { useEffect, useId, useRef, useState, type PointerEvent } from 'react';
+import { RowSpaceLab } from './row-space-lab';
 import { multiply, solveColumns, type Vec, type Augmented } from './column-space-math';
 
 const examples:{name:string;m:Augmented}[]=[
@@ -107,7 +108,8 @@ export function ColumnSpaceLab(){
   const clipped=drawn.some(n=>Math.abs(n)>range);
   function fitOutput(){setRange(Math.max(2,...drawn.map(Math.abs))*1.25);setAutoFit(true);}
   return <section id="column-space" className="la-module cs-lab" aria-labelledby="cs-title">
-    <div className="la-module-head"><div><span className="la-label">03 / VISUALIZATION</span><h2 id="cs-title">Column space &amp; <em>consistency.</em></h2></div><p>Can the columns of A combine to reach b? Explore the geometry or enter an augmented matrix.</p></div>
+    <div className="la-module-head"><div><span className="la-label">03 / VISUALIZATION</span><h2 id="cs-title">Column &amp; <em>row space.</em></h2></div><p>Explore the columns and rows of the same matrix A. Combine columns to test Ax = b, then combine rows to see Row(A).</p></div>
+    <h3 className="cs-subtitle">Column space &amp; consistency</h3>
     <div className="cs-equivalence"><strong>b is a linear combination of columns of A</strong><span>⇔ Ax = b has a solution</span><span>⇔ Ax = b is consistent</span></div>
     <div className="la-tabs" role="tablist" aria-label="Column space mode">{(['explore','matrix'] as const).map(t=><button key={t} id={`${id}-${t}-tab`} role="tab" aria-selected={mode===t} aria-controls={`${id}-panel`} onClick={()=>changeMode(t)}>{t==='explore'?'Explore Mode':'Matrix Mode'}</button>)}</div>
     <div id={`${id}-panel`} role="tabpanel" aria-labelledby={`${id}-${mode}-tab`}>
@@ -146,5 +148,6 @@ export function ColumnSpaceLab(){
       </>
       <p className="cs-caption">Rank and line membership use relative numerical tolerance 10⁻¹⁰. Extremely close cases are treated as equal at this precision.</p>
     </div>
+    <RowSpaceLab matrix={[m[0],m[1],m[3],m[4]]} />
   </section>;
 }

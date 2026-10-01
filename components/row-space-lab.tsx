@@ -3,12 +3,6 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { solveColumns, type Augmented, type Vec } from './column-space-math';
 
 type Matrix = [number, number, number, number];
-const presets:{name:string;matrix:Matrix}[]=[
-  {name:'Rank 1 · a line',matrix:[1,2,2,4]},
-  {name:'Rank 2 · the whole plane',matrix:[2,1,1,2]},
-  {name:'Rank 0 · only the origin',matrix:[0,0,0,0]},
-  {name:'Rank 1 · one zero row',matrix:[0,0,2,-1]},
-];
 const number=(n:number)=>Math.abs(n)<1e-10?'0':Number(n.toPrecision(5)).toString();
 const vector=(v:Vec)=>'('+v.map(number).join(', ')+')';
 
@@ -28,10 +22,8 @@ function RowArrow({v,from=[0,0],range,color,label,middle=false,thick=false,dashe
   </g>;
 }
 
-export function RowSpaceLab(){
+export function RowSpaceLab({matrix}:{matrix:Matrix}){
   const id=useId().replace(/[^a-zA-Z0-9_-]/g,'');
-  const [matrix,setMatrix]=useState<Matrix>(presets[0].matrix);
-  const [draft,setDraft]=useState<string[]>(presets[0].matrix.map(String));
   const [weights,setWeights]=useState<Vec>([1,1]);
   const [showNull,setShowNull]=useState(true);
   const [nullWeight,setNullWeight]=useState(2);
@@ -50,8 +42,6 @@ export function RowSpaceLab(){
   const n:Vec=rank===1?[normal[0]*nullWeight,normal[1]*nullWeight]:[0,0];
   const autoExtent=Math.max(2,...[...row1,...row2,...first,...sum,...(showNull?n:[])].map(Math.abs))*1.25;
   const range=manual?extent:autoExtent;
-  const chosen=presets.findIndex(p=>p.matrix.every((v,i)=>v===matrix[i]));
-  const valid=draft.every(v=>v.trim()!==''&&Number.isFinite(Number(v))&&Math.abs(Number(v))<=1e6);
   const zoom=(factor:number)=>{setExtent(previous=>Math.max(.05,Math.min(1e8,(manual?previous:autoExtent)*factor)));setManual(true);};
   useEffect(()=>{
     const element=svg.current;if(!element)return;
@@ -59,27 +49,18 @@ export function RowSpaceLab(){
     element.addEventListener('wheel',wheel,{passive:false});
     return ()=>element.removeEventListener('wheel',wheel);
   },[manual,autoExtent]);
-  function edit(index:number,value:string){
-    const next=draft.map((v,i)=>i===index?value:v);setDraft(next);
-    if(next.every(v=>v.trim()!==''&&Number.isFinite(Number(v))&&Math.abs(Number(v))<=1e6))setMatrix(next.map(Number) as Matrix);
-  }
-  function choose(i:number){setMatrix(presets[i].matrix);setDraft(presets[i].matrix.map(String));setWeights([1,1]);setNullWeight(2);setManual(false);}
   const px=(v:number)=>250+v*210/range,py=(v:number)=>250-v*210/range;
   const hidden=[...row1,...row2,...first,...sum,...(showNull?n:[])].some(v=>Math.abs(v)>range);
-  return <section id="row-space" className="la-module" aria-labelledby="row-space-title">
-    <div className="la-module-head"><div><span className="la-label">04 / VISUALIZATION</span><h2 id="row-space-title">Row space &amp; <em>null space.</em></h2></div><p>Combine the rows of A. The result lives in Row(A), the same space spanned by the columns of Aᵀ.</p></div>
+  return <section id="row-space" className="cs-row-space" aria-labelledby="row-space-title">
+    <h3 id="row-space-title" className="cs-subtitle">Row space &amp; null space</h3><p className="cs-explanation">The same matrix A from above, viewed through its rows. Edit A in the column-space controls to update both views; changing b does not change either space.</p>
     <div className="cs-equivalence"><strong>Row(A) = span&#123;r₁, r₂&#125; = Col(Aᵀ)</strong><span>Row(A) ⟂ Null(A)</span></div>
     <div className="cs-status"><strong>rank(A) = {rank}</strong><span>Row(A) = {rank===2?'ℝ²':rank===1?'a line through the origin':'{0}'}</span><span>dim Row(A) = {rank} · dim Null(A) = {2-rank}</span></div>
     <div className="cs-workspace" style={{marginTop:24}}>
       <div className="la-geometry">
         <h3>Rows as vectors</h3>
         <p>For this 2 × 2 matrix, both rows have two entries, so we can draw them in the input coordinate plane.</p>
-        <label htmlFor={id+'-example'} className="cs-caption">Examples</label>
-        <select id={id+'-example'} value={chosen<0?'custom':String(chosen)} onChange={e=>choose(Number(e.target.value))} style={{width:'100%',padding:12,background:'var(--paper)',color:'var(--ink)',border:'1px solid var(--rule)',fontSize:16}}>
-          <option value="custom" disabled>Custom matrix</option>{presets.map((p,i)=><option key={i} value={i}>{p.name}</option>)}
-        </select>
-        <div className="la-matrix" aria-label="Editable matrix A">{[0,1].map(row=><div key={row} style={{display:'grid',gridTemplateColumns:'32px repeat(2,minmax(48px,80px))',gap:8,alignItems:'center'}}><span>r{row===0?'₁':'₂'}</span>{[0,1].map(col=><input key={col} type="number" step="any" aria-label={'Row space matrix row '+(row+1)+', column '+(col+1)} value={draft[row*2+col]} onChange={e=>edit(row*2+col,e.target.value)}/>)}</div>)}</div>
-        {!valid&&<p role="alert" className="la-warning">Enter four finite values between −10⁶ and 10⁶. The plot keeps the last valid matrix while you edit.</p>}
+        <div className="la-matrix" aria-label="Shared matrix A">{[0,1].map(row=><div key={row} className="cs-shared-matrix-row"><span>r{row===0?'₁':'₂'}</span>{[0,1].map(col=><span key={col}>{number(matrix[row*2+col])}</span>)}</div>)}</div>
+        <p className="cs-caption">A is shared with the column-space view above.</p>
         <p style={{fontFamily:'monospace'}}>r₁ = {vector(row1)}<br/>r₂ = {vector(row2)}</p>
         {[0,1].map(i=><div key={i} className="la-slider"><label htmlFor={id+'-y'+i}>y{i===0?'₁':'₂'} <output>{number(weights[i])}</output></label><input id={id+'-y'+i} type="range" min="-4" max="4" step=".05" value={weights[i]} onChange={e=>setWeights(old=>old.map((v,j)=>i===j?Number(e.target.value):v) as Vec)}/></div>)}
         <div className="cs-plot-options"><label><input type="checkbox" checked={showNull} onChange={e=>setShowNull(e.target.checked)}/> Show Null(A)</label></div>
