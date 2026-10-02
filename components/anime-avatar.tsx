@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-type Eye = { x: number; y: number; width: number; height: number; angle: number };
+type Eye = { x: number; y: number; width: number; height: number; angle: number; irisX: number; irisY: number };
 const eyes: Eye[] = [
-  { x: 485, y: 196.5, width: 31, height: 15, angle: -.02 },
-  { x: 543, y: 181, width: 32, height: 18, angle: -.25 },
+  { x: 428, y: 465, width: 95, height: 65, angle: -.10, irisX: 437, irisY: 459 },
+  { x: 601, y: 435, width: 99, height: 62, angle: -.14, irisX: 595, irisY: 429 },
 ];
 
 function eyeOutline(ctx: CanvasRenderingContext2D, width: number, height: number) {
@@ -16,41 +16,30 @@ function eyeOutline(ctx: CanvasRenderingContext2D, width: number, height: number
   ctx.closePath();
 }
 
-function drawEye(ctx: CanvasRenderingContext2D, eye: Eye, x: number, y: number, blink: number) {
+// Keep the illustration's own iris texture, color, highlights and line work.
+function drawEye(ctx: CanvasRenderingContext2D, art: HTMLCanvasElement, eye: Eye, x: number, y: number, blink: number) {
   ctx.save();
   ctx.translate(eye.x, eye.y);
   ctx.rotate(eye.angle);
   eyeOutline(ctx, eye.width, eye.height);
   ctx.clip();
-  ctx.fillStyle = "#eae3e1";
+  ctx.fillStyle = '#f5eff0';
   ctx.fillRect(-eye.width, -eye.height, eye.width * 2, eye.height * 2);
-  const irisX = x * 2.1;
-  const irisY = y * 1.2 - .8;
-  const gradient = ctx.createRadialGradient(irisX, irisY - 3, 1, irisX, irisY, 8);
-  gradient.addColorStop(0, '#37475c');
-  gradient.addColorStop(.55, '#718b9e');
-  gradient.addColorStop(1, '#9eafba');
-  ctx.fillStyle = gradient;
+  const offsetX = x * 5;
+  const offsetY = y * 3;
+  ctx.save();
+  ctx.translate(eye.irisX - eye.x + offsetX, eye.irisY - eye.y + offsetY);
   ctx.beginPath();
-  ctx.ellipse(irisX, irisY, 8.6, 9.5, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.strokeStyle = '#425061';
-  ctx.lineWidth = .8;
-  ctx.stroke();
-  ctx.fillStyle = '#263040';
-  ctx.beginPath();
-  ctx.ellipse(irisX, irisY - 1.3, 2.4, 4, 0, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = '#f7f6f0';
-  ctx.beginPath();
-  ctx.ellipse(irisX - 2.4, irisY - 3.8, 2, 1.4, -.3, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.ellipse(0, 0, 29, 36, 0, 0, Math.PI * 2);
+  ctx.clip();
+  ctx.drawImage(art, eye.irisX - 30, eye.irisY - 37, 60, 74, -30, -37, 60, 74);
+  ctx.restore();
   if (blink > 0) {
     const lid = -eye.height + blink * eye.height * 1.65;
-    ctx.fillStyle = '#eaccc3';
+    ctx.fillStyle = '#f8dfd3';
     ctx.fillRect(-eye.width, -eye.height * 2, eye.width * 2, lid + eye.height * 2);
     ctx.strokeStyle = '#4b3940';
-    ctx.lineWidth = 1.6;
+    ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(-eye.width / 2, lid - 1);
     ctx.quadraticCurveTo(0, lid + 2, eye.width / 2, lid - 2);
@@ -61,8 +50,8 @@ function drawEye(ctx: CanvasRenderingContext2D, eye: Eye, x: number, y: number, 
 
 export function AnimeAvatar() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const viewRef = useRef<'portrait' | 'full'>('portrait');
-  const [view, setView] = useState<'portrait' | 'full'>('portrait');
+  const viewRef = useRef<'portrait' | 'full'>('full');
+  const [view, setView] = useState<'portrait' | 'full'>('full');
   const [ready, setReady] = useState(false);
   const [motion, setMotion] = useState(true);
   const motionRef = useRef(true);
@@ -80,13 +69,16 @@ export function AnimeAvatar() {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)');
     const body = new Image();
     const head = new Image();
+    const headArt = document.createElement("canvas");
+    headArt.width = 1024; headArt.height = 1536;
+    const headCtx = headArt.getContext("2d");
     const pointer = (event: PointerEvent) => {
       if (event.pointerType === 'touch' && event.buttons === 0) return;
       // Target relative to the face, rather than the screen center.
       const bounds = canvas.getBoundingClientRect();
       const portrait = viewRef.current === 'portrait';
-      const faceX = bounds.left + bounds.width * (portrait ? .45 : .51);
-      const faceY = bounds.top + bounds.height * (portrait ? .21 : .13);
+      const faceX = bounds.left + bounds.width * (portrait ? .43 : .5);
+      const faceY = bounds.top + bounds.height * (portrait ? .48 : .29);
       targetX = Math.tanh((event.clientX - faceX) / 350);
       targetY = Math.tanh((event.clientY - faceY) / 300);
     };
@@ -128,26 +120,27 @@ export function AnimeAvatar() {
       ctx.drawImage(body, 0, 0, 1024, 1536);
       // The head is a separate layer. No UV warp, triangle mesh, or facial stretch.
       ctx.save();
-      ctx.translate(530 + x * 2, 259 + y * 1.3);
+      ctx.translate(512 + x * 2, 574 + y * 1.3);
       ctx.rotate(x * .026 + (active ? Math.sin(time * .8) * .002 : 0));
-      ctx.translate(-530, -259);
-      // The extracted head was exported at double scale; align it to the neck.
-      ctx.drawImage(head, 265, 48, 512, 768);
+      ctx.translate(-512, -574);
+      ctx.drawImage(headArt, 0, 0);
       let blink = 0;
       if (active) {
         if (time > blinkAt + .22) blinkAt = time + 3.5 + Math.random() * 2.8;
         const elapsed = time - blinkAt;
         if (elapsed >= 0 && elapsed <= .22) blink = Math.sin(elapsed / .22 * Math.PI);
       }
-      eyes.forEach(eye => drawEye(ctx, eye, eyeX, eyeY, blink));
+      eyes.forEach(eye => drawEye(ctx, headArt, eye, eyeX, eyeY, blink));
       ctx.restore();
     };
     Promise.all([body, head].map((image, index) => new Promise<void>((resolve, reject) => {
       image.onload = () => resolve();
       image.onerror = () => reject(new Error('Character layer unavailable'));
-      image.src = index === 0 ? '/images/avatar-body-v2.webp' : '/images/avatar-head-v2.webp';
+      image.src = index === 0 ? '/images/avatar-chibi-body-v3.webp' : '/images/avatar-chibi-head-v3.webp';
     }))).then(() => {
       if (disposed) return;
+      // Align the extracted head to the untouched neck and clothing layer.
+      headCtx?.drawImage(head, 76, 12, 870.4, 1305.6);
       blinkAt = performance.now() / 1000 + 3.8;
       setReady(true);
       frame = requestAnimationFrame(draw);
@@ -167,7 +160,7 @@ export function AnimeAvatar() {
     <div className={`avatar-stage avatar-stage-v2 ${view === 'portrait' ? 'is-portrait' : 'is-full'}`}>
       <div className="avatar-halo" aria-hidden="true" />
       {view === 'full' ? <div className="avatar-floor" aria-hidden="true" /> : null}
-      <img className="avatar-fallback" src="/images/anime-self.webp" alt="Lawson’s anime self: black hair, headphones, techwear and a guitar case" style={{ opacity: ready ? 0 : 1 }} />
+      <img className="avatar-fallback" src="/images/avatar-chibi-v3.webp" alt="Lawson’s chibi anime self with both hands in pockets, black hair, headphones and a guitar case" style={{ opacity: ready ? 0 : 1 }} />
       <canvas ref={canvasRef} className="avatar-canvas" role="img" aria-label="Anime character with independent head movement, cursor-following eyes and natural blinking" style={{ opacity: ready ? 1 : 0 }} />
     </div>
     <div className="avatar-controls" aria-label="Character view controls">
