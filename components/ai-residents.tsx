@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { WebWorkerMLCEngine } from '@mlc-ai/web-llm';
+import { residentAction } from '@/lib/resident-scheduler';
 import { scenes, topicFor, type ResidentLine } from '@/lib/resident-dialogue';
 
 type EventKind = 'page' | 'section' | 'click' | 'matrix' | 'idle';
@@ -24,6 +25,9 @@ export function AIResidents() {
   const [paused, setPaused] = useState(false);
   const [settings, setSettings] = useState(false);
   const [line, setLine] = useState<ResidentLine | null>(null);
+  const [lines, setLines] = useState<Partial<Record<ResidentName, string>>>({});
+  const nextAmbientAt = useRef(Date.now() + 10_000);
+  const lastTypedAt = useRef(0);
   const [thinking, setThinking] = useState(false);
   const [mode, setMode] = useState<'scripted' | 'loading' | 'local'>('scripted');
   const [progress, setProgress] = useState('');
@@ -70,6 +74,7 @@ export function AIResidents() {
   const addLine = useCallback((speaker: ResidentName, text: string) => {
     const next = { speaker, text } satisfies ResidentLine;
     setLine(next);
+    setLines(previous => ({ ...previous, [speaker]: text }));
     dialogueMemory.current = [...dialogueMemory.current.slice(-5), next];
   }, []);
 
@@ -186,6 +191,7 @@ export function AIResidents() {
     } finally {
       setThinking(false);
       busy.current = false;
+      if (source.startsWith('Visitor: ')) nextAmbientAt.current = Date.now() + 10_000;
       if (source.startsWith('Visitor: ')) lastVisitorAt.current = Date.now();
       setWaiting(pendingMessage.current !== null);
 
@@ -199,26 +205,34 @@ export function AIResidents() {
 
   useEffect(() => { void enableAI(); }, []);
 
+  const reactRef = useRef(react);
+  reactRef.current = react;
   useEffect(() => {
-    if (mode !== 'local') return;
+    nextAmbientAt.current = Date.now() + 10_000;
     const timer = setInterval(() => {
-      if (pendingMessage.current || draftRef.current.trim() || Date.now() - lastVisitorAt.current < 10_000) return;
-      const topics = ['AI', 'mathematics', 'physics', 'cognitive science'];
-      const topic = topics[Math.floor(topicIndex.current++ / 6) % topics.length];
-      void react({ topic, section: currentSection.current, recent: [...memory.current], source: 'Continue the current thread using your conversation history. Only if it is finished, explore ' + topic });
-    }, 10_000);
-    return () => clearInterval(timer);
-  }, [mode, path, react]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (!pendingMessage.current || busy.current || mode !== 'local' || paused || collapsed || document.hidden) return;
-      const message = pendingMessage.current;
-      pendingMessage.current = null;
-      void react({ topic: 'visitor question', section: currentSection.current, recent: [...memory.current], source: 'Visitor: ' + message });
+      const now = Date.now();
+      const action = residentAction({ local: controls.current.mode === 'local', busy: busy.current,
+        paused: controls.current.paused, collapsed: controls.current.collapsed,
+        hidden: document.hidden, pending: pendingMessage.current !== null,
+        nextAmbientAt: nextAmbientAt.current, lastTypedAt: lastTypedAt.current }, now);
+      if (!action) return;
+      if (action === 'visitor') {
+        const message = pendingMessage.current!;
+        pendingMessage.current = null;
+        void reactRef.current({ topic: 'visitor question', section: currentSection.current,
+          recent: [...memory.current], source: 'Visitor: ' + message });
+      } else {
+        nextAmbientAt.current = now + 10_000;
+        const topics = ['AI', 'mathematics', 'physics', 'cognitive science'];
+        const topic = topics[Math.floor(topicIndex.current++ / 6) % topics.length];
+        void reactRef.current({ topic, section: currentSection.current, recent: [...memory.current],
+          source: 'Continue the current thread using your conversation history. Only if it is finished, explore ' + topic });
+      }
     }, 250);
-    return () => clearInterval(timer);
-  }, [mode, paused, collapsed, react]);
+    const resume = () => { if (!document.hidden) nextAmbientAt.current = Date.now() + 10_000; };
+    document.addEventListener('visibilitychange', resume);
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', resume); };
+  }, [mode]);
 
   useEffect(() => {
     const pageTitle = document.title.replace(/\s*[—|].*$/, '').trim() || 'Personal notebook';
@@ -336,15 +350,18 @@ export function AIResidents() {
         {settings && <div className="residents-settings">
           <strong>Two minds. Same curiosity.</strong>
           <p>They react to pages, sections, and controls you open. Recent context stays in this tab; when enabled, the local model runs on your device.</p>
-          <p>Local AI chats every 10 seconds while this tab is visible. If a reply is still running, the next turn waits. Conversation history is retained in this tab, with older exchanges compressed into a summary. The first download is several hundred MB and can be cached by your browser.</p>
+          <p>When you are not chatting, local AI exchanges are scheduled every 10 seconds. A running exchange finishes before the next starts. Conversations pause while this tab is hidden. Conversation history is retained in this tab, with older exchanges compressed into a summary. The first download is several hundred MB and can be cached by your browser.</p>
           <button onClick={enableAI} disabled={mode !== 'scripted'}>{mode === 'local' ? 'Local AI enabled' : mode === 'loading' ? 'Loading…' : 'Enable local AI'}</button>
           {mode === 'local' && <button onClick={() => { void disableAI(); }}>Stop local AI</button>}
           {progress && <p role="status">{progress}</p>}
           {error && <p role="status">{error}</p>}
         </div>}
         <div className="residents-stage">
-          <div className="residents-bubble" aria-live="polite" aria-atomic="true">
-            {line ? <><strong className={line.speaker.toLowerCase()}>{line.speaker}</strong><p>{line.text}</p></> : <span>{paused ? 'Taking a little break.' : thinking ? 'Astra & Nemi are thinking…' : currentSection.current ? `Nearby: ${currentSection.current}` : 'Two minds. Same curiosity.'}</span>}
+          <div className="residents-dialogues">
+            {(['Astra', 'Nemi'] as const).map(name => <div key={name} className={`residents-bubble ${name.toLowerCase()}`} role="log" aria-label={`${name}'s dialogue`} aria-live="polite" aria-atomic="true">
+              <strong className={name.toLowerCase()}>{name}</strong>
+              <p>{lines[name] || (thinking ? 'Thinking…' : mode === 'loading' ? 'Loading local AI…' : paused ? 'Taking a little break.' : 'Ready for our next conversation.')}</p>
+            </div>)}
           </div>
           <form className="residents-chat" onSubmit={event => {
             event.preventDefault();
@@ -358,7 +375,7 @@ export function AIResidents() {
             setDraft('');
           }}>
             {visitorMessage && <p className="resident-visitor">You: {visitorMessage}</p>}
-            <div><input aria-label="Message Astra and Nemi, maximum 50 characters" placeholder={mode === 'loading' ? 'Loading local AI…' : 'Talk to Astra & Nemi'} maxLength={50} value={draft} onChange={event => setDraft(event.target.value)} disabled={mode !== 'local' || waiting || paused} /><button type="submit" disabled={mode !== 'local' || waiting || paused || !draft.trim()}>{waiting ? 'Waiting…' : 'Send'}</button></div>
+            <div><input aria-label="Message Astra and Nemi, maximum 50 characters" placeholder={mode === 'loading' ? 'Loading local AI…' : 'Talk to Astra & Nemi'} maxLength={50} value={draft} onChange={event => { setDraft(event.target.value); lastTypedAt.current = Date.now(); }} disabled={mode !== 'local' || waiting || paused} /><button type="submit" disabled={mode !== 'local' || waiting || paused || !draft.trim()}>{waiting ? 'Waiting…' : 'Send'}</button></div>
             <small>{Array.from(draft).length}/50 · Local conversation</small>
             {error && <p role="status">{error}</p>}
           </form>
