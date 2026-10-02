@@ -77,6 +77,7 @@ export function ColumnSpaceLab(){
   const [showColumns,setShowColumns]=useState(true);
   const valid=values.every(v=>v.trim()!==''&&Number.isFinite(Number(v))&&Math.abs(Number(v))<=1e12);
   const m=valid?values.map(Number) as Augmented:lastMatrix, result=solveColumns(m);
+  useEffect(()=>{if(valid)window.dispatchEvent(new CustomEvent("resident:matrix",{detail:{consistent:result.consistent,rank:result.rank}}));},[valid,result.consistent,result.rank,values]);
   function editMatrix(next:string[]){setValues(next);if(next.every(v=>v.trim()!==''&&Number.isFinite(Number(v))&&Math.abs(Number(v))<=1e12))setLastMatrix(next.map(Number) as Augmented);}
   const coefficients=mode==='matrix'?result.x:x;
   const ax=multiply(m,coefficients),a1:Vec=[m[0],m[3]],a2:Vec=[m[1],m[4]],target:Vec=[m[2],m[5]];
