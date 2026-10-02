@@ -7,6 +7,10 @@ export const scenes: Record<string, [string,string][]> = {
  coding: [["Equal values do not imply identical Python objects.","Two matching notebooks can still be two notebooks."],["An experiment should keep its configuration explicit.","Future us deserves more than a mysterious magic number."]],
  lost: [["This corner is allowed to have no research agenda.","Great. I'm assigning us a listening break."],["Silence is also a valid conversational turn.","... I was going to say that."]],
  other: [["Let's check the assumptions.","And then try one slightly weird idea."],["Interesting. We can make this more precise.","But first: what does it mean intuitively?"]],
+ page: [["A new page in the notebook.","Let's see which idea they follow."],["The scene changed; our little map needs updating.","New corner, same curiosity."]],
+ section: [["They've settled on a section for a moment.","Maybe this is where the interesting question starts."],["A closer look at one part of the page.","Small details can change the whole picture."]],
+ click: [["That control caught their eye.","Let's see what changed before we jump to conclusions."],["One small interaction, a little more context.","We can follow along without narrating every click."]],
+ idle: [["A quiet pause in the middle of an idea.","We can let the thought breathe for a second."],["They've paused here for a bit.","No need to fill every silence." ]],
  consistent: [["The current system is consistent. At least one solution exists.","The target is inside the column space. The equations agree."],["Consistency does not guarantee uniqueness.","Right. They might meet once, or share infinitely many answers."]],
  inconsistent: [["The current system is inconsistent. No exact solution exists.","The target escaped the column space. The equations disagree."]],
 };
