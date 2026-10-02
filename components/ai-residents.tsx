@@ -97,14 +97,14 @@ export function AIResidents() {
     engine.current?.interruptGenerate();
     const activeEngine = engine.current;
     engine.current = null;
+    if (activeEngine) await activeEngine.unload();
     worker.current?.terminate();
     worker.current = null;
-    if (activeEngine) await activeEngine.unload();
     setMode('scripted');
   }
 
   const react = useCallback(async (reaction: Reaction) => {
-    if (busy.current || controls.current.paused || controls.current.collapsed || document.hidden) return;
+    if (!engine.current || busy.current || controls.current.mode !== 'local' || controls.current.paused || controls.current.collapsed || document.hidden) return;
     busy.current = true;
     lastReactionAt.current = Date.now();
     const { topic, section, source } = reaction;
@@ -127,31 +127,39 @@ export function AIResidents() {
         const output = result.choices[0]?.message.content || '';
         const astra = output.match(/Astra:\s*([^\n]+)/i)?.[1]?.trim();
         const nemi = output.match(/Nemi:\s*([^\n]+)/i)?.[1]?.trim();
-        if (astra && nemi) pair = [astra.slice(0, 150), nemi.slice(0, 150)];
+        if (!astra || !nemi) throw new Error('Incomplete local dialogue');
+        pair = [astra.slice(0, 150), nemi.slice(0, 150)];
       }
       setThinking(false);
       for (const [index, text] of pair.entries()) {
         if (controls.current.paused || controls.current.collapsed || document.hidden) break;
         addLine(index === 0 ? 'Astra' : 'Nemi', text);
-        await new Promise(resolve => setTimeout(resolve, 3_800));
+        await new Promise(resolve => setTimeout(resolve, 3_000));
       }
     } catch {
       setThinking(false);
-      if (!document.hidden) setError('Local generation stopped. Scripted reactions will continue.');
+      if (!document.hidden) setError('Local generation stopped. We will retry at the next conversation.');
     } finally {
       setThinking(false);
       busy.current = false;
-      if (!controls.current.paused && !document.hidden) setTimeout(() => setLine(null), 4_000);
+      
     }
   }, [addLine, path]);
 
   const trigger = useCallback((event: Interaction, section: string, explicitTopic?: string) => {
     remember(event);
-    const now = Date.now();
-    if (now - lastReactionAt.current < EVENT_COOLDOWN || controls.current.paused || controls.current.collapsed || document.hidden) return;
-    const topic = explicitTopic || (event.kind === 'page' || event.kind === 'section' || event.kind === 'click' || event.kind === 'idle' ? event.kind : topicFor(path));
-    void react({ topic, section, recent: [...memory.current], source: `${event.kind}: ${event.label}` });
+
   }, [path, react, remember]);
+
+  useEffect(() => { void enableAI(); }, []);
+
+  useEffect(() => {
+    if (mode !== 'local') return;
+    const timer = setInterval(() => {
+      void react({ topic: topicFor(path), section: currentSection.current, recent: [...memory.current], source: 'Scheduled conversation: continue the exchange and use recent interactions when relevant' });
+    }, 10_000);
+    return () => clearInterval(timer);
+  }, [mode, path, react]);
 
   useEffect(() => {
     const pageTitle = document.title.replace(/\s*[—|].*$/, '').trim() || 'Personal notebook';
@@ -261,7 +269,7 @@ export function AIResidents() {
         <button className="residents-wake" onClick={() => collapse(false)}>Astra &amp; Nemi <span>✦</span></button>
       ) : <>
         <div className="residents-tools">
-          <span>{mode === 'local' ? 'LOCAL AI' : mode === 'loading' ? 'LOADING MODEL' : 'AMBIENT MODE'}</span>
+          <span>{mode === 'local' ? 'LOCAL AI' : mode === 'loading' ? 'LOADING MODEL' : 'AI STOPPED'}</span>
           <button onClick={() => setPaused(value => !value)} aria-label={paused ? 'Resume conversations' : 'Pause conversations'}>{paused ? '▶' : 'Ⅱ'}</button>
           <button onClick={() => setSettings(value => !value)} aria-expanded={settings} aria-label="Resident settings">⚙</button>
           <button onClick={() => collapse(true)} aria-label="Minimize residents">−</button>
@@ -269,9 +277,9 @@ export function AIResidents() {
         {settings && <div className="residents-settings">
           <strong>Two minds. Same curiosity.</strong>
           <p>They react to pages, sections, and controls you open. Recent context stays in this tab; when enabled, the local model runs on your device.</p>
-          <p>Optional local AI runs on your device. The first download is several hundred MB and can be cached by your browser.</p>
+          <p>Local AI chats every 10 seconds while this tab is visible. If a reply is still running, the next turn waits. The first download is several hundred MB and can be cached by your browser.</p>
           <button onClick={enableAI} disabled={mode !== 'scripted'}>{mode === 'local' ? 'Local AI enabled' : mode === 'loading' ? 'Loading…' : 'Enable local AI'}</button>
-          {mode === 'local' && <button onClick={() => { void disableAI(); }}>Use scripted reactions</button>}
+          {mode === 'local' && <button onClick={() => { void disableAI(); }}>Stop local AI</button>}
           {progress && <p role="status">{progress}</p>}
           {error && <p role="status">{error}</p>}
         </div>}
@@ -282,7 +290,7 @@ export function AIResidents() {
           <div className="residents-pair">
             {(['Astra', 'Nemi'] as const).map(name => <button key={name} className={`resident-person ${name.toLowerCase()} ${line?.speaker === name ? 'is-speaking' : ''}`} onClick={() => {
               remember({ kind: 'click', label: `Waved to ${name}`, page: path, at: Date.now() });
-              addLine(name, name === 'Astra' ? "Let's check the assumptions." : 'But what if we look at it geometrically?');
+
             }} aria-label={`Say hello to ${name}`}>
               <Image src="/residents/astra-nemi.webp" alt={`${name}, a tiny anime website resident`} width={768} height={1024} unoptimized />
               <span>{name}</span>
