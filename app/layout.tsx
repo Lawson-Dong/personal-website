@@ -3,6 +3,8 @@ import 'katex/dist/katex.min.css';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme';
 import { Header } from '@/components/header';
+import { Sidebar } from '@/components/sidebar';
+import './portal.css';
 
 export const metadata: Metadata = {
   title: { default: 'Lawson Dong — Physics & Cognitive Science', template: '%s — Lawson Dong' },
@@ -11,5 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning><body><ThemeProvider><Header />{children}</ThemeProvider></body></html>;
+  return <html lang="en" suppressHydrationWarning><body><ThemeProvider><Header /><Sidebar /><div className="notebook-content">{children}</div></ThemeProvider></body></html>;
 }
