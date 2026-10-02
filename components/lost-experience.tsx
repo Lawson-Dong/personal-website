@@ -11,6 +11,8 @@ const fragments = [
 ];
 const notes = [329.63, 392, 440, 523.25, 587.33];
 const interestingSites = [
+  { title: 'GIRLS BAND CRY', source: 'Official anime website', description: 'Togenashi Togeari, music, and the world of Girls Band Cry.', url: 'https://girls-band-cry.com/tv/' },
+  { title: "BanG Dream! It's MyGO!!!!!", source: 'Official anime website', description: 'The story, characters, and music of MyGO!!!!!.', url: 'https://anime.bang-dream.com/mygo/' },
   { title: 'Anti-Glass', source: 'xkcd · comic 1251', description: 'A small piece of technology satire.', url: 'https://xkcd.com/1251/' },
   { title: 'Dr French’s physics notes', source: 'The Eclecticon', description: 'A delightfully sprawling index of physics notes.', url: 'https://eclecticon.info/physics_notes.htm' },
   { title: 'lvy-neko', source: 'lvyovo-wiki.tech', description: 'Another place worth wandering into.', url: 'https://lvyovo-wiki.tech/' },
