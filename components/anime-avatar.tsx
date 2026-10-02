@@ -1,33 +1,178 @@
 'use client';
-import {useEffect,useRef,useState} from 'react';
-const vertex=`attribute vec2 position; varying vec2 uv; void main(){uv=vec2((position.x+1.0)*.5,(1.0-position.y)*.5);gl_Position=vec4(position,0.,1.);}`;
-const fragment=`precision mediump float; varying vec2 uv; uniform sampler2D art; uniform vec2 gaze; uniform float time; uniform float motion;
-float eye(vec2 p,vec2 c){vec2 d=(p-c)/vec2(.018,.009);return exp(-dot(d,d)*1.8);}
-void main(){vec2 p=uv;float head=(1.-smoothstep(.157,.202,p.y))*smoothstep(.32,.42,p.x)*(1.-smoothstep(.59,.66,p.x));
-vec2 pivot=vec2(.515,.188);float angle=gaze.x*.045*head;vec2 d=p-pivot;p=pivot+mat2(cos(angle),-sin(angle),sin(angle),cos(angle))*d;
-p.x-=gaze.x*.009*head;p.y-=gaze.y*.006*head;
-float eyes=eye(p,vec2(.478,.125))+eye(p,vec2(.534,.116));p-=gaze*vec2(.003,.0018)*eyes;
-p.x-=sin(time*1.35)*.0015*motion*smoothstep(.18,.5,p.y)*(1.-smoothstep(.6,.9,p.y));
-vec4 color=texture2D(art,p);gl_FragColor=color;}`;
-export function AnimeAvatar(){const canvas=useRef<HTMLCanvasElement>(null);const [ready,setReady]=useState(false);
-useEffect(()=>{const el=canvas.current;if(!el)return;const gl=el.getContext('webgl',{alpha:true,premultipliedAlpha:false});if(!gl)return canvasFallback(el,()=>setReady(true));
-let disposed=false,frame=0;const shaders:WebGLShader[]=[];
-const compile=(type:number,source:string)=>{const s=gl.createShader(type)!;gl.shaderSource(s,source);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS)){gl.deleteShader(s);throw new Error('Avatar shader unavailable');}shaders.push(s);return s;};
-let program:WebGLProgram;try{program=gl.createProgram()!;gl.attachShader(program,compile(gl.VERTEX_SHADER,vertex));gl.attachShader(program,compile(gl.FRAGMENT_SHADER,fragment));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw new Error('Avatar renderer unavailable');}catch{shaders.forEach(s=>gl.deleteShader(s));return;}
-gl.useProgram(program);const buffer=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);const a=gl.getAttribLocation(program,'position');gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,2,gl.FLOAT,false,0,0);
-const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-const g=gl.getUniformLocation(program,'gaze'),t=gl.getUniformLocation(program,'time'),m=gl.getUniformLocation(program,'motion');const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');let targetX=0,targetY=0,x=0,y=0;
-const pointer=(e:PointerEvent)=>{if(reduced.matches)return;targetX=Math.max(-1,Math.min(1,(e.clientX/window.innerWidth-.5)*2));targetY=Math.max(-1,Math.min(1,(e.clientY/window.innerHeight-.5)*2));};const reset=()=>{targetX=targetY=0;};window.addEventListener('pointermove',pointer);document.addEventListener('pointerleave',reset);
-const image=new Image();image.onload=()=>{if(disposed)return;gl.bindTexture(gl.TEXTURE_2D,texture);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,image);setReady(true);const draw=(now:number)=>{if(disposed)return;const r=el.getBoundingClientRect(),dpr=Math.min(devicePixelRatio,2);const w=Math.round(r.width*dpr),h=Math.round(r.height*dpr);if(el.width!==w||el.height!==h){el.width=w;el.height=h;gl.viewport(0,0,w,h);}x+=(targetX-x)*.075;y+=(targetY-y)*.075;gl.uniform2f(g,reduced.matches?0:x,reduced.matches?0:y);gl.uniform1f(t,now/1000);gl.uniform1f(m,reduced.matches?0:1);gl.clear(gl.COLOR_BUFFER_BIT);gl.drawArrays(gl.TRIANGLES,0,6);frame=requestAnimationFrame(draw);};frame=requestAnimationFrame(draw);};image.src='/images/anime-self.webp';
-return ()=>{disposed=true;image.onload=null;cancelAnimationFrame(frame);window.removeEventListener('pointermove',pointer);document.removeEventListener('pointerleave',reset);gl.deleteTexture(texture);gl.deleteBuffer(buffer);shaders.forEach(s=>gl.deleteShader(s));gl.deleteProgram(program);};},[]);
-return <div className="avatar-stage"><div className="avatar-halo" aria-hidden="true"/><div className="avatar-floor" aria-hidden="true"/>{/* Static fallback also stays visible while the texture loads. */}<img className="avatar-fallback" src="/images/anime-self.webp" alt="Lawson’s anime self, with black hair, headphones, a guitar case and a black cat charm" style={{opacity:ready?0:1}}/><canvas ref={canvas} className="avatar-canvas" role="img" aria-label="Interactive anime self: head and eyes follow your cursor" style={{opacity:ready?1:0}}/></div>;
+
+import { useEffect, useRef, useState } from 'react';
+
+type Eye = { x: number; y: number; width: number; height: number; angle: number };
+const eyes: Eye[] = [
+  { x: 485, y: 196.5, width: 31, height: 15, angle: -.02 },
+  { x: 543, y: 181, width: 32, height: 18, angle: -.25 },
+];
+
+function eyeOutline(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  ctx.beginPath();
+  ctx.moveTo(-width / 2, 0);
+  ctx.bezierCurveTo(-width * .22, -height * .65, width * .25, -height * .7, width / 2, -height * .1);
+  ctx.bezierCurveTo(width * .22, height * .5, -width * .25, height * .5, -width / 2, 0);
+  ctx.closePath();
 }
 
-// A textured triangle mesh keeps cursor tracking available without WebGL.
-function canvasFallback(el:HTMLCanvasElement,onReady:()=>void){const ctx=el.getContext('2d');if(!ctx)return;let frame=0,disposed=false,x=0,y=0,tx=0,ty=0,last=0;const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-const move=(e:PointerEvent)=>{tx=Math.max(-1,Math.min(1,(e.clientX/innerWidth-.5)*2));ty=Math.max(-1,Math.min(1,(e.clientY/innerHeight-.5)*2));};const reset=()=>{tx=ty=0;};window.addEventListener('pointermove',move);document.addEventListener('pointerleave',reset);const img=new Image();
-const smooth=(a:number,b:number,v:number)=>{const q=Math.max(0,Math.min(1,(v-a)/(b-a)));return q*q*(3-2*q);};
-img.onload=()=>{if(disposed)return;onReady();const draw=(now:number)=>{frame=requestAnimationFrame(draw);if(now-last<33)return;last=now;const r=el.getBoundingClientRect();el.width=Math.round(r.width);el.height=Math.round(r.height);const w=el.width,h=el.height;if(!w||!h)return;x+=(tx-x)*.12;y+=(ty-y)*.12;const gx=reduced.matches?0:x,gy=reduced.matches?0:y;
-const point=(u:number,v:number)=>{const weight=(1-smooth(.157,.202,v))*smooth(.32,.42,u)*(1-smooth(.59,.66,u));const a=gx*.045*weight;const dx=u-.515,dy=v-.188;let px=.515+Math.cos(a)*dx+Math.sin(a)*dy+gx*.009*weight,py=.188-Math.sin(a)*dx+Math.cos(a)*dy+gy*.006*weight;for(const [ex,ey] of [[.478,.125],[.534,.116]]){const f=Math.exp(-(((u-ex)/.018)**2+((v-ey)/.009)**2)*1.8);px+=gx*.003*f;py+=gy*.0018*f;}return [px*w,py*h];};
-const triangle=(s:number[][],d:number[][])=>{const [a,b,c]=s,[A,B,C]=d;const det=(b[0]-a[0])*(c[1]-a[1])-(c[0]-a[0])*(b[1]-a[1]);const aa=((B[0]-A[0])*(c[1]-a[1])-(C[0]-A[0])*(b[1]-a[1]))/det,bb=((B[1]-A[1])*(c[1]-a[1])-(C[1]-A[1])*(b[1]-a[1]))/det,cc=((C[0]-A[0])*(b[0]-a[0])-(B[0]-A[0])*(c[0]-a[0]))/det,dd=((C[1]-A[1])*(b[0]-a[0])-(B[1]-A[1])*(c[0]-a[0]))/det;ctx.save();ctx.beginPath();const center=[(A[0]+B[0]+C[0])/3,(A[1]+B[1]+C[1])/3];const expanded=[A,B,C].map(p=>{const dx=p[0]-center[0],dy=p[1]-center[1],len=Math.hypot(dx,dy);return [p[0]+dx/len*.9,p[1]+dy/len*.9];});ctx.moveTo(expanded[0][0],expanded[0][1]);ctx.lineTo(expanded[1][0],expanded[1][1]);ctx.lineTo(expanded[2][0],expanded[2][1]);ctx.closePath();ctx.clip();ctx.setTransform(aa,bb,cc,dd,A[0]-aa*a[0]-cc*a[1],A[1]-bb*a[0]-dd*a[1]);ctx.drawImage(img,0,0);ctx.restore();};
-for(let j=0;j<48;j++)for(let i=0;i<28;i++){const uv=[[i/28,j/48],[(i+1)/28,j/48],[i/28,(j+1)/48],[(i+1)/28,(j+1)/48]];const s=uv.map(([u,v])=>[u*img.width,v*img.height]),d=uv.map(([u,v])=>point(u,v));triangle([s[0],s[1],s[2]],[d[0],d[1],d[2]]);triangle([s[2],s[1],s[3]],[d[2],d[1],d[3]]);}};frame=requestAnimationFrame(draw);};img.src='/images/anime-self.webp';return()=>{disposed=true;img.onload=null;cancelAnimationFrame(frame);window.removeEventListener('pointermove',move);document.removeEventListener('pointerleave',reset);};}
+function drawEye(ctx: CanvasRenderingContext2D, eye: Eye, x: number, y: number, blink: number) {
+  ctx.save();
+  ctx.translate(eye.x, eye.y);
+  ctx.rotate(eye.angle);
+  eyeOutline(ctx, eye.width, eye.height);
+  ctx.clip();
+  ctx.fillStyle = "#eae3e1";
+  ctx.fillRect(-eye.width, -eye.height, eye.width * 2, eye.height * 2);
+  const irisX = x * 2.1;
+  const irisY = y * 1.2 - .8;
+  const gradient = ctx.createRadialGradient(irisX, irisY - 3, 1, irisX, irisY, 8);
+  gradient.addColorStop(0, '#37475c');
+  gradient.addColorStop(.55, '#718b9e');
+  gradient.addColorStop(1, '#9eafba');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  ctx.ellipse(irisX, irisY, 8.6, 9.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#425061';
+  ctx.lineWidth = .8;
+  ctx.stroke();
+  ctx.fillStyle = '#263040';
+  ctx.beginPath();
+  ctx.ellipse(irisX, irisY - 1.3, 2.4, 4, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#f7f6f0';
+  ctx.beginPath();
+  ctx.ellipse(irisX - 2.4, irisY - 3.8, 2, 1.4, -.3, 0, Math.PI * 2);
+  ctx.fill();
+  if (blink > 0) {
+    const lid = -eye.height + blink * eye.height * 1.65;
+    ctx.fillStyle = '#eaccc3';
+    ctx.fillRect(-eye.width, -eye.height * 2, eye.width * 2, lid + eye.height * 2);
+    ctx.strokeStyle = '#4b3940';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    ctx.moveTo(-eye.width / 2, lid - 1);
+    ctx.quadraticCurveTo(0, lid + 2, eye.width / 2, lid - 2);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+export function AnimeAvatar() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const viewRef = useRef<'portrait' | 'full'>('portrait');
+  const [view, setView] = useState<'portrait' | 'full'>('portrait');
+  const [ready, setReady] = useState(false);
+  const [motion, setMotion] = useState(true);
+  const motionRef = useRef(true);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext('2d', { alpha: true });
+    if (!canvas || !ctx) return;
+    let disposed = false;
+    let frame = 0;
+    let previous = 0;
+    let x = 0, y = 0, eyeX = 0, eyeY = 0;
+    let targetX = 0, targetY = 0;
+    let blinkAt = 3.8;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    const body = new Image();
+    const head = new Image();
+    const pointer = (event: PointerEvent) => {
+      if (event.pointerType === 'touch' && event.buttons === 0) return;
+      // Target relative to the face, rather than the screen center.
+      const bounds = canvas.getBoundingClientRect();
+      const portrait = viewRef.current === 'portrait';
+      const faceX = bounds.left + bounds.width * (portrait ? .45 : .51);
+      const faceY = bounds.top + bounds.height * (portrait ? .21 : .13);
+      targetX = Math.tanh((event.clientX - faceX) / 350);
+      targetY = Math.tanh((event.clientY - faceY) / 300);
+    };
+    const reset = () => { targetX = targetY = 0; };
+    window.addEventListener('pointermove', pointer, { passive: true });
+    window.addEventListener('pointerdown', pointer, { passive: true });
+    window.addEventListener('blur', reset);
+    document.documentElement.addEventListener('pointerleave', reset);
+
+    const draw = (now: number) => {
+      if (disposed) return;
+      frame = requestAnimationFrame(draw);
+      if (document.hidden) { previous = now; return; }
+      const dt = Math.min((now - previous) / 1000 || .016, .05);
+      previous = now;
+      const active = !reduced.matches && motionRef.current;
+      // Eyes react first; head catches up more gently, independent of refresh rate.
+      const slow = 1 - Math.exp(-dt * 5);
+      const fast = 1 - Math.exp(-dt * 12);
+      x += ((active ? targetX : 0) - x) * slow;
+      y += ((active ? targetY : 0) - y) * slow;
+      eyeX += ((active ? targetX : 0) - eyeX) * fast;
+      eyeY += ((active ? targetY : 0) - eyeY) * fast;
+      const bounds = canvas.getBoundingClientRect();
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      const width = Math.round(bounds.width * dpr), height = Math.round(bounds.height * dpr);
+      if (!width || !height) return;
+      if (canvas.width !== width || canvas.height !== height) { canvas.width = width; canvas.height = height; }
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+      const portrait = viewRef.current === 'portrait';
+      const sourceWidth = portrait ? 680 : 1024;
+      const sourceHeight = portrait ? 900 : 1536;
+      const scale = Math.min(width / sourceWidth, height / sourceHeight);
+      ctx.setTransform(scale, 0, 0, scale, (width - sourceWidth * scale) / 2 - (portrait ? 220 * scale : 0), (height - sourceHeight * scale) / 2);
+      const time = now / 1000;
+      const breath = active ? Math.sin(time * 1.6) * .9 : 0;
+      ctx.translate(x * .8, breath);
+      ctx.drawImage(body, 0, 0, 1024, 1536);
+      // The head is a separate layer. No UV warp, triangle mesh, or facial stretch.
+      ctx.save();
+      ctx.translate(530 + x * 2, 259 + y * 1.3);
+      ctx.rotate(x * .026 + (active ? Math.sin(time * .8) * .002 : 0));
+      ctx.translate(-530, -259);
+      // The extracted head was exported at double scale; align it to the neck.
+      ctx.drawImage(head, 265, 48, 512, 768);
+      let blink = 0;
+      if (active) {
+        if (time > blinkAt + .22) blinkAt = time + 3.5 + Math.random() * 2.8;
+        const elapsed = time - blinkAt;
+        if (elapsed >= 0 && elapsed <= .22) blink = Math.sin(elapsed / .22 * Math.PI);
+      }
+      eyes.forEach(eye => drawEye(ctx, eye, eyeX, eyeY, blink));
+      ctx.restore();
+    };
+    Promise.all([body, head].map((image, index) => new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () => reject(new Error('Character layer unavailable'));
+      image.src = index === 0 ? '/images/avatar-body-v2.webp' : '/images/avatar-head-v2.webp';
+    }))).then(() => {
+      if (disposed) return;
+      blinkAt = performance.now() / 1000 + 3.8;
+      setReady(true);
+      frame = requestAnimationFrame(draw);
+    }).catch(() => { /* Keep the original illustration visible if an asset cannot load. */ });
+    return () => {
+      disposed = true;
+      cancelAnimationFrame(frame);
+      body.onload = body.onerror = head.onload = head.onerror = null;
+      window.removeEventListener('pointermove', pointer);
+      window.removeEventListener('pointerdown', pointer);
+      window.removeEventListener('blur', reset);
+      document.documentElement.removeEventListener('pointerleave', reset);
+    };
+  }, []);
+
+  return <div className="avatar-viewer">
+    <div className={`avatar-stage avatar-stage-v2 ${view === 'portrait' ? 'is-portrait' : 'is-full'}`}>
+      <div className="avatar-halo" aria-hidden="true" />
+      {view === 'full' ? <div className="avatar-floor" aria-hidden="true" /> : null}
+      <img className="avatar-fallback" src="/images/anime-self.webp" alt="Lawson’s anime self: black hair, headphones, techwear and a guitar case" style={{ opacity: ready ? 0 : 1 }} />
+      <canvas ref={canvasRef} className="avatar-canvas" role="img" aria-label="Anime character with independent head movement, cursor-following eyes and natural blinking" style={{ opacity: ready ? 1 : 0 }} />
+    </div>
+    <div className="avatar-controls" aria-label="Character view controls">
+      {(['portrait', 'full'] as const).map(option => <button key={option} aria-pressed={view === option} onClick={() => { viewRef.current = option; setView(option); }}>{option === 'portrait' ? 'Portrait' : 'Full body'}</button>)}
+      <button aria-pressed={motion} onClick={() => { motionRef.current = !motion; setMotion(!motion); }}>{motion ? 'Pause motion' : 'Resume motion'}</button>
+    </div>
+  </div>;
+}
