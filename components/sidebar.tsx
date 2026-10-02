@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-const sections = [{href:'/research',name:'Research',index:'01'}, {href:'/coding',name:'Coding and AI Engineering',index:'02'}, {href:'/highlights',name:'Highlighting Blogs & Articles',index:'03'}, {href:'/math-physics',name:'Math & Physics',index:'04'},{href:'/about',name:'About the website',index:'05'}];
+const sections = [{href:'/research',name:'Research',index:'01'}, {href:'/coding',name:'Coding and AI Engineering',index:'02'}, {href:'/highlights',name:'Highlighting Blogs & Articles',index:'03'}, {href:'/math-physics',name:'Math & Physics',index:'04'},{href:'/machine-learning-cognitive-science',name:'Machine Learning & Cognitive Science',index:'05'},{href:'/about',name:'About the website',index:'06'}];
 export function Sidebar() {
  const pathname=usePathname();
  if(pathname!=='/')return null;
