@@ -2,8 +2,7 @@ import type { Metadata } from 'next';
 import 'katex/dist/katex.min.css';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme';
-import { Header } from '@/components/header';
-import { Sidebar } from '@/components/sidebar';
+import { NotebookFrame } from '@/components/notebook-frame';
 import './portal.css';
 
 export const metadata: Metadata = {
@@ -13,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning><body><ThemeProvider><Header /><Sidebar /><div className="notebook-content">{children}</div></ThemeProvider></body></html>;
+  return <html lang="en" suppressHydrationWarning><body><ThemeProvider><NotebookFrame>{children}</NotebookFrame></ThemeProvider></body></html>;
 }
