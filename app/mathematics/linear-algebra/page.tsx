@@ -7,7 +7,7 @@ export const metadata = { title: 'Linear Algebra Visualizations — Lawson Dong'
 
 export default function LinearAlgebra() {
   return <main className="la-page shell">
-    <div className="la-breadcrumb"><Link href="/#notes">Notes</Link><span>/</span><span>Mathematics</span><span>/</span><span>Linear Algebra</span></div>
+    <div className="la-breadcrumb"><Link href="/math-physics">Math &amp; Physics</Link><span>/</span><Link href="/math-physics/math">Math</Link><span>/</span><span>Linear Algebra</span></div>
     <div className="la-intro"><span className="eyebrow">MATHEMATICS / VISUAL NOTES</span><h1>Linear <em>Algebra.</em></h1><p>This corner of the notebook is mainly for interactive visualizations. Move through the operations and watch the matrix, equations, and geometry describe the same system.</p></div>
     <nav className="la-index" aria-label="Linear algebra visualizations"><a href="#gaussian-elimination"><span>01 / VISUALIZATION</span><strong>Gaussian Elimination</strong><small>Follow the purposeful sequence of row operations.</small></a><a href="#elementary-row-operations"><span>02 / VISUALIZATION</span><strong>Elementary Row Operations</strong><small>Explore the three allowed moves one at a time.</small></a><a href="#column-space"><span>03 / VISUALIZATION</span><strong>Column Space &amp; Consistency</strong><small>Compare column combinations and row equations.</small></a></nav>
     <RowLab />
