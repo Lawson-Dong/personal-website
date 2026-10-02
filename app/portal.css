@@ -78,3 +78,8 @@
 .home-destinations>a:nth-child(-n+5){min-height:300px;padding:20px}
 .home-destinations>a:nth-child(-n+5)::before{background-size:auto 175%;background-position:center top}
 @media(max-width:600px){.home-destinations>a:nth-child(-n+5){min-height:280px}}
+
+/* Compact landscape entrances; preserve the original sixth entrance styling. */
+.home-destinations>a:nth-child(-n+5){width:92%;justify-self:center;min-height:200px;padding:18px 16px;box-sizing:border-box}
+.home-destinations>a:nth-child(-n+5)::before{background-size:auto 245%;background-position:center 10%}
+@media(max-width:600px){.home-destinations>a:nth-child(-n+5){width:92%;min-height:190px}}
