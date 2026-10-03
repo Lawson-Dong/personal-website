@@ -3,6 +3,7 @@ import {
   ArrowDown,
   ArrowRight,
   Archive,
+  GitBranch,
   FileText,
   Layers,
   ScanLine,
@@ -191,10 +192,38 @@ function DoctrineMap() {
     </div>
   );
 }
+function FoldSourceMap() {
+  return (
+    <div className="ci-fold-map">
+      <p className="ch-muted">Horizontal compression · independent local folds along the conversation timeline</p>
+      <div className="ci-fold-timeline">
+        {[
+          { refs: "m00002–m00007", name: "b1", text: "Routing decision + test outcome" },
+          { refs: "m00008–m00012", name: "b2", text: "Later completed navigation work" },
+        ].map(({ refs, name, text }) => (
+          <section className="ci-fold-range" key={name}>
+            <div className="ci-fold-original"><Archive size={18} /><strong>Retained original messages</strong><code>{refs}</code><span>Exact source text stays available</span></div>
+            <div className="ci-fold-action"><ArrowDown size={18} /><span>compress · write digest + record coverage</span></div>
+            <div className="ci-fold-digest"><Layers size={18} /><strong>{name} · tier 1 digest</strong><span>{text}</span><code>covers: {refs}</code></div>
+            <p className="ci-fold-read"><ScanLine size={16} /><span>Need a detail? Follow {name}’s coverage → read the retained original.</span></p>
+          </section>
+        ))}
+        <aside className="ci-fold-recent"><FileText size={20} /><strong>Current work</strong><span>Recent raw messages remain in view</span></aside>
+      </div>
+      <div className="ci-fold-next"><GitBranch size={20} /><div><strong>Next: vertical compression</strong><p>b1 + b2 → a tier-2 parent with child links. The source lineage continues through both blocks.</p><a href="/coding/ai-engineering/context-harness/billion-context/hierarchical-compression">Explore Hierarchical Compression →</a></div></div>
+      <p className="ch-muted">Conceptual completed ranges. Real folds enforce protected zones and tool boundaries. Recovery reads retained sources; the digest stays folded.</p>
+    </div>
+  );
+}
 const diagrams: Record<
   string,
   { label: string; title: string; Art: () => ReactNode }
 > = {
+  fold: {
+    label: "SOURCE INDEX / HORIZONTAL COMPRESSION",
+    title: "Fold the view. Keep the way back.",
+    Art: FoldSourceMap,
+  },
   "active-context": {
     label: "STORAGE ≠ ATTENTION",
     title: "Available later. Visible now.",
