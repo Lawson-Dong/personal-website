@@ -12,6 +12,7 @@ import {
   searchDigests,
   promoteBlocks,
   recoverBlock,
+  timeoutValues,
 } from "../lib/context-simulator.ts";
 
 test("a result-only range expands to its call; protected content is excluded", () => {
@@ -80,4 +81,14 @@ test("higher tiers deactivate children but preserve transitive coverage and full
     ["m00002", "m00003", "m00005", "m00006"],
   );
   assert.equal(promoteBlocks(next, ["b1", "b3"], "invalid"), next);
+});
+
+test("exact-evidence checks reflect editable values and expose source conflicts", () => {
+  assert.deepEqual(timeoutValues(thinDigest), []);
+  assert.deepEqual(timeoutValues("timeoutMs = 2600"), ["2600"]);
+  assert.deepEqual(timeoutValues("timeoutMs = 2600\n" + foldSources[2].text), [
+    "2600",
+    "2500",
+  ]);
+  assert.deepEqual(timeoutValues(faithfulDigest), ["2500"]);
 });

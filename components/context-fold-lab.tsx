@@ -21,6 +21,7 @@ import {
   searchDigests,
   sourceSize,
   thinDigest,
+  timeoutValues,
   workingSize,
   type DigestBlock,
 } from "@/lib/context-simulator";
@@ -67,6 +68,7 @@ export function FoldLab() {
       ? [recoveryText]
       : []),
   ].join("\n");
+  const evidenceValues = timeoutValues(liveText);
   const hits = searchDigests(query, blocks),
     picked = blocks.find((b) => b.id === target) ?? blocks[0];
   function reset() {
@@ -76,6 +78,10 @@ export function FoldLab() {
     setStep(0);
     setSearched(false);
     setTarget("");
+    setQuery("routing");
+    setPrecise(true);
+    setCcr(true);
+    setInspected("m00003");
     setStart(1);
     setEnd(6);
     setSummary(faithfulDigest);
@@ -392,6 +398,13 @@ export function FoldLab() {
               <button onClick={() => setSummary(thinDigest)}>
                 Try an over-compressed digest
               </button>
+              <button
+                onClick={() =>
+                  setSummary(faithfulDigest.replace("2500", "2600"))
+                }
+              >
+                Try a wrong exact value
+              </button>
             </div>
             <label className="fs-editor-label" htmlFor="fold-summary">
               Your digest · editable
@@ -452,18 +465,22 @@ export function FoldLab() {
             </div>
             {probe ? (
               <div
-                className={`fs-probe ${liveText.includes("2500") ? "resolved" : ""}`}
+                className={`fs-probe ${evidenceValues.length === 1 && evidenceValues[0] === "2500" ? "resolved" : ""}`}
                 role="status"
               >
                 <strong>
-                  {liveText.includes("2500")
-                    ? "2500 ms · evidence is in view"
-                    : "Not established by the current view"}
+                  {evidenceValues.length > 1
+                    ? `Conflicting timeout values: ${evidenceValues.join(" / ")} ms`
+                    : evidenceValues.length === 1
+                      ? `${evidenceValues[0]} ms · asserted in the working view`
+                      : "Not established by the current view"}
                 </strong>
                 <p>
-                  {liveText.includes("2500")
-                    ? "The exact value appears in the remaining raw source, digest, or returned source text."
-                    : "A short digest can omit an exact value. Read the retained original; do not infer the value from “routing fixed”."}
+                  {evidenceValues.length > 1
+                    ? "The digest and returned source disagree. Recovery exposes the discrepancy; it does not silently repair the summary."
+                    : evidenceValues.length === 1
+                      ? "This literal value appears in raw source, the digest, or returned source text. A digest can also contain a mistaken value; inspect the original to check fidelity."
+                      : "A short digest can omit an exact value. Read the retained original; do not infer the value from “routing fixed”."}
                 </p>
               </div>
             ) : null}

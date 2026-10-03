@@ -265,3 +265,14 @@ export function searchDigests(query: string, blocks: DigestBlock[]) {
       )
     : [];
 }
+
+export function timeoutValues(text: string): string[] {
+  return [
+    ...new Set(
+      Array.from(
+        text.matchAll(/timeout(?:Ms)?\s*(?:=|:)?\s*(\d+)/gi),
+        (match) => match[1],
+      ),
+    ),
+  ];
+}

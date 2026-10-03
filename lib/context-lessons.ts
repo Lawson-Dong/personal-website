@@ -61,7 +61,7 @@ export const lessons = [
     intro:
       "Tool outputs and new turns enlarge the working set. Window capacity and a token budget constrain different things: how much fits on one request and how much repeated processing costs.",
     clarification:
-      "The budget visualization uses invented token sizes and normalized costs. It does not estimate a provider’s bill.",
+      "The trajectory uses synthetic token sizes and a fixed teaching schedule. It illustrates input accounting, not a provider bill or production compression cadence.",
     notes:
       "There is a conflict between:\n\n- the user's token / monetary budget,\n- the model's limited context window,\n- **and** the continuously growing amount of information produced during a long-running agent session.\n\nAs the session grows:\n\n$$  \n\\text{conversation history} \\uparrow  \n\\quad \\Rightarrow \\quad  \n\\text{input tokens} \\uparrow  \n$$\n\nEventually, this can increase cost or exceed the model's context-window limit.\n\n---",
     quiz: {
@@ -92,7 +92,7 @@ export const lessons = [
       answers: ["Yes", "No"],
       correct: 1,
       explanation:
-        "Many smaller requests can sum to billions of tokens, including repeated prefix reads.",
+        "Many smaller requests can sum to billions of tokens, including repeated history.",
     },
   },
   {
