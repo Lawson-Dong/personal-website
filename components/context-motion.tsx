@@ -19,7 +19,7 @@ export function ContextMotion({children}:{children:ReactNode}) {
   const onScroll=()=>{if(scrollFrame===null)scrollFrame=requestAnimationFrame(updateProgress);};
   updateProgress();window.addEventListener('scroll',onScroll,{passive:true});window.addEventListener('resize',onScroll);
   let observer:IntersectionObserver|null=null;
-  const elements=Array.from(host.querySelectorAll<HTMLElement>('.ch-chapter-card,.ch-lab,.ch-clarification,.ch-note-section,.ch-quiz,.ch-source,.ch-feature'));
+  const elements=Array.from(host.querySelectorAll<HTMLElement>('.ch-chapter-card,.ch-visual,.ch-lab,.ch-clarification,.ch-note-section,.ch-quiz,.ch-source,.ch-feature'));
   if(!reduced.matches){
    observer=new IntersectionObserver(entries=>{for(const entry of entries){if(entry.isIntersecting){entry.target.setAttribute('data-revealed','true');observer?.unobserve(entry.target);}}},{threshold:.06});
    elements.forEach((element,i)=>{
