@@ -183,8 +183,26 @@ export const lessons = [
     },
   },
   {
+    "slug": "kernel",
+    "title": "8. Kernel",
+    "subtitle": "The engine behind blocks, protections and the working view",
+    "intro": "acp-kernel supplies the context-management machinery used by billion-context. It tracks references and block lineage, checks proposed operations, and renders the context that reaches the model.",
+    "clarification": "The kernel enforces structural rules. The model writes summaries and judges task meaning; the proxy connects the kernel to the host, provider and retained-source recovery. Structural validity cannot guarantee semantic fidelity.",
+    "notes": "### From the source graph to the working view\n\nThe previous chapter built blocks and tiers. **acp-kernel** manages the structure that makes those operations possible. The next chapter introduces the doctrine that guides the model’s choices.\n\n| Kernel responsibility | What it does |\n| --- | --- |\n| References | Identify messages and blocks so operations can target them |\n| Protections | Check protected zones and tool-call/result boundaries |\n| Blocks + lineage | Track summaries, tiers, child links and original coverage |\n| Visibility | Render active digests and unconsumed messages into the working view |\n| Growth + budgets | Track size, issue evaluation nudges and apply configured budget safeguards |\n\n### One compression operation\n\nThe model proposes a range and writes its digest. The kernel checks the range, applies the operation, updates block coverage and visibility, and builds the next working view. The proxy then forwards that view to the provider.\n\nA valid range can still have a poor summary. The kernel can protect a message boundary; it cannot certify that the digest retained the reasoning needed for the next step.\n\n### Where semantic judgment enters\n\n**Model + doctrine:** what is consumed, what meaning to preserve, and whether to act on a normal nudge.\n\n**Kernel:** how the chosen operation is validated, recorded and reflected in context state.\n\nThe Growth Gate chapter later examines how the kernel decides when to ask for compression evaluation.",
+    "quiz": {
+        "question": "A fold obeys every structural protection but omits a crucial decision. What failed?",
+        "answers": [
+            "Semantic fidelity of the model-written digest",
+            "The block ID format",
+            "The source graph must have been deleted"
+        ],
+        "correct": 0,
+        "explanation": "Structural checks validate coverage and boundaries. Preserving the task’s useful meaning requires model judgment guided by the doctrine."
+    }
+},
+  {
     slug: "compression-doctrine",
-    title: "8. Compression Doctrine",
+    title: "9. Compression Doctrine",
     subtitle: "Semantic judgment meets structural safeguards",
     intro:
       "The model uses task meaning to choose useful summaries. The kernel supplies stable references, protected ranges, visibility rules and budget enforcement.",
@@ -203,7 +221,7 @@ export const lessons = [
   },
   {
     slug: "growth-gate",
-    title: "9. Growth Gate",
+    title: "10. Growth Gate",
     subtitle: "When to ask is not what to compress",
     intro:
       "The normal gate decides when to ask the model to evaluate compression. The model still decides what is consumed; the kernel validates the resulting operation.",

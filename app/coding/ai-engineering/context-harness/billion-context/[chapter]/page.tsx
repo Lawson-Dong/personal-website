@@ -148,7 +148,8 @@ export default async function Chapter({
               reflects the reviewed repository.
             </p>
             {lesson.slug === "fold" ||
-            lesson.slug === "hierarchical-compression" ? (
+            lesson.slug === "hierarchical-compression" ||
+            lesson.slug === "kernel" ? (
               <a
                 href={`https://github.com/ranxianglei/acp-kernel/tree/${kernelCommit}`}
                 target="_blank"
@@ -157,6 +158,7 @@ export default async function Chapter({
                 Pinned acp-kernel 0.0.100 · ranges, protections and lineage ↗
               </a>
             ) : null}
+            {lesson.slug === "kernel" ? ["src/compress.ts", "src/protected.ts", "src/tool-pairs.ts", "src/hide-consumed.ts", "src/refs.ts"].map(file => <a key={file} href={`https://github.com/ranxianglei/acp-kernel/blob/${kernelCommit}/${file}`} target="_blank" rel="noreferrer">acp-kernel / {file} ↗</a>) : null}
             {files.map((file) => (
               <a
                 key={file}
