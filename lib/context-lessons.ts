@@ -17,7 +17,8 @@ export const lessons = [
       ],
       "correct": 0,
       "explanation": "Read src/decompress-shared.ts; the preprint describes the design, while the implementation records current behavior."
-    }
+    },
+    "labId": 0
   },
   {
     "slug": "active-context",
@@ -35,7 +36,8 @@ export const lessons = [
       ],
       "correct": 1,
       "explanation": "Saved history and active input are separate. Retrieval can bring the old content back into view."
-    }
+    },
+    "labId": 1
   },
   {
     "slug": "long-context-problem",
@@ -53,11 +55,30 @@ export const lessons = [
       ],
       "correct": 1,
       "explanation": "A window bounds the resident input on a request. Cumulative billing is a different quantity."
-    }
+    },
+    "labId": 2
+  },
+  {
+    "slug": "bounded-window",
+    "title": "3. Core idea",
+    "subtitle": "Cumulative work is not resident context",
+    "intro": "The name billion-context describes cumulative processing over a long session. It does not mean the model attends to one billion tokens in a single forward pass.",
+    "clarification": "Cumulative input may count the same prefix again on many requests, including cache reads. It is not the number of unique tokens stored or attended to simultaneously.",
+    "notes": "The key idea is **not** to create a model with a native billion-token attention window.\n\nInstead:\n\n$$  \n\\text{very long cumulative session}  \n\\rightarrow  \n\\text{context management}  \n\\rightarrow  \n\\text{limited active context}  \n\\rightarrow  \n\\text{LLM}  \n$$\n\nSo a session may process billions of cumulative tokens over time while only a much smaller amount of information remains resident in the model's active context at any one moment.\n\nIn short:\n\n> **Keep recent information verbatim, fold older information into recoverable summaries, and retrieve historical details only when they become relevant again.**\n\n---",
+    "quiz": {
+      "question": "Does one billion cumulative input tokens imply a billion-token attention window?",
+      "answers": [
+        "Yes",
+        "No"
+      ],
+      "correct": 1,
+      "explanation": "Many smaller requests can sum to billions of tokens, including repeated prefix reads."
+    },
+    "labId": 5
   },
   {
     "slug": "basic-approaches",
-    "title": "3. Basic approaches",
+    "title": "4. Basic approaches",
     "subtitle": "Three ways to make room",
     "intro": "Truncation creates room by removing material. A summary preserves selected meaning. Recoverable folds also retain source relationships so exact details can be fetched later.",
     "clarification": "Not every summarization system discards originals. The comparison here illustrates policies, rather than labeling all summarizers irreversible.",
@@ -71,11 +92,12 @@ export const lessons = [
       ],
       "correct": 1,
       "explanation": "A retained source plus a traceable address enables restoration. A summary alone cannot recover omitted details."
-    }
+    },
+    "labId": 3
   },
   {
     "slug": "incremental-fold",
-    "title": "4. The billion-context approach",
+    "title": "5. The billion-context approach",
     "subtitle": "Small folds. Recoverable history.",
     "intro": "A fold replaces a consumed range in the working view with a digest. Search locates a candidate; decompression returns source content when the digest is insufficient.",
     "clarification": "Current proxy detail: resolveDecompress returns a historical copy or a file pointer while the folded block remains active. Inline restores also record a sidecar flag. Recoverability requires retained source data; lineage alone cannot recreate deleted text.",
@@ -89,24 +111,8 @@ export const lessons = [
       ],
       "correct": 0,
       "explanation": "The proxy’s retrieval path keeps the folded view; this avoids a forced expand/refold cycle."
-    }
-  },
-  {
-    "slug": "bounded-window",
-    "title": "5. Core idea",
-    "subtitle": "Cumulative work is not resident context",
-    "intro": "The name billion-context describes cumulative processing over a long session. It does not mean the model attends to one billion tokens in a single forward pass.",
-    "clarification": "Cumulative input may count the same prefix again on many requests, including cache reads. It is not the number of unique tokens stored or attended to simultaneously.",
-    "notes": "The key idea is **not** to create a model with a native billion-token attention window.\n\nInstead:\n\n$$  \n\\text{very long cumulative session}  \n\\rightarrow  \n\\text{context management}  \n\\rightarrow  \n\\text{limited active context}  \n\\rightarrow  \n\\text{LLM}  \n$$\n\nSo a session may process billions of cumulative tokens over time while only a much smaller amount of information remains resident in the model's active context at any one moment.\n\nIn short:\n\n> **Keep recent information verbatim, fold older information into recoverable summaries, and retrieve historical details only when they become relevant again.**\n\n---",
-    "quiz": {
-      "question": "Does one billion cumulative input tokens imply a billion-token attention window?",
-      "answers": [
-        "Yes",
-        "No"
-      ],
-      "correct": 1,
-      "explanation": "Many smaller requests can sum to billions of tokens, including repeated prefix reads."
-    }
+    },
+    "labId": 4
   },
   {
     "slug": "prefix-cache",
@@ -124,11 +130,12 @@ export const lessons = [
       ],
       "correct": 0,
       "explanation": "A prefix is contiguous from the beginning. The first difference ends it."
-    }
+    },
+    "labId": 6
   },
   {
     "slug": "kv-cache",
-    "title": "7.KV Cache",
+    "title": "7. KV Cache",
     "subtitle": "Reuse attention states as tokens arrive",
     "intro": "Autoregressive attention can reuse historical keys and values. Each new query compares against keys and combines values; it does not require recomputing every old token’s states.",
     "clarification": "Prefix cache is a serving-layer reuse policy across requests; KV cache is attention-state reuse during inference. billion-context manages messages, not the model’s internal K/V tensors.",
@@ -142,7 +149,8 @@ export const lessons = [
       ],
       "correct": 1,
       "explanation": "Historical K/V states are reusable. New queries are computed for the new token."
-    }
+    },
+    "labId": 7
   },
   {
     "slug": "hierarchical-compression",
@@ -159,7 +167,8 @@ export const lessons = [
       ],
       "correct": 1,
       "explanation": "Horizontal handles new ranges across time. Vertical re-distills digests across tiers."
-    }
+    },
+    "labId": 8
   },
   {
     "slug": "compression-doctrine",
@@ -176,7 +185,8 @@ export const lessons = [
       ],
       "correct": 1,
       "explanation": "The criterion is current task need. Age alone is insufficient."
-    }
+    },
+    "labId": 9
   },
   {
     "slug": "growth-gate",
@@ -193,6 +203,7 @@ export const lessons = [
       ],
       "correct": 1,
       "explanation": "The gate invites evaluation. The model retains semantic choice; hard budget backstops are separate."
-    }
+    },
+    "labId": 10
   }
 ];
