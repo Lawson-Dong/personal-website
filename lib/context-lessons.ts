@@ -153,8 +153,27 @@ export const lessons = [
     "labId": 7
   },
   {
+    "slug": "fold",
+    "title": "8. Fold",
+    "subtitle": "Change the working view. Keep the source.",
+    "intro": "A fold replaces a selected, consumed range of messages with a compact digest in the model’s working view. The original range remains stored and addressable, so the agent can inspect it again when exact details matter.",
+    "clarification": "Folding changes the rendered input; it does not create extra native attention capacity. A digest is lossy prose. Exact recovery depends on retained originals and source references, not on reversing the summary itself. The diagrams show a conceptual layout, not a byte-for-byte proxy serialization.",
+    "notes": "### What does “fold” mean?\n\nThink of a folder on a working desk. You replace a pile of already-read pages with a short cover note, while keeping the pages in storage. The cover note remains useful for orientation; the original pages are available for exact inspection.\n\nIn this notebook, a **fold** is the operation that turns a selected message range into an **addressable digest block** and changes which representation reaches the model. “Fold” also names the resulting working layout: digests alongside recent verbatim context.\n\n[Source: living preprint §3.1–3.2](https://github.com/ranxianglei/billion-context/blob/f2b180227d617e688a2a26113a638cf244fee018/paper/model-driven-incremental-hierarchical-compression-training-free-multi-generational-context-management-for-long-lived-coding-agents.md)\n\n### Before and after one fold\n\nSuppose m02–m04 contain a file read, a routing decision and a test log. After the task has used them, the model can request a compress operation for that range.\n\n$$\n[m_{02},m_{03},m_{04}]_{\\text{working view}}\n\\longrightarrow\nb_{01}\n$$\n\nThe block contains a digest such as “Keep the existing Next.js routes; tests passed,” plus references linking it to m02–m04. The original messages remain in source storage. Intent, constraints and recent work outside the selected range remain in the working view.\n\n| Layer | Before folding | After folding |\n| --- | --- | --- |\n| Working view | Raw m02–m04 plus surrounding messages | Digest b01 plus surrounding messages |\n| Source storage | Original m02–m04 | Original m02–m04 retained |\n| Addressing | Message references | Block ID plus source references |\n| Exact details | Directly visible in the raw range | Available through source recovery |\n\nThis separates **resident information** from **recoverable information**. The model can use a digest without attending to every original token on every request.\n\n### A summary is the content; a fold is the managed change\n\nA summary is shorter text. A recoverable fold additionally has a selected range, a block identity, source relationships and working-view bookkeeping. It coordinates summarization with storage and access.\n\nA digest alone cannot regenerate omitted quotes, numbers or code. Exact recovery reads the retained source. Other systems can also combine summaries with archived originals; “fold” describes this project’s managed block operation.\n\n### Choose consumed information\n\n“Consumed” means that the current task has already used the information and no longer needs all of its raw detail. It does not simply mean “old.”\n\nPreserve the useful conclusion, decisions, constraints, unresolved problems and identifiers in the digest. Keep active details raw when the task still needs them. The model chooses a candidate using the doctrine; the kernel validates its boundaries and protects designated zones.\n\n### Read the original without undoing the whole fold\n\nWhen the digest is insufficient, the model can use search_context to locate a relevant block, then decompress it.\n\nIn the reviewed proxy, decompression normally returns a **historical copy** or a **file pointer** while the block stays folded:\n\n- A copy supplies source text as a tool result, adding temporary input.\n- File output gives a path; the source text enters the request when the agent reads the needed content.\n- The inline whole-block path also records a sidecar flag for later handling. It does not generally delete the digest and permanently expand the range.\n\n[Source: resolveDecompress in src/decompress-shared.ts](https://github.com/ranxianglei/billion-context/blob/f2b180227d617e688a2a26113a638cf244fee018/src/decompress-shared.ts)\n\n### Why the preceding cache chapters matter\n\nA smaller working view reduces the amount of resident context to process. Cache reuse is a separate question: it depends on what tokens actually remain unchanged between requests.\n\nLocal folds aim to avoid unnecessary broad rewrites, and file-based recovery avoids immediately inserting all restored source text into the prompt. Neither guarantees that the entire old prefix stays reusable. If an early token changes, the common prefix ends there; provider cache policy still matters.\n\n### From one fold to a hierarchy\n\nOne consumed range becomes one digest block. Several independent folds produce several blocks. Those blocks can themselves accumulate, so the next chapter introduces **hierarchical compression**: distilling older digests into higher-tier blocks while retaining their source lineage.\n\nFirst understand the single operation: **select a consumed range → write a digest → change the working view → recover sources when needed**. The hierarchy builds on that operation.\n",
+    "quiz": {
+      "question": "After a recoverable fold, where do omitted exact details come from?",
+      "answers": [
+        "The digest mathematically reconstructs every token",
+        "The retained original sources linked to the block",
+        "A larger native attention window"
+      ],
+      "correct": 1,
+      "explanation": "A fold changes the working representation. A summary is lossy; exact details are read from retained sources through their references."
+    },
+    "labId": 11
+  },
+  {
     "slug": "hierarchical-compression",
-    "title": "8. Hierarchical Compression",
+    "title": "9. Hierarchical Compression",
     "subtitle": "Across time. Up through tiers.",
     "intro": "Incremental compression handles separate consumed ranges over time. Hierarchical compression folds existing digests into a higher tier while keeping lineage to their sources.",
     "clarification": "Tier diagrams are conceptual. The source paper describes directBlockIds and effectiveMessageIds; the current proxy uses stored originals for recovery. Higher-tier summaries can omit detail even while the source remains recoverable.",
@@ -172,7 +191,7 @@ export const lessons = [
   },
   {
     "slug": "compression-doctrine",
-    "title": "9. Compression Doctrine",
+    "title": "10. Compression Doctrine",
     "subtitle": "Semantic judgment meets structural safeguards",
     "intro": "The model uses task meaning to choose useful summaries. The kernel supplies stable references, protected ranges, visibility rules and budget enforcement.",
     "clarification": "Age and relevance are teaching heuristics, not an implemented numerical scoring function. Kernel protections can reject a proposed range. Recent-tool exclusions and protected tool settings are configurable.",
@@ -190,7 +209,7 @@ export const lessons = [
   },
   {
     "slug": "growth-gate",
-    "title": "10. Growth Gate",
+    "title": "11. Growth Gate",
     "subtitle": "When to ask is not what to compress",
     "intro": "A growth-gated nudge invites the model to assess compression. The model can decline during active work or initiate a fold without a nudge; emergency paths are separate.",
     "clarification": "The normal nudge uses a context floor plus growth conditions, with adaptive thresholds and tier-specific paths. The demo simplifies these conditions. maxContextLimit can bypass growth/cadence, and emergency truncation is a separate backstop.",
