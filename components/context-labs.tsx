@@ -1,40 +1,291 @@
-'use client';
-import {useState, type ReactNode} from 'react';
-const messages=[
- {id:'m01',text:'Goal: build a research website',tokens:220,kind:'Intent'},
- {id:'m02',text:'Read files: 4,000 tokens of source code',tokens:4000,kind:'Tool output'},
- {id:'m03',text:'Decision: keep the existing Next.js routes',tokens:180,kind:'Decision'},
- {id:'m04',text:'Test logs: 3,200 tokens, all checks passed',tokens:3200,kind:'Tool output'},
- {id:'m05',text:'Constraint: preserve the Python section',tokens:140,kind:'Constraint'},
- {id:'m06',text:'Current step: design chapter navigation',tokens:700,kind:'Active work'},
-];
-function Controls({children}:{children:ReactNode}){return <div className="ch-controls">{children}</div>}
-function Stat({label,value}:{label:string;value:string|number}){return <div className="ch-stat"><strong>{value}</strong><span>{label}</span></div>}
-function Meter({value,max,label}:{value:number;max:number;label:string}){return <div className="ch-meter"><div><span>{label}</span><strong>{value.toLocaleString()} / {max.toLocaleString()}</strong></div><div className="ch-track"><span style={{width:`${Math.min(100,value/max*100)}%`}}/></div></div>}
-function TokenRow({items,cached=0}:{items:string[];cached?:number}){return <div className="ch-tokens">{items.map((t,i)=><span key={i} className={i<cached?'cached':''}>{t}<small>{i<cached?'reused':'new'}</small></span>)}</div>}
-function ActiveContext(){const [visible,setVisible]=useState([0,4,5]);const [selected,setSelected]=useState(1);return <><p>Click a stored message to include or exclude it from the next request.</p><div className="ch-dual"><div><h3>Stored conversation</h3>{messages.map((m,i)=><button key={m.id} className={`ch-message ${visible.includes(i)?'selected':''}`} aria-pressed={visible.includes(i)} onClick={()=>{setSelected(i);setVisible(v=>v.includes(i)?v.filter(j=>j!==i):[...v,i].sort())}}><span>{m.id} · {m.kind}</span>{m.text}</button>)}</div><div className="ch-window"><p className="ch-kicker">ACTIVE CONTEXT → MODEL</p>{visible.length?visible.map(i=><div key={i} className="ch-block"><small>{messages[i].id}</small>{messages[i].text}</div>):<p>No conversation messages included.</p>}<Stat label="tokens included in this request" value={visible.reduce((n,i)=>n+messages[i].tokens,0).toLocaleString()}/></div></div><p className="ch-result" role="status">{messages[selected].id} is {visible.includes(selected)?'visible to the model on this request.':'still stored, but absent from active context.'}</p></>}
-function Budget(){const [turns,setTurns]=useState(4);const [cap,setCap]=useState(16000);const input=2000+turns*2200;const cumulative=Array.from({length:turns+1},(_,i)=>2000+i*2200).reduce((a,b)=>a+b,0);return <><Controls><button disabled={turns>=12} onClick={()=>setTurns(t=>t+1)}>Add a tool-heavy turn +2,200</button><button onClick={()=>setTurns(0)}>Reset</button><label>Window <select value={cap} onChange={e=>setCap(Number(e.target.value))}><option value={16000}>16,000 tokens</option><option value={32000}>32,000 tokens</option></select></label></Controls><Meter value={input} max={cap} label="Active input"/><div className="ch-stats"><Stat label="turns added" value={turns}/><Stat label="cumulative input tokens" value={cumulative.toLocaleString()}/><Stat label="request fits?" value={input<=cap?'YES':'OVERFLOW'}/></div><svg className="ch-chart" viewBox="0 0 650 170" role="img" aria-label="Growing active context plotted against window limit"><line x1="20" y1={150-cap/32000*125} x2="620" y2={150-cap/32000*125} stroke="currentColor" strokeDasharray="5 5"/><polyline fill="none" stroke="var(--ch-accent)" strokeWidth="4" points={Array.from({length:turns+1},(_,i)=>`${20+i*48},${150-(2000+i*2200)/32000*125}`).join(' ')}/><text x="20" y="165">Time →</text><text x="460" y="18">Dashed line: window</text></svg><p className="ch-result" role="status">{input>cap?'The next request exceeds the selected window. Increasing storage alone will not make it fit.':'Repeated requests process a growing input. Cumulative processing increases faster than the active input.'}</p></>}
-const commonPolicies=[
- {name:'Sliding window',focus:'RECENCY',view:['Constraint: preserve Python.','Current step: chapter navigation.'],reason:'Only the recent suffix is sent. The earlier test log is outside this request.',risk:'An old decision can still matter after it leaves the window.'},
- {name:'Compaction',focus:'CONTINUITY',view:['Summary: Next.js site; preserve Python; checks passed.','Current step: chapter navigation.'],reason:'Older turns become a summary; recent work stays raw.',risk:'The exact log size was omitted from this example summary.'},
- {name:'Tool pruning',focus:'NOISE',view:['Goal: build a research website.','Decision: keep Next.js routes.','[File dump and old test log cleared]','Constraint: preserve Python.','Current step: chapter navigation.'],reason:'Selected bulky outputs are cleared while useful surrounding turns remain.',risk:'A cleared result may need to be read again later.'},
- {name:'Retrieval',focus:'RELEVANCE',view:['Current step: chapter navigation.','Retrieved m03: keep the existing Next.js routes.'],reason:'This example query selects one relevant stored passage, rather than loading all history.',risk:'A query about test logs needs a different source; retrieval can miss evidence.'},
- {name:'Structured memory',focus:'DURABLE STATE',view:['project.framework = Next.js','project.constraint = preserve Python','project.status = tests passed','Current step: chapter navigation.'],reason:'Selected facts are written as project state and loaded into the request.',risk:'Facts need updating and may omit their original evidence.'},
- {name:'Context isolation',focus:'SCOPE',view:['Main agent: design chapter navigation.','Worker handoff: tests passed; see m04 for the log.'],reason:'The detailed testing trace lives in a separate worker context; the coordinator receives a handoff.',risk:'A handoff can omit details, and separate agents can add total token usage.'},
-];
-function Approaches(){
- const [mode,setMode]=useState(0);const [retain,setRetain]=useState(true);const [recall,setRecall]=useState(false);const policy=commonPolicies[mode];
- return <><p>Same task, six ways to assemble the next request. Switch a method, then test whether an omitted exact detail can be recovered.</p><Controls>{commonPolicies.map((p,i)=><button key={p.name} aria-pressed={mode===i} className={mode===i?'selected':''} onClick={()=>{setMode(i);setRecall(false)}}>{p.name}</button>)}</Controls><div className="ch-dual"><div className="ch-window"><p className="ch-kicker">WORKING VIEW / {policy.focus}</p>{policy.view.map(v=><div className="ch-block" key={v}>{v}</div>)}<p>{policy.reason}</p></div><div><h3>Storage is a separate choice</h3><Controls><label><input type="checkbox" checked={retain} onChange={e=>{setRetain(e.target.checked);setRecall(false)}}/>Retain original test source</label></Controls><p>Question: how long was the original test log?</p><button className="ch-primary" onClick={()=>setRecall(true)}>Inspect the source path</button>{recall?<p role="status" className="ch-result">{retain?'Read the retained archive m04 → test log: 3,200 tokens. This separate source-read path is available in every example policy.':'The original source was not retained in this scenario. The working view omitted the exact size, so it cannot establish it.'}</p>:null}<p className="ch-muted">{policy.risk}</p></div></div><p className="ch-muted">Illustrative policies, not product defaults. This lab assumes a source-read tool when the archive is retained. Real systems combine methods and need an accessible, usable archive.</p></>;
+"use client";
+import { useState, type ReactNode } from "react";
+import { ArrowRight, Check, Undo2 } from "lucide-react";
+import { FoldLab } from "./context-fold-lab";
+import { HierarchyLab } from "./context-hierarchy-lab";
+const fmt = (n: number) => n.toLocaleString("en-US");
+function BudgetLab() {
+  const [turns, setTurns] = useState(8),
+    [managed, setManaged] = useState(true),
+    [windowSize, setWindowSize] = useState(16000);
+  const series = Array.from({ length: turns + 1 }, (_, i) => ({
+    raw: 3000 + i * 2000,
+    managed: 3000 + (i % 4) * 2000 + Math.floor(i / 4) * 300,
+  }));
+  const y = (n: number) => 250 - (n / 40000) * 210,
+    x = (i: number) => 75 + (i * 690) / 16;
+  const current = series[turns][managed ? "managed" : "raw"],
+    cumulative = series.reduce((n, p) => n + p[managed ? "managed" : "raw"], 0);
+  return (
+    <>
+      <div className="fs-heading">
+        <div>
+          <p className="ch-kicker">CONTEXT TRAJECTORY</p>
+          <h2>
+            A window is a limit.
+            <br />
+            <em>Work is a running total.</em>
+          </h2>
+        </div>
+        <p>
+          Compare the same synthetic sequence of requests. A fold drops resident
+          input; it does not erase work already processed.
+        </p>
+      </div>
+      <div className="ch-controls">
+        <label>
+          Requests{" "}
+          <input
+            type="range"
+            min="0"
+            max="16"
+            value={turns}
+            onChange={(e) => setTurns(Number(e.target.value))}
+          />
+          <output>{turns + 1}</output>
+        </label>
+        <label>
+          Window
+          <select
+            value={windowSize}
+            onChange={(e) => setWindowSize(Number(e.target.value))}
+          >
+            <option value={16000}>16K</option>
+            <option value={32000}>32K</option>
+          </select>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={managed}
+            onChange={(e) => setManaged(e.target.checked)}
+          />
+          Use conceptual periodic folds
+        </label>
+      </div>
+      <div className="bt-chart">
+        <svg
+          viewBox="0 0 820 315"
+          role="img"
+          aria-label={`Synthetic active input: ${fmt(current)} tokens on request ${turns + 1}; window ${fmt(windowSize)}.`}
+        >
+          {[0, 10000, 20000, 30000, 40000].map((n) => (
+            <g key={n}>
+              <line x1="75" x2="765" y1={y(n)} y2={y(n)} className="bt-grid" />
+              <text x="62" y={y(n) + 4} textAnchor="end">
+                {n / 1000}K
+              </text>
+            </g>
+          ))}
+          <line
+            x1="75"
+            x2="765"
+            y1={y(windowSize)}
+            y2={y(windowSize)}
+            className="bt-limit"
+          />
+          <text x="765" y={y(windowSize) - 9} textAnchor="end">
+            window · {windowSize / 1000}K
+          </text>
+          <polyline
+            className="bt-raw"
+            points={series.map((p, i) => `${x(i)},${y(p.raw)}`).join(" ")}
+          />
+          <polyline
+            className="bt-managed"
+            points={series.map((p, i) => `${x(i)},${y(p.managed)}`).join(" ")}
+          />
+          <circle
+            cx={x(turns)}
+            cy={y(current)}
+            r="6"
+            className={managed ? "bt-focus-managed" : "bt-focus-raw"}
+          />
+          {[0, 4, 8, 12, 16].map((i) => (
+            <text key={i} x={x(i)} y="277" textAnchor="middle">
+              {i + 1}
+            </text>
+          ))}
+          <text x="420" y="304" textAnchor="middle">
+            Request number
+          </text>
+        </svg>
+        <div className="bt-legend">
+          <span className="raw">Unmanaged</span>
+          <span className="managed">Periodic folds</span>
+        </div>
+      </div>
+      <div className="fs-metrics">
+        <div>
+          <span>THIS REQUEST</span>
+          <strong>
+            {fmt(current)}
+            <small> tokens</small>
+          </strong>
+          <p>
+            {current > windowSize
+              ? "Exceeds the chosen window"
+              : "Fits inside the chosen window"}
+          </p>
+        </div>
+        <div>
+          <span>INPUT PROCESSED SO FAR</span>
+          <strong>
+            {fmt(cumulative)}
+            <small> tokens</small>
+          </strong>
+          <p>Sum of every plotted request input</p>
+        </div>
+        <div>
+          <span>HISTORY PRODUCED</span>
+          <strong>
+            {fmt(series[turns].raw)}
+            <small> tokens</small>
+          </strong>
+          <p>Distinct from repeated input processing</p>
+        </div>
+      </div>
+      <p className="ch-muted">
+        Synthetic accounting model: +2K new text per turn, a fold every fourth
+        turn, +300 summary tokens per cycle. The chart continues hypothetical
+        growth past overflow to show the limit; a real request must fit. No cost
+        or quality estimate.
+      </p>
+    </>
+  );
 }
-function FoldScopeComparison(){const [round,setRound]=useState(1);return <div className="ch-scope-comparison"><p className="ch-kicker">COMPARE REWRITE SCOPE</p><h3>One rolling summary, or separate folds?</h3><Controls><button disabled={round===3} onClick={()=>setRound(r=>r+1)}>Process another consumed range</button><button onClick={()=>setRound(1)}>Reset comparison</button></Controls><div className="ch-dual"><div><h4>Rolling-summary example</h4><div className="ch-block digest" key={round}>S{round} = {round===1?'summary of range 1':`rewrite S${round-1} + range ${round}`}</div><div className="ch-block protected">Recent working messages</div><p>{round===1?'One summary is created.':'The previous summary participates in the next rewrite.'}</p></div><div><h4>billion-context / local folds</h4>{Array.from({length:round},(_,i)=><div className="ch-block digest" key={i}>b0{i+1} / range {i+1}{i<round-1?' · unchanged':' · newly folded'}</div>)}<div className="ch-block protected">Recent working messages</div><p>Round {round}: only the selected new range is folded here.</p></div></div><p className="ch-muted">Scope comparison only. Both designs may retain originals. Higher-tier folding can later re-distill old blocks; the example shows the ordinary local-fold path.</p></div>}
-function Fold({showComparison=true}:{showComparison?:boolean}={}){const [folded,setFolded]=useState(false);const [query,setQuery]=useState('Next.js');const [search,setSearch]=useState(false);const [restored,setRestored]=useState(false);const [file,setFile]=useState(false);const summary='Keep existing Next.js routes; test checks passed. Sources: m02–m04.';const hit=query.trim()&&summary.toLowerCase().includes(query.trim().toLowerCase());return <>{showComparison?<FoldScopeComparison/>:<p>Fold one consumed range, then inspect its original source. Watch what changes in the working view and what stays retained outside it.</p>}<h3>Try an addressable fold and recovery</h3><Controls><button onClick={()=>{setFolded(true);setRestored(false)}} disabled={folded}>compress m02–m04</button><button onClick={()=>{setFolded(false);setSearch(false);setRestored(false)}}>Reset</button></Controls><div className="ch-timeline"><div className="ch-block protected">m01 / Intent</div>{folded?<div className="ch-block digest"><small>b01 / Tier 1 · m02–m04</small>{summary}</div>:messages.slice(1,4).map(m=><div key={m.id} className="ch-block"><small>{m.id}</small>{m.text}</div>)}<div className="ch-block protected">m05–m06 / Recent working zone</div></div><div className="ch-stats"><Stat label="illustrative working-view tokens" value={folded?1380:8440}/><Stat label="source messages retained" value="6 / 6"/></div><Controls><label>Search digest <input value={query} onChange={e=>{setQuery(e.target.value);setSearch(false)}}/></label><button disabled={!folded} onClick={()=>setSearch(true)}>search_context</button></Controls>{search?<p role="status">{hit?'Found b01 → m02–m04. Select a recovery mode below.':'No digest match. This toy search only indexes the visible digest; a missing keyword does not prove the original history lacks it.'}</p>:null}<Controls><button disabled={!folded} onClick={()=>{setRestored(true);setFile(false)}}>decompress → copy</button><button disabled={!folded} onClick={()=>{setRestored(true);setFile(true)}}>decompress → file</button></Controls>{restored?<div className="ch-recovery" role="status"><p className="ch-kicker">{file?'FILE PREVIEW · sources.txt':'HISTORICAL COPY · TOOL RESULT'}</p>{messages.slice(1,4).map(m=><p key={m.id}>{m.id}: {m.text}</p>)}<strong>b01 remains in the folded view.</strong><p>{file?'The file pointer keeps the source text out of the request until it is read.':'A returned historical copy adds temporary input; it does not delete the digest.'}</p></div>:null}</>}
-function Bounded(){const [step,setStep]=useState(0);const [managed,setManaged]=useState(true);const points=Array.from({length:step+1},(_,i)=>managed?3000+(i%4)*2000+Math.floor(i/4)*250:3000+i*2000);const cumulative=points.reduce((a,b)=>a+b,0);return <><Controls><button disabled={step>=30} onClick={()=>setStep(s=>s+1)}>Process next request</button><button onClick={()=>setStep(0)}>Reset</button><label><input type="checkbox" checked={managed} onChange={e=>setManaged(e.target.checked)}/> Periodic folds</label></Controls><div className="ch-stats"><Stat label="current resident input" value={points[step].toLocaleString()}/><Stat label="cumulative input processed" value={cumulative.toLocaleString()}/><Stat label="example window" value="16,000"/></div><svg className="ch-chart" viewBox="0 0 650 230" role="img" aria-label="Active context versus cumulative work over requests"><line x1="20" x2="620" y1="155.7" y2="155.7" stroke="currentColor" strokeDasharray="5 5"/><polyline points={points.map((p,i)=>`${20+i*20},${205-p/65000*200}`).join(' ')} stroke="var(--ch-accent)" strokeWidth="4" fill="none"/><text x="20" y="226">Requests →</text><text x="440" y="145">16K resident limit</text></svg><p role="status" className="ch-result">{managed?'Each drop represents a conceptual fold. Even a small resident input can be processed many times, adding to cumulative work.':'Without management the resident input grows each turn and eventually crosses the window.'}</p><p className="ch-muted">Illustrative sawtooth schedule; real folds depend on task decisions and hierarchy. This is not a capacity guarantee.</p></>}
-function Prefix(){const [changed,setChanged]=useState(-1);const [append,setAppend]=useState(true);const original=['A','B','C','D','E'];const next=original.map((s,i)=>i===changed?'X':s).concat(append?['F','G']:[]);const common=changed<0?5:changed;return <><p>Request 1</p><TokenRow items={original}/><p>Request 2 · click an original position to change it</p><div className="ch-tokens">{next.map((t,i)=><button key={i} className={i<common?'cached':''} disabled={i>=5} aria-label={`Change token ${i+1}`} onClick={()=>setChanged(c=>c===i?-1:i)}>{t}<small>{i<common?'prefix reused':'recompute'}</small></button>)}</div><Controls><button onClick={()=>setChanged(-1)}>Restore stable prefix</button><label><input type="checkbox" checked={append} onChange={e=>setAppend(e.target.checked)}/> Append F, G</label></Controls><div className="ch-stats"><Stat label="exact common prefix" value={`${common} tokens`}/><Stat label="potential reuse / next input" value={`${Math.round(common/next.length*100)}%`}/></div><p role="status" className="ch-result">{changed<0?'Appending new tokens leaves the old prefix unchanged.':`Changing position ${changed+1} ends prefix reuse there. Later equal tokens are outside the shared prefix.`}</p><p className="ch-muted">Assumes one token per letter, a warm compatible cache and no minimum-block restrictions. Actual provider hit rates may differ.</p></>}
-function KV(){const [n,setN]=useState(3);const [cache,setCache]=useState(true);const [focus,setFocus]=useState(1);const weights=Array.from({length:n},(_,i)=>i===focus?0.7:0.3/Math.max(1,n-1));return <><Controls><button disabled={n>=8} onClick={()=>setN(x=>x+1)}>Generate a token</button><button onClick={()=>{setN(3);setFocus(1)}}>Reset</button><label><input type="checkbox" checked={cache} onChange={e=>setCache(e.target.checked)}/> Reuse historical K/V</label></Controls><div className="ch-attention"><div className="ch-query">Q<sub>new</sub><small>computed now</small></div><span className="ch-arrow">→</span><div className="ch-kv-grid">{weights.map((w,i)=><button key={i} onClick={()=>setFocus(i)} className={i===focus?'selected':''}><span>K{i+1} · V{i+1}</span><div className="ch-weight" style={{width:`${w*100}%`}}/><small>{Math.round(w*100)}% attention</small></button>)}</div></div><div className="ch-stats"><Stat label="old K/V state pairs reused" value={cache?n:0}/><Stat label="pairs computed for next step" value={cache?1:n+1}/></div><p role="status" className="ch-result">Click a key to change the illustrative attention weights. Q compares with K; those weights combine V into an output.</p><p className="ch-muted">Weights are chosen for illustration, not computed by a neural model. Historical states still participate in attention: caching avoids recomputation of their K/V projections, not all attention work.</p></>}
-function Hierarchy(){const [tier,setTier]=useState(0);const [source,setSource]=useState(false);return <><Controls><button disabled={tier>=1} onClick={()=>setTier(1)}>Fold raw ranges → Tier 1</button><button disabled={tier!==1} onClick={()=>setTier(2)}>Promote digests → Tier 2</button><button disabled={tier!==2} onClick={()=>setTier(3)}>Condense → Tier 3</button><button onClick={()=>{setTier(0);setSource(false)}}>Reset</button></Controls><div className="ch-pagoda">{tier>=3?<div className="ch-tier t3">T3 / D01 · source: C01</div>:null}{tier>=2?<div className={`ch-tier t2 ${tier>2?'archived':''}`}>T2 / C01 · sources: S1, S2, S3</div>:null}{tier>=1?<div className={`ch-tier t1 ${tier>1?'archived':''}`}>{['S1','S2','S3'].map((s,i)=><span key={s}>{s}<small>m{2*i+1}–m{2*i+2}</small></span>)}</div>:null}<div className={`ch-tier raw ${tier?'archived':''}`}>{['A B','C D','E F'].map(s=><span key={s}>{s}</span>)}<span className="ch-protected">Recent / keep</span></div><p>Time → incremental ranges</p></div><div className="ch-stats"><Stat label="highest tier" value={tier}/><Stat label="illustrative resident mass" value={`${[6400,1900,950,750][tier]} tokens`}/></div><button className="ch-primary" onClick={()=>setSource(s=>!s)}>Trace lineage to original messages</button>{source?<div className="ch-recovery" role="status"><p>{tier>=3?'D01 → C01 → S1 → m01, m02':tier>=2?'C01 → S1 → m01, m02':tier>=1?'S1 → m01, m02':'m01, m02 are already raw.'}</p><p>Original sources stay addressable in storage even when their digests leave the visible tier.</p></div>:null}</>}
-const candidates=[{name:'User goal',detail:'Keep the research site accessible.',keep:true},{name:'Consumed test log',detail:'4,000 lines; extract “all checks pass”.',keep:false},{name:'Exact error',detail:'TypeError at app/page.tsx:42; unresolved.',keep:true},{name:'Duplicate file read',detail:'Already inspected; no new information.',keep:false},{name:'Decision + rationale',detail:'Keep server-rendered notes for readable initial HTML.',keep:true},{name:'Active debugging',detail:'Still comparing two failing implementations.',keep:true}];
-function Doctrine(){const [selected,setSelected]=useState<number[]>([]);const [result,setResult]=useState(false);return <><p>Select information whose details should remain in the working context or summary.</p><div className="ch-candidates">{candidates.map((c,i)=><button key={c.name} className={selected.includes(i)?'selected':''} aria-pressed={selected.includes(i)} onClick={()=>{setSelected(s=>s.includes(i)?s.filter(j=>j!==i):[...s,i]);setResult(false)}}><strong>{c.name}</strong><span>{c.detail}</span>{result?<small>{c.keep?'KEEP high-value details':'FOLD detail; preserve useful conclusion'}</small>:null}</button>)}</div><Controls><button onClick={()=>setResult(true)}>Compare with doctrine</button><button onClick={()=>{setSelected([]);setResult(false)}}>Reset</button></Controls>{result?<p role="status" className="ch-result">{candidates.every((c,i)=>c.keep===selected.includes(i))?'Your choices preserve the useful information.':'Consider intent, unresolved errors, decisions with rationale and active work. Fold bulky consumed output, but keep its useful conclusion.'}</p>:null}<div className="ch-process"><div><small>MODEL + DOCTRINE</small><strong>Choose meaning to preserve</strong></div><span>→</span><div><small>KERNEL</small><strong>Validate ranges & execute</strong></div></div><p className="ch-muted">These choices illustrate semantic priorities. The kernel can enforce exclusions even when the model requests a fold.</p></>}
-function Gate(){const [tokens,setTokens]=useState(30000);const [baseline,setBaseline]=useState(30000);const [growth,setGrowth]=useState(10000);const [critical,setCritical]=useState(false);const [log,setLog]=useState('Add context until the floor and growth conditions both pass.');const floor=tokens>=45000;const grown=tokens-baseline>=growth;const nudge=floor&&grown;return <><Controls><label>Growth interval <select value={growth} onChange={e=>setGrowth(Number(e.target.value))}><option value={10000}>10,000 tokens</option><option value={20000}>20,000 tokens</option><option value={30000}>30,000 tokens</option></select></label><button disabled={tokens>=95000} onClick={()=>setTokens(t=>t+5000)}>Add 5,000 tokens</button><label><input type="checkbox" checked={critical} onChange={e=>setCritical(e.target.checked)}/> Critical task in progress</label></Controls><Meter value={tokens} max={100000} label="Example context window"/><div className="ch-gates"><div className={floor?'pass':''}>1 · Context floor ≥45K<strong>{floor?'PASS':'WAIT'}</strong></div><div className={grown?'pass':''}>2 · Growth ≥{growth/1000}K<strong>{grown?'PASS':'WAIT'}</strong></div><div className={nudge?'pass':''}>3 · Normal nudge<strong>{nudge?'ASK MODEL':'WAIT'}</strong></div></div><Controls><button disabled={!nudge} onClick={()=>{if(critical){setLog('Model refuses for now: active debugging still needs the candidate range. The gate does not choose the content.');}else{const after=tokens-18000;setTokens(after);setBaseline(after);setLog('Model selects a consumed range → kernel validates and folds it. New growth baseline recorded.')}}}>Evaluate with doctrine</button><button onClick={()=>{setTokens(30000);setBaseline(30000);setCritical(false);setLog('Reset: floor and growth conditions are not met.')}}>Reset</button></Controls><p role="status" className="ch-result">{log}</p><p className="ch-muted">Normal path only. Demonstration uses a 100K window, 45% floor and fixed growth interval. Actual implementation has adaptive and tier-specific checks, spontaneous model calls, and hard-budget bypass paths.</p></>}
-function Reference(){const [focus,setFocus]=useState(0);const map=[['README','Project overview and the four context tools.'],['Paper §3–4','Fold layout, tiering, growth-gated nudge and compression doctrine.'],['src/config.ts','How growth thresholds, recent zones and protected tools are configured.'],['src/decompress-shared.ts','How historical copies, files and search are returned in the current proxy.'],['src/compress-tool.ts','Tool schemas and prompt builders imported from acp-kernel.']];return <><div className="ch-reading-map">{map.map(([name],i)=><button key={name} className={focus===i?'selected':''} onClick={()=>setFocus(i)}>{name}</button>)}</div><div className="ch-recovery" role="status"><h3>{map[focus][0]}</h3><p>{map[focus][1]}</p></div><p>Follow the learning path from active context to the gate. Return to the source whenever a conceptual diagram seems more absolute than the implementation.</p></>}
-function SingleFold(){return <Fold showComparison={false}/>;}
-export function ContextLab({chapter,number=chapter}:{chapter:number;number?:number}){const labs=[Reference,ActiveContext,Budget,Approaches,Fold,Bounded,Prefix,KV,Hierarchy,Doctrine,Gate,SingleFold];const Lab=labs[chapter];return <section className="ch-lab"><div className="ch-lab-head"><p className="ch-kicker">INTERACTIVE LAB / {String(number).padStart(2,'0')}</p><span>Teaching simulation</span></div><Lab/></section>}
+function GateLab() {
+  const [context, setContext] = useState(90000),
+    [baseline, setBaseline] = useState(90000),
+    [critical, setCritical] = useState(false),
+    [log, setLog] = useState(
+      "Add growth. A normal nudge still leaves semantic judgment to the model.",
+    );
+  const floor = context >= 90000,
+    growth = context - baseline,
+    nudge = floor && growth >= 50000;
+  function evaluate() {
+    if (!nudge) return;
+    if (critical) {
+      setLog(
+        "Deferred: the current debugging step still uses this detail. No fold ran; the baseline is unchanged.",
+      );
+      return;
+    }
+    const next = context - 40000;
+    setContext(next);
+    setBaseline(next);
+    setLog(
+      "Model selected a consumed 40K range → kernel validated the fold → post-fold baseline updated.",
+    );
+  }
+  return (
+    <>
+      <div className="fs-heading">
+        <div>
+          <p className="ch-kicker">TIMING / THEN JUDGMENT</p>
+          <h2>
+            The gate asks.
+            <br />
+            <em>The model decides.</em>
+          </h2>
+        </div>
+        <p>
+          Follow one normal cycle in a 200K window. Passing the two checks
+          invites evaluation; it does not identify useful information.
+        </p>
+      </div>
+      <div className="ch-controls">
+        <button
+          onClick={() => setContext((c) => Math.min(190000, c + 10000))}
+          disabled={context >= 190000}
+        >
+          Add 10K context
+        </button>
+        <label>
+          <input
+            type="checkbox"
+            checked={critical}
+            onChange={(e) => setCritical(e.target.checked)}
+          />
+          Active debugging still needs the candidate
+        </label>
+        <button
+          onClick={() => {
+            setContext(90000);
+            setBaseline(90000);
+            setCritical(false);
+            setLog("Cycle reset. Growth since baseline is zero.");
+          }}
+        >
+          <Undo2 size={14} />
+          Reset
+        </button>
+      </div>
+      <div className="gt-stage">
+        <div className={`gt-node ${floor ? "pass" : ""}`}>
+          <span>01 / CONTEXT FLOOR</span>
+          <strong>{context / 1000}K / 200K</strong>
+          <p>At least 45% of this window</p>
+          <small>
+            {floor ? <Check size={15} /> : null}
+            {floor ? "PASS" : "WAIT"}
+          </small>
+        </div>
+        <ArrowRight className="gt-arrow" />
+        <div className={`gt-node ${growth >= 50000 ? "pass" : ""}`}>
+          <span>02 / GROWTH CHECK</span>
+          <strong>{growth / 1000}K / 50K</strong>
+          <p>Since baseline {baseline / 1000}K</p>
+          <small>
+            {growth >= 50000 ? <Check size={15} /> : null}
+            {growth >= 50000 ? "PASS" : "WAIT"}
+          </small>
+        </div>
+        <ArrowRight className="gt-arrow" />
+        <div className={`gt-node ${nudge ? "pass" : ""}`}>
+          <span>03 / MODEL + DOCTRINE</span>
+          <strong>{nudge ? "Evaluate" : "Keep working"}</strong>
+          <p>
+            {critical ? "Candidate still in use" : "Candidate already consumed"}
+          </p>
+          <button disabled={!nudge} onClick={evaluate}>
+            {critical ? "Defer the fold" : "Choose + fold 40K"}
+          </button>
+        </div>
+      </div>
+      <p className="fs-status" role="status">
+        {log}
+      </p>
+      <p className="ch-muted">
+        This isolates floor + the pinned 50K growth interval. Production also
+        checks compressible mass (including the lower effective-growth path),
+        tier mass and hard budgets. The model can initiate compression without a
+        nudge. All displayed counts are scenario values.
+      </p>
+    </>
+  );
+}
+export function ContextLab({ slug, number }: { slug: string; number: number }) {
+  const labs: Record<string, () => ReactNode> = {
+    "long-context-problem": BudgetLab,
+    fold: FoldLab,
+    "hierarchical-compression": HierarchyLab,
+    "growth-gate": GateLab,
+  };
+  const Lab = labs[slug];
+  if (!Lab) return null;
+  return (
+    <section
+      className={`ch-lab ch-lab-v2 ${slug === "fold" ? "ch-fold-workbench" : ""}`}
+    >
+      <div className="ch-lab-head">
+        <p className="ch-kicker">
+          INTERACTIVE STUDY / {String(number).padStart(2, "0")}
+        </p>
+        <span>Local teaching model</span>
+      </div>
+      <Lab />
+    </section>
+  );
+}

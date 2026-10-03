@@ -1,34 +1,232 @@
-import type {ReactNode} from 'react';
-
-function Canvas({children,label,dark=false}:{children:ReactNode;label:string;dark?:boolean}){return <svg className={`ch-figure-svg ${dark?'is-dark':''}`} viewBox="0 0 800 430" role="img" aria-label={label}><defs><pattern id="figure-grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M 24 0 L 0 0 0 24" fill="none" stroke="currentColor" opacity=".07"/></pattern><marker id="figure-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="currentColor"/></marker></defs><rect width="800" height="430" rx="12" fill="var(--figure-bg)"/><rect width="800" height="430" rx="12" fill="url(#figure-grid)"/>{children}</svg>}
-function Box({x,y,w,h,label,sub,tone='green'}:{x:number;y:number;w:number;h:number;label:string;sub?:string;tone?:string}){return <g className={`figure-box ${tone}`}><rect x={x} y={y} width={w} height={h} rx="10"/><text x={x+w/2} y={y+h/2+(sub?-3:5)} textAnchor="middle" className="figure-label">{label}</text>{sub?<text x={x+w/2} y={y+h/2+22} textAnchor="middle" className="figure-small">{sub}</text>:null}</g>}
-function Arrow({d,dashed=false}:{d:string;dashed?:boolean}){return <path d={d} className="figure-arrow" strokeDasharray={dashed?'5 6':undefined} markerEnd="url(#figure-arrow)"/>}
-function Note({x,y,children}:{x:number;y:number;children:ReactNode}){return <text x={x} y={y} className="figure-small">{children}</text>}
-function Person({x,y,pose='think'}:{x:number;y:number;pose?:string}){return <g className="figure-person" transform={`translate(${x} ${y})`}><path d="M-13 -14 Q-21 -46 4 -45 Q26 -42 16 -14 Q1 0 -13 -14 Z"/><path d="M-15 -38 Q0 -54 18 -35 M-7 -26 l1 0 M8 -26 l1 0 M-5 -16 Q2 -11 8 -17"/><path d="M0 -4 L0 48 M0 48 L-22 76 M0 48 L24 76"/>{pose==='reach'?<path d="M0 9 L26 0 L42 -15 M0 11 L-18 28 L-33 18"/>:pose==='panic'?<path d="M0 10 L-22 -1 L-34 -24 M0 10 L25 -4 L34 -27 M-39 -43 L-47 -52 M40 -42 L49 -52"/>:<path d="M0 9 L-20 26 L-34 11 M0 9 L20 19 L25 -14"/>}</g>}
-function ActiveComic(){return <Canvas label="Three-panel comic: stored history is packed into a smaller request, and the model only sees the packed messages."><text x="30" y="39" className="figure-eyebrow">THE AGENT’S WORKING DESK</text>{[26,286,546].map((x,i)=><g key={x}><rect x={x} y="65" width="228" height="300" rx="10" className="figure-panel"/><text x={x+18} y="93" className="figure-label">{['01 / The archive','02 / Pack a request','03 / The model sees'][i]}</text></g>)}<g transform="rotate(-5 130 190)"><rect x="72" y="135" width="128" height="162" rx="4" className="figure-paper"/>{[155,177,199,221,243,265].map((y,i)=><g key={y}><path d={`M88 ${y} H181`} className="figure-ink-line"/><text x="91" y={y-5} className="figure-tiny">message {i+1}</text></g>)}</g><text x="64" y="334" className="figure-small">Saved ≠ currently visible</text><Person x={340} y={234} pose="reach"/><rect x="390" y="175" width="90" height="120" rx="8" className="figure-suitcase"/><path d="M417 174 V156 H452 V174" className="figure-ink-line"/><text x="401" y="206" className="figure-small">intent</text><text x="401" y="235" className="figure-small">digest</text><text x="401" y="264" className="figure-small">recent</text><text x="312" y="334" className="figure-small">Choose the active input</text><rect x="575" y="146" width="168" height="132" rx="13" className="figure-screen"/><circle cx="625" cy="202" r="5" className="figure-dot"/><circle cx="691" cy="202" r="5" className="figure-dot"/><path d="M631 233 Q658 249 685 233 M657 278 V299 M623 299 H693" className="figure-ink-line"/><path d="M586 126 Q657 92 730 126" className="figure-ink-line"/><text x="588" y="122" className="figure-tiny">“Only what you packed!”</text><text x="570" y="334" className="figure-small">Attention reads this request</text><text x="30" y="402" className="figure-foot">History can remain stored outside the model’s current field of view.</text></Canvas>}
-function GrowthChart(){return <Canvas label="Illustrative chart comparing growing unmanaged input with periodically folded active input; a dashed line marks the window limit."><text x="30" y="38" className="figure-eyebrow">A FINITE WINDOW, AN ACCUMULATING SESSION</text><text x="75" y="77" className="figure-small">Resident input</text><path d="M76 96 V346 H741" className="figure-axis"/><path d="M76 148 H740" className="figure-limit"/><text x="524" y="137" className="figure-small">window limit</text><path d="M78 318 L165 285 L260 247 L353 202 L444 159 L534 118 L626 78 L737 49" className="figure-growth-line"/><path d="M78 318 L165 285 L250 249 L268 309 L350 270 L430 234 L451 302 L535 263 L613 228 L636 296 L737 247" className="figure-fold-line"/><path d="M78 318 L165 285 L250 249 L268 309 L350 270 L430 234 L451 302 L535 263 L613 228 L636 296 L737 247 V346 H78 Z" className="figure-area"/><text x="577" y="77" className="figure-tiny">unmanaged growth</text><text x="565" y="319" className="figure-small">with conceptual folds</text><Arrow d="M317 186 Q281 205 269 285"/><Note x={327} y={189}>fold consumed history</Note><text x="658" y="373" className="figure-small">Requests →</text><text x="30" y="410" className="figure-foot">Illustrative curves, not measured data. A fold changes resident input, not past work already done.</text></Canvas>}
-function BoundedDiagram(){return <Canvas label="A large archive feeds a bounded working window through context management; cumulative work can grow while resident input remains much smaller." dark><text x="30" y="40" className="figure-eyebrow">THINK WORKSPACE, NOT BIGGER ATTENTION</text><text x="45" y="94" className="figure-display">A long history.</text><text x="45" y="137" className="figure-display figure-accent">A bounded view.</text><g transform="translate(52 191)">{Array.from({length:7},(_,i)=><rect key={i} x={i*16} y={i*7} width="142" height="103" rx="7" className="figure-archive"/>)}</g><Note x={62} y={359}>Stored source history</Note><Arrow d="M303 260 H378"/><Box x={394} y={204} w={168} h={117} label="HARNESS" sub="select / fold / retrieve"/><Arrow d="M572 260 H611"/><rect x="626" y="154" width="125" height="201" rx="12" className="figure-window"/><rect x="638" y="170" width="101" height="54" rx="5" className="figure-digest-fill"/><rect x="638" y="235" width="101" height="105" rx="5" className="figure-recent-fill"/><text x="652" y="199" className="figure-small">digests</text><text x="651" y="287" className="figure-small">recent</text><text x="630" y="130" className="figure-small">Active window</text><path d="M652 371 H724" className="figure-ink-line"/><text x="30" y="407" className="figure-foot">Cumulative input counts repeated requests and cache reads; it is not one simultaneous attention window.</text></Canvas>}
-function PoliciesComic(){const methods=[['SLIDING WINDOW','keep recent turns','recency'],['COMPACTION','older turns → summary','continuity'],['TOOL PRUNING','clear selected outputs','noise'],['RETRIEVAL','load relevant evidence','relevance'],['STRUCTURED MEMORY','persist task state','durability'],['CONTEXT ISOLATION','return focused handoffs','scope']];return <Canvas label="Six common context-management methods: sliding window, compaction, tool pruning, retrieval, structured memory and context isolation. These methods can be combined."><text x="30" y="38" className="figure-eyebrow">SIX LEVERS / DIFFERENT JOBS</text>{methods.map(([title,sub,tag],i)=>{const x=i%2?415:30;const y=69+Math.floor(i/2)*91;return <g key={title}><Box x={x} y={y} w={355} h={76} label={title} sub={sub} tone={['green','blue','amber'][Math.floor(i/2)]}/><text x={x+14} y={y+20} className="figure-tiny">0{i+1}</text></g>})}<path d="M62 336 V349 H739 V336" className="figure-bracket"/><text x="400" y="375" textAnchor="middle" className="figure-label">COMBINE TO ASSEMBLE ONE WORKING VIEW</text><text x="30" y="412" className="figure-foot">The request is selected input. Source retention and access are separate design choices.</text></Canvas>}
-function FoldBlueprint(){return <Canvas label="Comparison of a rolling-summary example and local folds. The rolling summary S1 is rewritten into S2; local folding keeps b01 while creating b02, alongside recent working messages." dark><text x="30" y="39" className="figure-eyebrow">THE DIFFERENCE / REWRITE SCOPE</text><rect x="26" y="65" width="359" height="306" rx="10" className="figure-window"/><rect x="415" y="65" width="359" height="306" rx="10" className="figure-window"/><text x="45" y="96" className="figure-label">ROLLING SUMMARY / EXAMPLE</text><text x="435" y="96" className="figure-label">BILLION-CONTEXT / LOCAL FOLDS</text><Box x={54} y={119} w={118} h={61} label="S1" tone="amber"/><Box x={218} y={119} w={133} h={61} label="new range" tone="blue"/><Arrow d="M115 189 V205 H204 V223"/><Arrow d="M285 189 V205 H204"/><Box x={83} y={236} w={245} h={62} label="S2 / rewritten" tone="amber"/><text x="80" y="333" className="figure-small">previous summary is an input</text><Box x={441} y={119} w={143} h={61} label="b01" sub="existing digest"/><Box x={610} y={119} w={139} h={61} label="new range" tone="blue"/><Arrow d="M514 189 V224" dashed/><Arrow d="M679 189 V224"/><Box x={441} y={236} w={143} h={62} label="b01" sub="unchanged"/><Box x={610} y={236} w={139} h={62} label="b02" sub="new digest" tone="blue"/><text x="441" y="333" className="figure-small">+ recent verbatim working context</text><text x="30" y="402" className="figure-foot">Scope illustration, not a universal product comparison. Both designs may retain originals.</text><text x="30" y="420" className="figure-foot">Higher tiers can later re-distill old blocks; stable local folds do not mean summaries never change.</text></Canvas>}
-function SingleFoldDiagram(){return <Canvas label="Before folding, the working view contains raw messages m02 to m04. After folding, digest b01 replaces that range while surrounding messages remain. Source storage retains the originals for later recovery."><text x="30" y="37" className="figure-eyebrow">ONE FOLD / TWO REPRESENTATIONS</text>{[30,295,560].map((x,i)=><g key={x}><text x={x+5} y="79" className="figure-label">{['BEFORE / RAW','AFTER / DIGEST','RECOVER / SOURCE'][i]}</text><rect x={x} y="97" width="210" height="240" rx="10" className="figure-panel"/></g>)}<Box x={43} y={112} w={184} h={36} label="intent / keep" tone="plain"/>{['m02 / file read','m03 / decision','m04 / test log'].map((m,i)=><Box key={m} x={43} y={160+i*42} w={184} h={34} label={m} tone="blue"/>)}<Box x={43} y={294} w={184} h={30} label="recent / keep" tone="plain"/><Arrow d="M249 212 H284"/><Box x={308} y={112} w={184} h={36} label="intent / keep" tone="plain"/><Box x={308} y={174} w={184} h={88} label="b01 / digest" sub="sources: m02–m04"/><Box x={308} y={294} w={184} h={30} label="recent / keep" tone="plain"/><Arrow d="M513 212 H549" dashed/><Box x={573} y={150} w={184} h={85} label="copy or file" sub="read exact originals" tone="amber"/><text x="583" y="282" className="figure-small">b01 stays folded</text><text x="583" y="305" className="figure-tiny">in the current proxy</text><rect x="30" y="359" width="740" height="47" rx="8" className="figure-drawer"/><text x="47" y="389" className="figure-small">SOURCE STORAGE / original m02–m04 retained and addressable</text><Arrow d="M669 353 V327" dashed/><text x="30" y="426" className="figure-foot">The digest is shorter prose. Recovery reads stored originals; it does not invert the summary.</text></Canvas>}
-function PrefixDiagram(){const row=(y:number,tokens:string[],prefix:number)=>tokens.map((t,i)=><g key={i} className={i<prefix?'figure-cache-hit':'figure-cache-miss'}><rect x={154+i*83} y={y} width="66" height="66" rx="8"/><text x={187+i*83} y={y+42} textAnchor="middle" className="figure-token">{t}</text></g>);return <Canvas label="Two token sequences share only A and B when the third token changes from C to X. Matching later tokens are not part of the common prefix."><text x="30" y="38" className="figure-eyebrow">ONE CHANGE CAN BREAK A LONG PREFIX</text><Note x={36} y={135}>Request 1</Note>{row(97,['A','B','C','D','E','F','G'],0)}<Note x={36} y={246}>Request 2</Note>{row(208,['A','B','X','D','E','F','G'],2)}<path d="M154 294 V309 H303 V294" className="figure-bracket"/><text x="167" y="337" className="figure-small">exact shared prefix</text><path d="M329 181 H388" className="figure-cross"/><text x="396" y="185" className="figure-small">first difference</text><path d="M338 294 V309 H800" className="figure-bracket"/><text x="416" y="337" className="figure-small">equal later tokens ≠ shared prefix</text><text x="30" y="407" className="figure-foot">Potential cache reuse follows the uninterrupted beginning; actual reuse also depends on provider cache policy.</text></Canvas>}
-function AttentionDiagram(){return <Canvas label="A new query compares to cached historical keys; attention weights combine cached values into an output. Keys and values are reused, while the query is computed for the new token." dark><text x="30" y="39" className="figure-eyebrow">ATTENTION / MATCH KEYS, MIX VALUES</text><Box x={28} y={163} w={143} h={86} label="Q new" sub="computed now" tone="amber"/><Arrow d="M182 207 H229"/><text x="259" y="86" className="figure-label">CACHED KEYS</text><text x="505" y="86" className="figure-label">CACHED VALUES</text>{[0,1,2].map((n)=><g key={n}><Box x={250} y={108+n*90} w={133} h={62} label={`K${n+1}`} tone="blue"/><Box x={505} y={108+n*90} w={133} h={62} label={`V${n+1}`}/><path d={`M389 ${139+n*90} H497`} className={`figure-attention-path weight-${n}`}/><text x="406" y={128+n*90} className="figure-tiny">{['0.15','0.70','0.15'][n]}</text></g>)}<path d="M231 207 V139 H243 M231 207 V229 H243 M231 207 V319 H243" className="figure-arrow"/><path d="M644 139 H663 V319 H644 M644 229 H663" className="figure-bracket"/><Arrow d="M663 229 H679"/><Box x={688} y={190} w={88} h={78} label="mix" sub="output" tone="amber"/><text x="30" y="407" className="figure-foot">Illustrative weights. Cached K/V still participate in attention; caching does not remove attention computation.</text></Canvas>}
-function TierMap(){return <Canvas label="Horizontal groups of raw messages form tier-one digests; digests merge vertically into higher-tier summaries. Dashed links show lineage retained back to original messages."><text x="30" y="39" className="figure-eyebrow">TWO DIRECTIONS / ONE TRACEABLE STRUCTURE</text><text x="35" y="117" className="figure-small">Tier 3</text><text x="35" y="208" className="figure-small">Tier 2</text><text x="35" y="300" className="figure-small">Tier 1</text><Box x={373} y={73} w={145} h={62} label="D01"/><Box x={265} y={167} w={145} h={62} label="C01" tone="blue"/><Box x={478} y={167} w={145} h={62} label="C02" tone="blue"/>{[175,355,535].map((x,i)=><g key={x}><Box x={x} y={262} w={132} h={60} label={`S${i+1}`} sub="message range" tone="amber"/><Box x={x} y={353} w={132} h={42} label={['A B','C D','E F'][i]} tone="plain"/><Arrow d={`M${x+66} 345 V332`}/></g>)}<Arrow d="M241 254 V242 H337 V237"/><Arrow d="M421 254 V242 H337 V237"/><Arrow d="M601 254 V242 H551 V237"/><Arrow d="M337 160 V147 H446 V143"/><Arrow d="M551 160 V147 H446 V143"/><path d="M518 106 Q735 160 734 312" className="figure-arrow" strokeDasharray="5 6"/><text x="651" y="334" className="figure-small">lineage</text><text x="182" y="416" className="figure-foot">Time → separate consumed ranges</text><path d="M118 321 V87" className="figure-arrow" markerEnd="url(#figure-arrow)"/><text x="98" y="258" transform="rotate(-90 98 258)" className="figure-tiny">higher abstraction</text></Canvas>}
-function DoctrineMindmap(){return <Canvas label="Mind map of semantic priorities: task intent, constraints, decisions with rationale, open errors and artifacts guide compression. Consumed logs and duplicates can be folded while useful conclusions remain."><text x="30" y="38" className="figure-eyebrow">THE DOCTRINE / PRESERVE WHAT THE TASK NEEDS</text><g className="figure-mind-links"><path d="M394 194 Q265 91 185 90 M397 196 Q532 89 636 88 M391 217 H179 M409 221 H639 M399 248 Q273 336 171 333 M401 249 Q550 337 637 333"/></g><Box x={276} y={167} w={248} h={94} label="STILL NEEDED?" sub="current task step"/><Box x={50} y={66} w={201} h={66} label="Intent + constraints" tone="blue"/><Box x={551} y={66} w={202} h={66} label="Decision + rationale" tone="blue"/><Box x={28} y={194} w={204} h={65} label="Open errors" tone="blue"/><Box x={567} y={194} w={207} h={65} label="Exact artifacts" tone="blue"/><Box x={43} y={306} w={224} h={66} label="Consumed verbose logs" sub="fold; keep the conclusion" tone="amber"/><Box x={535} y={306} w={224} h={66} label="Duplicate reads" sub="fold redundant detail" tone="amber"/><text x="30" y="412" className="figure-foot">Semantic judgment is task-dependent. The kernel separately enforces structural protections and validates ranges.</text></Canvas>}
-function GateFlow(){return <Canvas label="Flowchart: context floor and growth checks can trigger a nudge, then the model may preserve active work or choose a consumed range. The kernel validates and folds the chosen range." dark><text x="30" y="39" className="figure-eyebrow">THE GATE ASKS. THE MODEL CHOOSES.</text><Box x={28} y={78} w={186} h={65} label="Context growth" sub="kernel monitors" tone="blue"/><Arrow d="M222 110 H252"/><Box x={266} y={78} w={232} h={65} label="Floor + growth check" sub="normal nudge conditions" tone="blue"/><Arrow d="M383 151 V181"/><Box x={266} y={194} w={232} h={65} label="Model + doctrine" sub="assess current task need"/><Arrow d="M260 226 H230"/><Box x={28} y={194} w={187} h={65} label="Keep working" sub="may decline the nudge" tone="amber"/><Arrow d="M507 226 H546"/><Box x={560} y={194} w={213} h={65} label="Choose a range" sub="consumed information"/><Arrow d="M667 267 V300"/><Box x={560} y={313} w={213} h={65} label="Validate + fold" sub="kernel executes" tone="blue"/><path d="M564 342 H385 V268" className="figure-arrow" strokeDasharray="5 6"/><Note x={30} y={329}>The model can also initiate</Note><Note x={30} y={353}>compression without a nudge.</Note><text x="30" y="413" className="figure-foot">Normal flow, simplified. Hard-budget bypasses and emergency backstops are separate paths.</text></Canvas>}
-function ReadingMap(){return <Canvas label="A reading map connects the learning notebook to architecture in the preprint, behavior in proxy source and configuration in the kernel integration."><text x="30" y="39" className="figure-eyebrow">FROM YOUR NOTEBOOK TO THE IMPLEMENTATION</text><Box x={292} y={167} w={217} h={89} label="Context Harness" sub="the learning notebook"/><Box x={55} y={72} w={237} h={67} label="README" sub="purpose + tools" tone="blue"/><Box x={508} y={72} w={237} h={67} label="Living preprint" sub="architecture + doctrine" tone="blue"/><Box x={41} y={304} w={263} h={67} label="Proxy source" sub="current behavior" tone="amber"/><Box x={494} y={304} w={263} h={67} label="Kernel integration" sub="state + configuration" tone="amber"/><path d="M290 106 Q351 116 356 158 M509 106 Q449 116 444 158 M304 337 Q352 310 356 264 M494 337 Q448 310 444 264" className="figure-arrow"/><text x="30" y="413" className="figure-foot">Read the design for the idea; inspect the implementation for the current behavior.</text></Canvas>}
-const visualData:Record<string,{label:string;title:string;caption:string;Art:()=>ReactNode}>={
- 'reference':{label:'READING MAP',title:'Ideas have a paper trail.',caption:'A visual guide to the source layers behind this notebook.',Art:ReadingMap},
- 'active-context':{label:'A THREE-PANEL EXPLANATION',title:'The model sees what you pack.',caption:'Think of active context as a suitcase packed for one request. The archive can hold much more.',Art:ActiveComic},
- 'long-context-problem':{label:'THE PRESSURE OF GROWTH',title:'History grows. The window does not.',caption:'An illustrative chart shows why long sessions need context management.',Art:GrowthChart},
- 'bounded-window':{label:'WORKSPACE CROSS-SECTION',title:'Big history. Small working space.',caption:'Storage, cumulative processing and attention capacity are different quantities.',Art:BoundedDiagram},
- 'basic-approaches':{label:'THE COMMON TOOLKIT',title:'Six levers. One working view.',caption:'Choose by recency, continuity, noise, relevance, durability and scope. Combine methods when needed.',Art:PoliciesComic},
- 'incremental-fold':{label:'COMPARE REWRITE SCOPE',title:'A new fold can leave an old fold alone.',caption:'Compare one rolling-summary baseline with local, addressable digests. Recovery and model judgment add further design choices.',Art:FoldBlueprint},
- 'fold':{label:'ONE FOLD, EXPLAINED',title:'Fold the view. Keep the pages.',caption:'A consumed range changes representation in the working view. Its original source remains available for exact inspection.',Art:SingleFoldDiagram},
- 'prefix-cache':{label:'TOKEN STRIP',title:'A prefix ends at the first difference.',caption:'The letters after X may match, but they are no longer part of the shared beginning.',Art:PrefixDiagram},
- 'kv-cache':{label:'INSIDE ATTENTION',title:'Match keys. Mix values.',caption:'Historical K/V are reused while a new query reads from them.',Art:AttentionDiagram},
- 'hierarchical-compression':{label:'THE TWO-AXIS MAP',title:'Across time. Up through tiers.',caption:'Each range folds independently; higher tiers distill older digests and retain source lineage.',Art:TierMap},
- 'compression-doctrine':{label:'SEMANTIC MIND MAP',title:'Meaning sets the priorities.',caption:'The central question is task need. Age alone does not decide what to fold.',Art:DoctrineMindmap},
- 'growth-gate':{label:'DECISION FLOW',title:'A prompt to judge, not an order to fold.',caption:'The normal gate triggers evaluation; the model chooses whether and what to compress.',Art:GateFlow},
+import type { ReactNode } from "react";
+import {
+  ArrowDown,
+  ArrowRight,
+  Archive,
+  FileText,
+  Layers,
+  ScanLine,
+} from "lucide-react";
+function ViewAndSource() {
+  return (
+    <div className="ci-dual">
+      <section className="ci-store">
+        <p className="ch-kicker">
+          <Archive size={15} /> STORED HISTORY
+        </p>
+        <h3>Everything retained.</h3>
+        <div className="ci-pages">
+          {[
+            "Task intent",
+            "Earlier file read",
+            "Past decision",
+            "Consumed test log",
+            "Current question",
+          ].map((s, i) => (
+            <div key={s}>
+              <code>m0000{i + 1}</code>
+              <span>{s}</span>
+            </div>
+          ))}
+        </div>
+        <p>
+          Persistence keeps sources available.
+          <br />
+          It does not put them into attention.
+        </p>
+      </section>
+      <div className="ci-link">
+        <ArrowRight />
+        <span>select or retrieve</span>
+      </div>
+      <section className="ci-active">
+        <p className="ch-kicker">
+          <ScanLine size={15} /> REQUEST INPUT
+        </p>
+        <h3>What the model sees.</h3>
+        <div className="ci-pages">
+          {["Task intent", "Relevant past decision", "Current question"].map(
+            (s, i) => (
+              <div key={s}>
+                <span>{s}</span>
+                <small>{i === 1 ? "retrieved" : "included"}</small>
+              </div>
+            ),
+          )}
+        </div>
+        <p>
+          An absent source cannot directly support the answer until it is
+          brought into this view.
+        </p>
+      </section>
+    </div>
+  );
+}
+function Workspace() {
+  return (
+    <div className="ci-workspace">
+      <div className="ci-big-history">
+        <Archive size={36} strokeWidth={1} />
+        <h3>Growing source history</h3>
+        <span>saved once / addressable later</span>
+        <div className="ci-history-bars" aria-hidden="true">
+          {Array.from({ length: 18 }, (_, i) => (
+            <i key={i} style={{ height: 20 + (i % 5) * 9 }} />
+          ))}
+        </div>
+      </div>
+      <div className="ci-link">
+        <ArrowRight />
+        <span>select · fold · read</span>
+      </div>
+      <div className="ci-window">
+        <p className="ch-kicker">ONE ACTIVE REQUEST</p>
+        <div>
+          <Layers size={17} />
+          <span>Earlier digests</span>
+        </div>
+        <div>
+          <FileText size={17} />
+          <span>Recent raw work</span>
+        </div>
+        <div className="ci-on-demand">
+          <ScanLine size={17} />
+          <span>Source reads on demand</span>
+        </div>
+        <footer>A finite attention window</footer>
+      </div>
+    </div>
+  );
+}
+function RewriteScope() {
+  return (
+    <div className="ci-comparison">
+      <section>
+        <p className="ch-kicker">ROLLING SUMMARY / EXAMPLE</p>
+        <h3>Rewrite the accumulated account.</h3>
+        <div className="ci-equation">
+          <span>S₁</span>
+          <b>+</b>
+          <span>new range</span>
+        </div>
+        <ArrowDown className="ci-down" />
+        <div className="ci-summary revised">
+          <strong>S₂</strong>
+          <span>previous account rewritten</span>
+        </div>
+        <p>
+          Older meaning participates in the next rewrite. Repeated abstraction
+          can lose detail.
+        </p>
+      </section>
+      <section>
+        <p className="ch-kicker">LOCAL FOLDS / BILLION-CONTEXT</p>
+        <h3>Give the new range its own digest.</h3>
+        <div className="ci-equation">
+          <span>b1</span>
+          <b>+</b>
+          <span>new range</span>
+        </div>
+        <ArrowDown className="ci-down" />
+        <div className="ci-result-pair">
+          <div className="ci-summary">
+            <strong>b1</strong>
+            <span>unchanged</span>
+          </div>
+          <div className="ci-summary revised">
+            <strong>b2</strong>
+            <span>new digest</span>
+          </div>
+        </div>
+        <p>
+          A local fold leaves unrelated blocks alone. Higher-tier distillation
+          can later rewrite selected blocks.
+        </p>
+      </section>
+      <footer>
+        Scope comparison, not a claim about every product. Both approaches may
+        retain originals and provide retrieval.
+      </footer>
+    </div>
+  );
+}
+function DoctrineMap() {
+  return (
+    <div className="ci-doctrine">
+      <div>
+        <p className="ch-kicker">SEMANTIC PRIORITY</p>
+        <h3>
+          Keep enough
+          <br />
+          to continue correctly.
+        </h3>
+        <p>The task determines what matters.</p>
+      </div>
+      <ol>
+        {[
+          ["Intent + constraints", "What must remain true?"],
+          ["Decisions + rationale", "What did we choose, and why?"],
+          [
+            "Exact artifacts + errors",
+            "Which paths, values or unresolved details matter?",
+          ],
+          [
+            "Conclusions + lessons",
+            "What is worth keeping after the verbose trace is consumed?",
+          ],
+        ].map(([a, b], i) => (
+          <li key={a}>
+            <span>0{i + 1}</span>
+            <div>
+              <strong>{a}</strong>
+              <p>{b}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+      <footer>
+        The model judges meaning. The kernel separately enforces structural
+        protections.
+      </footer>
+    </div>
+  );
+}
+const diagrams: Record<
+  string,
+  { label: string; title: string; Art: () => ReactNode }
+> = {
+  "active-context": {
+    label: "STORAGE ≠ ATTENTION",
+    title: "Available later. Visible now.",
+    Art: ViewAndSource,
+  },
+  "bounded-window": {
+    label: "THE WORKING SET",
+    title: "A bounded view of a growing history.",
+    Art: Workspace,
+  },
+  "incremental-fold": {
+    label: "REWRITE SCOPE",
+    title: "One new range. One local digest.",
+    Art: RewriteScope,
+  },
+  "compression-doctrine": {
+    label: "JUDGMENT, MADE CONCRETE",
+    title: "Meaning deserves the space.",
+    Art: DoctrineMap,
+  },
 };
-export function ContextIllustration({slug}:{slug:string}){const data=visualData[slug];if(!data)return null;const Art=data.Art;return <figure className="ch-visual"><figcaption><p className="ch-kicker">VISUAL FIELD NOTE / {data.label}</p><h2>{data.title}</h2><p>{data.caption}</p></figcaption><div className="ch-figure-canvas"><Art/></div><div className="ch-figure-legend"><span><i/> Conceptual illustration</span><span>Read the picture, then try the lab ↓</span></div></figure>}
+export function ContextIllustration({ slug }: { slug: string }) {
+  const item = diagrams[slug];
+  if (!item) return null;
+  const Art = item.Art;
+  return (
+    <figure className="ch-visual ci-figure">
+      <figcaption>
+        <p className="ch-kicker">VISUAL STUDY / {item.label}</p>
+        <h2>{item.title}</h2>
+      </figcaption>
+      <Art />
+    </figure>
+  );
+}
