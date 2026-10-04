@@ -18,7 +18,7 @@ export default function AgentSkills() {
       <p className="ch-lead">Reusable instructions and executable resources that give an AI agent a repeatable workflow.</p>
       <a
         className="ch-feature"
-        href="https://github.com/Lawson-Dong/agent-skill/tree/High-Dimensional-Vector-Visualization-Excuter"
+        href="https://github.com/Lawson-Dong/agent-skill/tree/main/skills/high-dimensional-vector-visualization-executer"
         target="_blank"
         rel="noopener noreferrer"
       >
@@ -34,6 +34,7 @@ export default function AgentSkills() {
           <span>2D VISUALIZATION</span>
         </div>
       </a>
+      <p className="ch-lead">Browse the <a href="https://github.com/Lawson-Dong/agent-skill" target="_blank" rel="noopener noreferrer">Agent Skills repository ↗</a> for skill instructions, executable resources and examples.</p>
       <Link className="ch-open" href="/coding/ai-engineering/harness-engineering">← Back to Harness Engineering</Link>
     </main>
   );
