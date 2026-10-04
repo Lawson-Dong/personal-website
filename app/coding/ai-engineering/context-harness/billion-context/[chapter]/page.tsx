@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContextKernelChapter } from "@/components/context-kernel-chapter";
 import { ContextFoldChapter } from "@/components/context-fold-chapter";
 import { notFound } from "next/navigation";
 import {
@@ -114,7 +115,7 @@ export default async function Chapter({
         <p className="ch-subtitle">{lesson.subtitle}</p>
         <p className="ch-lead">{lesson.intro}</p>
       </header>
-      {lesson.slug === "fold" ? <ContextFoldChapter /> : <>
+      {lesson.slug === "kernel" ? <ContextKernelChapter /> : lesson.slug === "fold" ? <ContextFoldChapter /> : <>
       <ContextIllustration slug={lesson.slug} />
       <ContextLab slug={lesson.slug} number={index} />
       <aside className="ch-clarification">
