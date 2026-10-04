@@ -201,20 +201,20 @@ export const lessons = [
   {
     slug: "compression-doctrine",
     title: "9. Compression Doctrine",
-    subtitle: "Semantic judgment meets structural safeguards",
+    subtitle: "When has information finished its job?",
     intro:
-      "The model uses task meaning to choose useful summaries. The kernel supplies stable references, protected ranges, visibility rules and budget enforcement.",
+      "Compression Doctrine gives the model one semantic question: is this information still directly needed for the current task step? If yes, keep it raw. If no, it can be folded while preserving what still matters.",
     clarification:
-      "Age and relevance are teaching heuristics, not an implemented numerical scoring function. Kernel protections can reject a proposed range. Recent-tool exclusions and protected tool settings are configurable.",
+      "The core judgment is task-relative need, not age or a numerical importance score. Old information can remain active; recent information can already be consumed.",
     notes:
-      "### A specification of judgment\n\nThe **Compression Doctrine** is the instruction set guiding the model’s decisions about timing, scope and summary fidelity. The kernel provides the mechanics; the doctrine guides the meaning.\n\n$$\n\\text{context management}=\\text{structural execution}+\\text{semantic judgment}\n$$\n\n### Consumed is a task-relative judgment\n\nA verbose test log can be consumed once its outcome is extracted. An old unresolved error can still be active. Age and size help locate candidates, but they do not decide whether details remain necessary.\n\n**Keep:** user intent, constraints, decisions with rationale, unresolved questions, exact errors, artifact paths and load-bearing values.\n\n**Fold:** repetitive output, duplicate reads, completed exploration and dead ends whose lessons have already been extracted. Preserve their useful conclusion and enough description to locate their sources later.\n\n### Two ways to fail\n\nUnder-compression crowds the working view. Over-compression removes meaning needed for the next step. A shorter digest is not automatically better; source recovery remains a separate safeguard.\n\n### Distinguish a recommendation from enforcement\n\nThe model can defer a normal nudge while active debugging still needs the detail. The kernel separately enforces protected zones, tool/turn integrity and valid block bookkeeping. It cannot certify that the model-written digest preserves the right meaning.\n\nThe Fold workbench lets you compare a faithful digest with an over-compressed one and inspect the consequence for an exact question.\n",
+      "### 1. The decision is simple\n\nAsk one question:\n\n> **Do I still need to directly use this information for what I am doing now?**\n\nIf **yes**, keep it raw. If **no**, the information has finished its immediate job and becomes a compression candidate.\n\n### 2. \"Consumed\" means finished, not unimportant\n\nSuppose the agent reads a long test log while debugging. During diagnosis, the raw log is active working material. After the bug is identified and fixed, the log may no longer need to stay verbatim. Its useful result can survive in a digest.\n\n**Still editing the function → keep the code raw.**\n\n**Function already fixed → the inspection trace can be folded.**\n\nThat is why age alone is not the criterion:\n\n- old but still needed → **keep**\n- recent but already consumed → **compress**\n\n### 3. Only after that do we ask what must survive\n\nCompression does not mean throwing the information away. The digest should preserve whatever the next steps may still depend on: the goal, constraints, decisions, results, unresolved questions, exact load-bearing details, and source references when recovery may be needed.\n\nThe key separation is:\n\n**Should this be compressed?** → Is it still directly useful now?\n\n**If it is compressed, what must survive?** → Preserve the task-relevant result and the path back to sources.\n\nThis leads directly into Fold: Doctrine decides that a range has finished its job; Fold replaces that range with a digest plus source references.",
     quiz: {
       question:
-        "An old message is still essential to the current debugging step. What should semantic judgment favor?",
-      answers: ["Compress because it is old", "Preserve it for now"],
+        "A message is old, but the current debugging step still needs its exact contents. What should the doctrine favor?",
+      answers: ["Compress it because it is old", "Keep it raw for now"],
       correct: 1,
       explanation:
-        "The criterion is current task need. Age alone is insufficient.",
+        "Compression is task-relative. If the current step still directly needs the detail, it has not finished its job.",
     },
   },
   {
