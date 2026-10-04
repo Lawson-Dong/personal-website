@@ -26,7 +26,7 @@ export async function generateMetadata({
 }) {
   const { chapter } = await params;
   const l = lessons.find((l) => l.slug === chapter);
-  return { title: l ? `${l.title} — Context Harness` : "Chapter not found" };
+  return { title: l ? `${l.title} — Context Engineering` : "Chapter not found" };
 }
 export default async function Chapter({
   params,
@@ -96,7 +96,7 @@ export default async function Chapter({
         <Link href="/coding">Coding</Link> /{" "}
         <Link href="/coding/ai-engineering">AI Engineering</Link> /{" "}
         <Link href="/coding/ai-engineering/context-harness">
-          Context Harness
+          Context Engineering
         </Link>{" "}
         / <Link href={contextBase}>billion-context</Link>
       </p>
@@ -112,7 +112,7 @@ export default async function Chapter({
           {index === 0
             ? "READING MAP"
             : `CHAPTER ${String(index).padStart(2, "0")} / ${lessons.length - 1}`}{" "}
-          · CONTEXT HARNESS
+          · CONTEXT ENGINEERING
         </p>
         <h1>{lesson.title.replace(/^\d+\.\s*/, "")}</h1>
         <p className="ch-subtitle">{lesson.subtitle}</p>

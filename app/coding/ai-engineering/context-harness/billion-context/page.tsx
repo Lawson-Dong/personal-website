@@ -6,7 +6,7 @@ import {
   interactiveChapters,
 } from "@/lib/context-lessons";
 export const metadata = {
-  title: "billion-context — Interactive Context Harness Notebook",
+  title: "billion-context — Interactive Context Engineering Notebook",
 };
 export default function Notebook() {
   return (
@@ -14,7 +14,7 @@ export default function Notebook() {
       <p className="ch-crumb">
         <Link href="/coding/ai-engineering">AI Engineering</Link> /{" "}
         <Link href="/coding/ai-engineering/context-harness">
-          Context Harness
+          Context Engineering
         </Link>{" "}
         / billion-context
       </p>
