@@ -26,28 +26,17 @@ export default function HarnessEngineering() {
           <span>READ</span><span>BUILD</span><span>VERIFY</span>
         </div>
       </Link>
-      <section aria-labelledby="agent-skills-title">
-        <p className="ch-kicker">02 / REUSABLE AGENT TOOLS</p>
-        <h2 id="agent-skills-title">Agent Skills</h2>
-        <a
-          className="ch-feature"
-          href="https://github.com/Lawson-Dong/agent-skill/tree/High-Dimensional-Vector-Visualization-Excuter"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <div>
-            <p className="ch-kicker">VECTOR GEOMETRY / VISUALIZATION</p>
-            <h3>High Dimensional Vector Visualization Executer</h3>
-            <p>A reusable agent skill that turns high-dimensional vectors into 2D plots with UMAP, PCA or t-SNE. Export interactive HTML or PNG, projected coordinates and reduction metadata.</p>
-            <span className="ch-open">View skill on GitHub ↗</span>
-          </div>
-          <div className="ch-feature-art" aria-hidden="true">
-            <span>HIGH-DIMENSIONAL VECTORS</span>
-            <span>↓ UMAP · PCA · t-SNE ↓</span>
-            <span>2D VISUALIZATION</span>
-          </div>
-        </a>
-      </section>
+      <Link className="ch-feature" href="/coding/ai-engineering/harness-engineering/agent-skills">
+        <div>
+          <p className="ch-kicker">02 / REUSABLE AGENT TOOLS</p>
+          <h2>Agent Skills</h2>
+          <p>Reusable instructions and executable tools for an agent’s work, starting with high-dimensional vector visualization.</p>
+          <span className="ch-open">Explore Agent Skills ↗</span>
+        </div>
+        <div className="ch-feature-art" aria-hidden="true">
+          <span>INSTRUCTIONS</span><span>TOOLS</span><span>REUSABLE WORKFLOWS</span>
+        </div>
+      </Link>
     </main>
   );
 }
