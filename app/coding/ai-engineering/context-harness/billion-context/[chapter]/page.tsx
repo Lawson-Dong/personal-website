@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContextFoldChapter } from "@/components/context-fold-chapter";
 import { notFound } from "next/navigation";
 import {
   contextBase,
@@ -111,6 +112,7 @@ export default async function Chapter({
         <p className="ch-subtitle">{lesson.subtitle}</p>
         <p className="ch-lead">{lesson.intro}</p>
       </header>
+      {lesson.slug === "fold" ? <ContextFoldChapter /> : <>
       <ContextIllustration slug={lesson.slug} />
       <ContextLab slug={lesson.slug} number={index} />
       <aside className="ch-clarification">
@@ -125,6 +127,7 @@ export default async function Chapter({
         <ContextNotes text={lesson.notes} />
       </section>
       <ContextQuiz quiz={lesson.quiz} />
+      </>}
       <section className="ch-source">
         <p className="ch-kicker">FOLLOW THE SOURCE</p>
         {lesson.slug === "basic-approaches" ? (
@@ -144,11 +147,9 @@ export default async function Chapter({
           <>
             <p>
               Reviewed source: <code>billion-context 0.1.180 / 03d27f9</code>.
-              The notes are Lawson’s learning interpretation; the boundary above
-              reflects the reviewed repository.
+              The notes are Lawson’s learning interpretation of the reviewed repository.
             </p>
-            {lesson.slug === "fold" ||
-            lesson.slug === "hierarchical-compression" ||
+            {lesson.slug === "hierarchical-compression" ||
             lesson.slug === "kernel" ? (
               <a
                 href={`https://github.com/ranxianglei/acp-kernel/tree/${kernelCommit}`}

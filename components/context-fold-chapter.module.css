@@ -1,0 +1,33 @@
+.chapter { max-width: 1000px; margin: 0 auto; }
+.chapter section { padding: 2.25rem 0; border-top: 1px solid #ddd9d0; }
+.chapter h2 { font-size: clamp(1.45rem, 3vw, 2rem); margin: 0 0 1rem; letter-spacing: -.025em; }
+.chapter p { line-height: 1.75; }
+.figure { margin: 1.75rem 0; padding: clamp(1rem, 3vw, 2rem); background: #f7f6f2; border: 1px solid #ddd9d0; border-radius: 18px; }
+.figure figcaption, .caption { font-size: .85rem; color: #5b625e; margin: 1rem 0 0; line-height: 1.6; }
+.messages { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+.messages span { display: inline-flex; align-items: center; justify-content: center; padding: .7rem .85rem; background: #fff; border: 1px solid #c9cfca; border-radius: 8px; font: 500 .88rem ui-monospace, monospace; color: #343e37; }
+.arrow { margin: .8rem 0; font-size: 1.6rem; color: #567267; }
+.arrow span { font: 600 .8rem ui-monospace, monospace; vertical-align: middle; }
+.digest { padding: 1.15rem; background: #e6eee6; border: 1px solid #acbcad; border-radius: 10px; color: #253c2b; }
+.digest p { margin: .5rem 0 0; font-size: .95rem; }
+.columns { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,.7fr); gap: 1.2rem; align-items: start; }
+.recent { background: #eeeaf7; border: 1px solid #cbc3df; border-radius: 10px; padding: 1rem; }
+.recent strong { display: block; margin-top: .9rem; }
+.recent p { font-size: .9rem; margin-bottom: 0; }
+.equations { display: flex; flex-wrap: wrap; gap: 1rem 3rem; }
+.after { display: flex; flex-wrap: wrap; gap: .6rem; align-items: center; }
+.digestChip { padding: .75rem 2rem; border-radius: 8px; border: 1px solid #acbcad; background: #e6eee6; font-family: ui-monospace, monospace; }
+.references { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.5rem; }
+.sourceLabel { padding: .8rem 0; font: 500 .85rem ui-monospace, monospace; color: #435d50; }
+.original { background: white; border: 1px dashed #a5b3aa; border-radius: 10px; padding: 1rem; }
+.original strong { display: block; margin-bottom: .8rem; }
+.block { padding: 1rem; border: 1px solid #acbcad; background: white; border-radius: 12px; }
+.block > strong { display: block; margin-bottom: .7rem; }
+.label { text-transform: uppercase; font: 600 .8rem ui-monospace, monospace; letter-spacing: .12em; }
+.formula { overflow-x: auto; padding: 1rem 0; font-size: clamp(.72rem, 1.6vw, 1rem); }
+.sequence { color: #435d50; font-weight: 600; }
+.tableWrap { overflow-x: auto; }
+.tableWrap table { width: 100%; border-collapse: collapse; }
+.tableWrap td, .tableWrap th { padding: .6rem .85rem; text-align: left; border-bottom: 1px solid #e1dfd7; }
+.tableWrap th { font-size: .85rem; color: #5b625e; }
+@media (max-width: 680px) { .columns, .references { grid-template-columns: 1fr; } .chapter section { padding: 1.75rem 0; } .equations { display: block; } }
