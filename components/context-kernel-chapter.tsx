@@ -14,8 +14,9 @@ const steps = [
   ["Resolve refs", "m1 → m5 ⇒ positions 0–4", "Use the reference map to locate the actual messages."],
   ["Protection check", "m1, m2, m5", "Exclude the protected m3/m4 pair from legal coverage."],
   ["Create block b1", "summary + source IDs + tier", "Give the supplied text an identity and explicit source relationships."],
-  ["Update state", "b1 covers m1, m2, m5", "Record coverage; preserve lineage when existing blocks are consumed."],
-  ["Render next view", "b1 + protected pair + remaining raw", "processTurn uses active coverage to build the next working context."],
+  ["Execute compression decision", "applyCompression({ ranges, messages, state })", "Put the model-written summary into the updated compression state."],
+  ["Synchronize state", "b1 covers m1, m2, m5", "Record coverage; preserve lineage when existing blocks are consumed."],
+  ["Record + render", "b1 + protected pair + remaining raw", "processTurn uses active coverage to build the next working context."],
 ];
 export function ContextKernelChapter() {
   return <article className={styles.chapter}>
@@ -51,7 +52,24 @@ export function ContextKernelChapter() {
       <p>For this first fold, direct and effective coverage coincide. A parent block records its consumed children in <code>directBlockIds</code> and carries their original-message coverage into <code>effectiveMessageIds</code>. Selected children become inactive but remain recorded. These links form lineage.</p>
       <p className={styles.note}>The kernel’s <code>decompress("b1", state)</code> primitive looks up block metadata. Returning original text requires the host’s recovery integration and retained sources.</p>
     </section>
-    <section><h2>STEP F — Synchronize the compression state</h2>
+    <section><h2>STEP F — Execute the model’s compression decision</h2>
+      <p>The model has already chosen what to compress and has already written the summary. The kernel now executes that decision through <code>applyCompression()</code>.</p>
+      <Figure title="MODEL DECISION → APPLYCOMPRESSION → STATE" caption="The model supplies the range and summary; the kernel turns that decision into compression state.">
+        <div className={styles.call}><pre><code>{`applyCompression({
+  ranges: [{
+    startRef: "m00005",
+    endRef: "m00020",
+    summary: "..."
+  }],
+  messages,
+  state
+})`}</code></pre></div>
+        <Arrow label="Execute the model-written compression decision"/>
+        <div className={styles.block}><strong>updated CompressionState</strong><p><code>summary: "..."</code> is now recorded as part of the compression state, together with its range / block relationships.</p></div>
+      </Figure>
+      <p><strong>In other words: put the model-written summary into state.</strong> The kernel does not decide the semantic content of the summary; it applies the already-made compression decision and returns updated state.</p>
+    </section>
+    <section><h2>STEP G — Synchronize the compression state</h2>
       <p>Each turn arrives with messages and a <code>CompressionState</code>. Suppose m1–m3 were previously folded into b1. The state remembers more than the summary text: it records the block’s identity, covered originals, tier and active status.</p>
       <Figure title="COMPRESSIONSTATE / SOURCE RELATIONSHIPS" caption="This first-fold example shows b1 covering m1–m3. The later example starts afresh with a protected pair.">
         <Messages ids={all}/><Arrow label="Previously folded m1–m3"/>
@@ -60,7 +78,7 @@ export function ContextKernelChapter() {
       <p><strong>The kernel maintains a graph between raw messages and compressed blocks.</strong> It reconciles live identities, assigns refs and synchronizes existing blocks so their coverage can be used on the next turn.</p>
       <p>Those relationships support hierarchical compression and source lookup. The host passes state in, receives updated state and persists it between turns; the kernel itself does not own storage.</p>
     </section>
-    <section><h2>STEP G — Record consumption, then render the next view</h2>
+    <section><h2>STEP H — Record consumption, then render the next view</h2>
       <p>Creating b1 records that its active coverage consumes m1, m2 and m5. This relationship is the basis for hiding their raw content from the working view. It does not require physically deleting the originals.</p>
       <Figure title="CONSUMED COVERAGE / STATE" caption="“Consumed by b1” is a relationship derived from active block coverage, not a per-message flag required by the schema."><div className={styles.columns}><div className={styles.card}><strong>Raw source history</strong><Messages ids={all} protectedIds={[3,4]}/><p>The host can retain these originals.</p></div><div className={styles.block}><strong>Compression state</strong><dl><dt>consumed by b1</dt><dd><Messages ids={[1,2,5]} consumed/></dd><dt>protected</dt><dd><Messages ids={[3,4]} protectedIds={[3,4]}/></dd><dt>remaining raw</dt><dd><Messages ids={[6,7,8]}/></dd></dl></div></div></Figure>
       <p><code>applyCompression()</code> returns the updated state. On the next turn, <code>processTurn()</code> uses that state to synchronize blocks, prune covered raw content and render active summaries with the remaining messages.</p>
