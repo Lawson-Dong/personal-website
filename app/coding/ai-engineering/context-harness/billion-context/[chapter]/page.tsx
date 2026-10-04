@@ -13,6 +13,9 @@ import { ContextLab } from "@/components/context-labs";
 import { ContextChapterNav } from "@/components/context-chapter-nav";
 import { ContextIllustration } from "@/components/context-illustrations";
 import { ContextQuiz } from "@/components/context-quiz";
+
+// Always render chapter content from the deployed source rather than reusing a stale static route artifact.
+export const revalidate = 0;
 export function generateStaticParams() {
   return lessons.map((l) => ({ chapter: l.slug }));
 }
