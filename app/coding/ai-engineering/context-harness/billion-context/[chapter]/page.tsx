@@ -161,7 +161,7 @@ export default async function Chapter({
                 Pinned acp-kernel 0.0.100 · ranges, protections and lineage ↗
               </a>
             ) : null}
-            {lesson.slug === "kernel" ? ["src/compress.ts", "src/protected.ts", "src/tool-pairs.ts", "src/hide-consumed.ts", "src/refs.ts"].map(file => <a key={file} href={`https://github.com/ranxianglei/acp-kernel/blob/${kernelCommit}/${file}`} target="_blank" rel="noreferrer">acp-kernel / {file} ↗</a>) : null}
+            {lesson.slug === "kernel" ? ["README.md", "src/compress.ts", "src/boundaries.ts", "src/protected.ts", "src/prune.ts", "src/types.ts", "src/refs.ts"].map(file => <a key={file} href={`https://github.com/ranxianglei/acp-kernel/blob/${kernelCommit}/${file}`} target="_blank" rel="noreferrer">acp-kernel / {file} ↗</a>) : null}
             {lesson.slug === "recovery" ? <a href={`https://github.com/ranxianglei/acp-kernel/blob/${kernelCommit}/src/decompress.ts`} target="_blank" rel="noreferrer">acp-kernel / source collection and nested reads ↗</a> : null}
             {files.map((file) => (
               <a

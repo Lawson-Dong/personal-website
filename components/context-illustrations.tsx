@@ -215,18 +215,10 @@ function FoldSourceMap() {
     </div>
   );
 }
-function KernelMap() {
-  return <div className="ci-fold-map"><div className="ci-fold-timeline">
-    <section className="ci-fold-original"><ScanLine size={20}/><strong>Model + doctrine</strong><span>Choose a consumed range</span><span>Write the useful digest</span><code>range + summary →</code></section>
-    <section className="ci-fold-digest"><Layers size={20}/><strong>acp-kernel</strong><span>Validate protections and boundaries</span><span>Update blocks, tiers and lineage</span><span>Render the next working view</span></section>
-    <section className="ci-fold-recent"><FileText size={20}/><strong>Next request</strong><span>Active digests + recent raw work + returned source reads</span><code>proxy → model API</code></section>
-  </div><p className="ch-muted">The same source graph can produce a smaller working view. The kernel manages its structure; the model judges which meaning must survive.</p></div>;
-}
 const diagrams: Record<
   string,
   { label: string; title: string; Art: () => ReactNode }
 > = {
-  kernel: {label: "CONTEXT MANAGEMENT ENGINE", title: "A proposal becomes context state.", Art: KernelMap},
   fold: {
     label: "SOURCE INDEX / HORIZONTAL COMPRESSION",
     title: "Fold the view. Keep the way back.",
