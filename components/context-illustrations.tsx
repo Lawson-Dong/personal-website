@@ -216,56 +216,27 @@ function FoldSourceMap() {
   );
 }
 function RecoveryMap() {
-  const messages = ["m1","m2","m3","m4","m5","m6","m7","m8","m9","m10"];
   return (
-    <div className="ci-fold-map">
-      <p className="ch-muted">
-        The same m1–m10 history from Fold. Recovery reads the path that compression preserved.
-      </p>
-
-      <div className="ci-fold-timeline">
-        <section className="ci-fold-original">
-          <FileText size={20} />
-          <strong>Raw messages</strong>
-          <div className="ci-pages">
-            {messages.map((m) => <code key={m}>{m}</code>)}
-          </div>
-          <span>Original context is retained outside the compact working view.</span>
-        </section>
-
-        <section className="ci-fold-digest">
-          <Layers size={20} />
-          <strong>Fold keeps source references</strong>
-          <code>d1 → m1–m4</code>
-          <code>d2 → m5–m8</code>
-          <span>m9–m10 can remain recent and raw.</span>
-        </section>
-
-        <section className="ci-fold-recent">
-          <GitBranch size={20} />
-          <strong>Hierarchy forms lineage</strong>
-          <code>h1 → d1 → m1–m4</code>
-          <code>h1 → d2 → m5–m8</code>
-          <span>Vertical compression carries the source path upward.</span>
-        </section>
+    <div className="ci-recovery-map">
+      <p className="ch-muted">The same m1–m10 history from Fold. Arrows below point from a summary to its retained sources.</p>
+      <div className="ci-recovery-groups">
+        {[{ name: "S1", ids: [1, 2, 3, 4] }, { name: "S2", ids: [5, 6, 7] }, { name: "Recent raw context", ids: [8, 9, 10] }].map(({ name, ids }) => (
+          <section key={name} className="ci-recovery-group">
+            <div className="ci-recovery-messages">{ids.map(id => <code key={id} className={id === 3 ? "ci-recovery-target" : undefined}>m{id}</code>)}</div>
+            <span className="ci-recovery-direction">{name === "Recent raw context" ? "kept in the working view" : "↓ Fold preserves sources"}</span>
+            <strong>{name}</strong>
+            {name !== "Recent raw context" && <small>sources: [{ids.map(id => `m${id}`).join(", ")}]</small>}
+          </section>
+        ))}
       </div>
-
-      <div className="ci-fold-next">
-        <ScanLine size={20} />
-        <div>
-          <strong>Recovery follows the path back down</strong>
-          <p>
-            Need the exact detail from m3? Start from h1, follow its reference to d1,
-            then follow d1 to m3 and read the retained original.
-          </p>
-          <code>h1 → d1 → m3 → retained source</code>
-        </div>
+      <div className="ci-recovery-parent"><Layers size={20} /><strong>H1</strong><code>sources: [S1, S2]</code><p>Hierarchical Compression folds S1 and S2 into H1 while preserving their source relationships.</p></div>
+      <div className="ci-recovery-lineage" aria-label="Source lineage: H1 points to S1, which points to m1 through m4, and S2, which points to m5 through m7">
+        <p className="ch-kicker">THE PRESERVED LINEAGE</p>
+        <div><code>H1</code><span>→</span><code>S1</code><span>→</span><code>m1 · m2 · <strong>m3</strong> · m4</code></div>
+        <div><code>H1</code><span>→</span><code>S2</code><span>→</span><code>m5 · m6 · m7</code></div>
       </div>
-
-      <p className="ch-muted">
-        Fold creates source references. Hierarchical Compression turns them into lineage.
-        Recovery follows that lineage back to the retained source.
-      </p>
+      <div className="ci-recovery-read"><ScanLine size={22} /><div><strong>Need the exact command originally mentioned in m3?</strong><p>Follow H1’s reference to S1, resolve S1’s reference to m3, then retrieve the retained original message.</p><div className="ci-recovery-route"><code>H1</code><span>→</span><code>S1</code><span>→</span><code>m3</code><span>→</span><strong>original raw content</strong></div></div></div>
+      <p className="ch-muted">S1, S2 and H1 are teaching labels for summary blocks. The route illustrates provenance; an implementation may use recorded original-message coverage or cached originals to retrieve directly.</p>
     </div>
   );
 }
