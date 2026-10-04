@@ -155,39 +155,39 @@ function DoctrineMap() {
   return (
     <div className="ci-doctrine">
       <div>
-        <p className="ch-kicker">SEMANTIC PRIORITY</p>
+        <p className="ch-kicker">ONE SEMANTIC QUESTION</p>
         <h3>
-          Keep enough
+          Has this information
           <br />
-          to continue correctly.
+          finished its job?
         </h3>
-        <p>The task determines what matters.</p>
+        <p>Judge it relative to the current task step.</p>
       </div>
       <ol>
-        {[
-          ["Intent + constraints", "What must remain true?"],
-          ["Decisions + rationale", "What did we choose, and why?"],
-          [
-            "Exact artifacts + errors",
-            "Which paths, values or unresolved details matter?",
-          ],
-          [
-            "Conclusions + lessons",
-            "What is worth keeping after the verbose trace is consumed?",
-          ],
-        ].map(([a, b], i) => (
-          <li key={a}>
-            <span>0{i + 1}</span>
-            <div>
-              <strong>{a}</strong>
-              <p>{b}</p>
-            </div>
-          </li>
-        ))}
+        <li>
+          <span>01</span>
+          <div>
+            <strong>Still directly needed?</strong>
+            <p>Keep the information raw in the working context.</p>
+          </div>
+        </li>
+        <li>
+          <span>02</span>
+          <div>
+            <strong>No longer directly needed?</strong>
+            <p>It has been consumed and can become a fold candidate.</p>
+          </div>
+        </li>
+        <li>
+          <span>03</span>
+          <div>
+            <strong>Then preserve what survives.</strong>
+            <p>Keep the result, constraints, exact load-bearing details and source references.</p>
+          </div>
+        </li>
       </ol>
       <footer>
-        The model judges meaning. The kernel separately enforces structural
-        protections.
+        Old but still needed → keep. Recent but already consumed → compress.
       </footer>
     </div>
   );
@@ -271,8 +271,8 @@ const diagrams: Record<
     Art: RewriteScope,
   },
   "compression-doctrine": {
-    label: "JUDGMENT, MADE CONCRETE",
-    title: "Meaning deserves the space.",
+    label: "TASK-RELATIVE JUDGMENT",
+    title: "Compress information when it has finished its job.",
     Art: DoctrineMap,
   },
 };
