@@ -1,6 +1,7 @@
 "use client";
 import { useState, type ReactNode } from "react";
 import { ArrowRight, Check, Undo2 } from "lucide-react";
+import { KernelLab } from "./context-kernel-lab";
 import { FoldLab } from "./context-fold-lab";
 import { HierarchyLab } from "./context-hierarchy-lab";
 const fmt = (n: number) => n.toLocaleString("en-US");
@@ -272,6 +273,7 @@ export function ContextLab({ slug, number }: { slug: string; number: number }) {
     fold: FoldLab,
     "hierarchical-compression": HierarchyLab,
     "growth-gate": GateLab,
+    kernel: KernelLab,
   };
   const Lab = labs[slug];
   if (!Lab) return null;
