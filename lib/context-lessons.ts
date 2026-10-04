@@ -7,7 +7,6 @@ export const interactiveChapters: string[] = [
   "fold",
   "hierarchical-compression",
   "growth-gate",
-  "recovery",
 ];
 export const lessons = [
   {
@@ -243,15 +242,23 @@ export const lessons = [
   {
     slug: "recovery",
     title: "11. Recovery",
-    subtitle: "Compressed does not mean forgotten.",
-    intro: "A digest keeps the broad account in view. Source lineage tells the system where to look when the next step needs an exact command, value or error. Restore the fidelity the task requires.",
-    clarification: "The lab uses representative messages and local keyword matching. In the pinned proxy, decompress returns source content while the digest stays active; one-level reads preserve nested active summaries, and full reads traverse originals. Large results may be written to a file. Exact-message retrieval and span restoration depend on the configured content store and available originals. Lineage alone cannot recover deleted text.",
-    notes: "### Resident ≠ retained\n\n**Resident:** instructions, active digests, recent turns and returned evidence in this request.\n\n**Retained:** originals and their source graph that the system can still reach. Stored history becomes usable evidence when it is read into the working context.\n\n### Three operations, different scopes\n\n| Need | Operation | Result |\n| --- | --- | --- |\n| Broad account | Read a digest | A compact account; exact details may be omitted |\n| Locate relevant history | `search_context` | Keyword matches over summaries and visible messages |\n| One exact piece | `acp_retrieve` | A stored original by message reference, when available |\n| Direct sources of a block | `decompress` | One level; nested active children remain summaries |\n| Originals across tiers | `decompress` with `full: true` | Source content through the hierarchy |\n\nThese operations are choices, not a mandatory pipeline. Search may be enough; a known reference may be retrieved directly. The source also supports message-span restoration when the content store is enabled.\n\n### Every generation keeps its path back\n\nA tier-2 digest can cover tier-1 blocks, which cover original messages. The working view shrinks while the lineage records that coverage. Chapter 7 introduced the hierarchy; here, its links become a route to evidence.\n\n**A summary with lineage and retained sources is an index.** A summary without a reachable original cannot recreate missing wording. A search miss is also inconclusive: the omitted detail may exist in an original even though no summary contains the keyword.\n\n### Lossy representation, recoverable architecture\n\nSummarization does not have a general inverse. Restoration reads retained source content; it does not reconstruct that content mathematically from the digest. In the reviewed proxy, returning content leaves the folded block active.\n\nNative host compaction, missing originals or unavailable storage can break recovery. The source explicitly rejects decompression of pre-compaction archived blocks whose originals are no longer reachable.\n\n### From doctrine to recovery\n\nDoctrine asks what meaning the next step still needs. Recovery asks how much detail that step needs back. Together they close the loop: **work → fold → retain → recover → work.**\n\n> Compression is lossy. The architecture is recoverable when its sources remain accessible.\n\n> A summary tells you what happened. Lineage tells you where it happened.\n\n> Keep important history reachable; restore it at the fidelity the task requires.\n",
+    subtitle: "Follow the references back to the source.",
+    intro:
+      "Recovery works because Fold kept source references. As those references are carried upward through Hierarchical Compression, they form a lineage back to the retained raw messages.",
+    clarification:
+      "Recovery does not reverse a summary. It follows the stored source relationships and reads retained source content. If the referenced original is no longer available, the lineage alone cannot recreate it.",
+    notes:
+      "### 1. Fold leaves a way back\n\nKeep the same history from the Fold chapter: **m1–m10**. When m1–m4 become d1 and m5–m8 become d2, each digest keeps the source references for the messages it covers. m9 and m10 can remain raw.\n\nThe important result of Fold is therefore not only a shorter working view. Each digest also remembers **which original messages it came from**.\n\n### 2. Vertical compression turns references into lineage\n\nLater, Hierarchical Compression can fold d1 and d2 into a higher-level digest such as h1. h1 points to d1 and d2; d1 still points to m1–m4; d2 still points to m5–m8.\n\nThose linked source references form a lineage through the hierarchy:\n\n**h1 → d1 → m1–m4**\n\n**h1 → d2 → m5–m8**\n\nThe higher-level digest can be very compact while the route to its original evidence remains recorded.\n\n### 3. Recovery follows the lineage\n\nSuppose the current task needs an exact detail that originally appeared in **m3**. The system does not try to reconstruct m3 from h1. It follows h1's source reference to d1, then d1's source reference to m3, and reads the retained original message.\n\nThat is the recovery mechanism:\n\n**start from the active digest → follow source references → reach the retained source → read the needed detail back into working context.**\n\n### 4. Source references are the mechanism\n\nAt one level, a block can return its direct sources. Across multiple levels, full recovery keeps following child-block references until it reaches the retained original messages.\n\nSo the three chapters fit together directly:\n\n**Fold** creates source references.\n\n**Hierarchical Compression** carries those references upward and forms lineage.\n\n**Recovery** follows that lineage back down to the retained source.\n\nThe digest stays a compact representation of earlier work. Exact detail comes from the source it points to, not from reversing the summary.",
     quiz: {
-      question: "A tier-2 summary omits an exact error. The source graph and originals remain available. What recovers the wording?",
-      answers: ["Invert the summary", "Follow the source references and read the retained original", "Treat a summary-search miss as proof the error never occurred"],
+      question:
+        "A higher-level digest needs an exact detail originally stored in m3. What does recovery do?",
+      answers: [
+        "Reconstruct m3 from the summary text",
+        "Follow the lineage through source references until it reaches retained m3",
+        "Expand every digest whether or not the detail is needed",
+      ],
       correct: 1,
-      explanation: "A summary is lossy. Lineage locates the evidence; retained content supplies its exact wording. The proxy can return that content while the digest remains active.",
+      explanation:
+        "Fold preserves source references, hierarchical compression carries them into a lineage, and recovery follows that lineage to the retained original.",
     },
-  },
 ];
