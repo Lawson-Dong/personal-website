@@ -201,20 +201,24 @@ export const lessons = [
   {
     slug: "compression-doctrine",
     title: "9. Compression Doctrine",
-    subtitle: "When has information finished its job?",
+    subtitle: "A prompt-based policy for compression judgment",
     intro:
-      "Compression Doctrine gives the model one semantic question: is this information still directly needed for the current task step? If yes, keep it raw. If no, it can be folded while preserving what still matters.",
+      "Compression Doctrine is not a separate algorithm or classifier. In the implementation, it is a set of prompt rules that teaches the model how to judge compression: when information has finished its job, what must survive, what can disappear, and what to prioritize when space is tight.",
     clarification:
-      "The core judgment is task-relative need, not age or a numerical importance score. Old information can remain active; recent information can already be consumed.",
+      "The doctrine itself does not execute compression. The model applies these prompt rules to the current task; the Kernel provides references, protections, validation, and the Fold operation.",
     notes:
-      "### 1. The decision is simple\n\nAsk one question:\n\n> **Do I still need to directly use this information for what I am doing now?**\n\nIf **yes**, keep it raw. If **no**, the information has finished its immediate job and becomes a compression candidate.\n\n### 2. \"Consumed\" means finished, not unimportant\n\nSuppose the agent reads a long test log while debugging. During diagnosis, the raw log is active working material. After the bug is identified and fixed, the log may no longer need to stay verbatim. Its useful result can survive in a digest.\n\n**Still editing the function → keep the code raw.**\n\n**Function already fixed → the inspection trace can be folded.**\n\nThat is why age alone is not the criterion:\n\n- old but still needed → **keep**\n- recent but already consumed → **compress**\n\n### 3. Only after that do we ask what must survive\n\nCompression does not mean throwing the information away. The digest should preserve whatever the next steps may still depend on: the goal, constraints, decisions, results, unresolved questions, exact load-bearing details, and source references when recovery may be needed.\n\nThe key separation is:\n\n**Should this be compressed?** → Is it still directly useful now?\n\n**If it is compressed, what must survive?** → Preserve the task-relevant result and the path back to sources.\n\nThis leads directly into Fold: Doctrine decides that a range has finished its job; Fold replaces that range with a digest plus source references.",
+      "### Compression Doctrine is a prompt\n\nAt the implementation level, Compression Doctrine is a **prompt-based policy**. The core rules live in `compression-rules.ts` and are injected into the model through the compression system prompt. They do not compute a relevance score or run a separate classifier; they instruct the model how to make the judgment itself.\n\n### 1. When should information be compressed?\n\nAsk whether the information has **finished its job** for the current task step.\n\nIf the model still needs to directly use it, keep it raw. If not, it becomes a compression candidate.\n\nThis is why age alone is not the criterion:\n\n- old but still needed → **keep**\n- recent but already consumed → **compress**\n\n### 2. What must survive?\n\nPreserve the information that future work may still depend on:\n\n- goals and user intent\n- constraints\n- decisions and rationale\n- exact load-bearing technical details\n- open objectives, questions, and TODOs\n- message refs when source recovery may be needed\n\n### 3. What can disappear?\n\nDrop the vessel after extracting the signal. Typical examples include:\n\n- verbose logs once the error or result is captured\n- duplicate reads\n- consumed exploration\n- intermediate discussion and self-correction\n- repeated status checks\n\nDead ends can disappear too, but their lesson should survive in compact form: **tried X, failed because Y**.\n\n### 4. When space is tight\n\nPreserve in this order:\n\n1. **Goal / intent / constraints**\n2. **Decisions + rationale**\n3. **Exact technical artifacts**\n4. **Conclusions / findings**\n5. **Lessons learned**\n\nIn short:\n\n**When?** Has it finished its job?\n\n**Keep?** Preserve what future work depends on.\n\n**Drop?** Remove consumed process after extracting the signal.\n\n**Prioritize?** goal → decisions → artifacts → conclusions → lessons.\n\n[Read the source: `acp-kernel/src/compression-rules.ts`](https://github.com/ranxianglei/acp-kernel/blob/master/src/compression-rules.ts)",
     quiz: {
       question:
-        "A message is old, but the current debugging step still needs its exact contents. What should the doctrine favor?",
-      answers: ["Compress it because it is old", "Keep it raw for now"],
+        "What is Compression Doctrine in the implementation?",
+      answers: [
+        "A numerical relevance-scoring algorithm",
+        "A prompt-based policy the model uses to judge compression",
+        "A separate classifier trained only for context management",
+      ],
       correct: 1,
       explanation:
-        "Compression is task-relative. If the current step still directly needs the detail, it has not finished its job.",
+        "The core doctrine is implemented as prompt rules such as COMPRESS_PHILOSOPHY and HOW_TO_COMPRESS_RULES. The model applies them; the Kernel executes validated compression operations.",
     },
   },
   {
