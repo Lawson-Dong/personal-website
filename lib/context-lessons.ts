@@ -261,4 +261,5 @@ export const lessons = [
       explanation:
         "Fold preserves source references, hierarchical compression carries them into a lineage, and recovery follows that lineage to the retained original.",
     },
+  },
 ];
