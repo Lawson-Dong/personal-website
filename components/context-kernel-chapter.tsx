@@ -10,6 +10,7 @@ function Messages({ ids, protectedIds = [], consumed = false }: { ids: number[];
 function Arrow({ label }: { label?: string }) { return <div className={styles.arrow}><span aria-hidden="true">↓</span>{label && <small>{label}</small>}</div>; }
 const all = [1,2,3,4,5,6,7,8];
 const steps = [
+  ["Assign stable refs", "raw IDs → m00001 / m00002 / ...", "Give incoming messages stable kernel references so later compression ranges are addressable."],
   ["Model writes summary", "compress(m1 → m5, summary)", "The model supplies both the requested range and the digest."],
   ["Resolve refs", "m1 → m5 ⇒ positions 0–4", "Use the reference map to locate the actual messages."],
   ["Protection check", "m1, m2, m5", "Exclude the protected m3/m4 pair from legal coverage."],
@@ -88,7 +89,7 @@ export function ContextKernelChapter() {
     </section>
     <section><h2>Summary</h2>
       <p>Compression has a visible result—a summary in place of earlier detail—and a state transition underneath it. The kernel resolves references, enforces protections, allocates a block, records coverage and uses the result to render the next view.</p>
-      <Figure title="THE KERNEL EXECUTION CHAIN" caption="The model writes the summary. applyCompression records the legal operation. processTurn builds the next model-facing view."><ol className={styles.pipeline}>{steps.map(([title,code,description],i)=><li key={title}><span className={styles.number}>{String.fromCharCode(66+i)}</span><div><h3>{title}</h3><code>{code}</code><p>{description}</p></div></li>)}</ol><div className={styles.view}><div className={styles.digest}><strong>b1 summary</strong></div><Messages ids={[3,4]} protectedIds={[3,4]}/><Messages ids={[6,7,8]}/></div></Figure>
+      <Figure title="THE KERNEL EXECUTION CHAIN" caption="The model writes the summary. applyCompression records the legal operation. processTurn builds the next model-facing view."><ol className={styles.pipeline}>{steps.map(([title,code,description],i)=><li key={title}><span className={styles.number}>{String.fromCharCode(65+i)}</span><div><h3>{title}</h3><code>{code}</code><p>{description}</p></div></li>)}</ol><div className={styles.view}><div className={styles.digest}><strong>b1 summary</strong></div><Messages ids={[3,4]} protectedIds={[3,4]}/><Messages ids={[6,7,8]}/></div></Figure>
       <p><strong>This is where model-written language becomes context infrastructure state.</strong> The doctrine guides the model’s judgment about what to compress and what meaning to preserve. The kernel executes the structural transformations that make that decision addressable, protected and reflected in the next working context.</p>
     </section>
   </article>;
