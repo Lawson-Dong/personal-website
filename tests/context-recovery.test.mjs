@@ -2,11 +2,11 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { recoveryMessages, recoveryBlocks, searchRecovery, recoverItems } from '../lib/context-recovery.ts';
 import { lessons, interactiveChapters } from '../lib/context-lessons.ts';
-test('Recovery is chapter 11 and registered once in navigation and interactive studies', () => {
+test('Recovery is chapter 11 and registered in navigation with a static study', () => {
   assert.equal(lessons.at(-1).slug, 'recovery');
   assert.equal(lessons.at(-1).title, '11. Recovery');
   assert.equal(lessons.length, 12);
-  assert.equal(interactiveChapters.filter(id => id === 'recovery').length, 1);
+  assert.equal(interactiveChapters.filter(id => id === 'recovery').length, 0);
 });
 test('a summary-search miss can coexist with a recoverable exact error', () => {
   assert.deepEqual(searchRecovery('ECONNRESET'), []);

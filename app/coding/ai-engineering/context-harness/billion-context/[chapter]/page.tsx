@@ -128,7 +128,7 @@ export default async function Chapter({
         </div>
         <ContextNotes text={lesson.notes} />
       </section>
-      <ContextQuiz quiz={lesson.quiz} />
+      {lesson.slug !== "recovery" ? <ContextQuiz quiz={lesson.quiz} /> : null}
       </>}
       <section className="ch-source">
         <p className="ch-kicker">FOLLOW THE SOURCE</p>

@@ -215,10 +215,70 @@ function FoldSourceMap() {
     </div>
   );
 }
+function RecoveryMap() {
+  const messages = ["m1","m2","m3","m4","m5","m6","m7","m8","m9","m10"];
+  return (
+    <div className="ci-fold-map">
+      <p className="ch-muted">
+        The same m1–m10 history from Fold. Recovery reads the path that compression preserved.
+      </p>
+
+      <div className="ci-fold-timeline">
+        <section className="ci-fold-original">
+          <FileText size={20} />
+          <strong>Raw messages</strong>
+          <div className="ci-pages">
+            {messages.map((m) => <code key={m}>{m}</code>)}
+          </div>
+          <span>Original context is retained outside the compact working view.</span>
+        </section>
+
+        <section className="ci-fold-digest">
+          <Layers size={20} />
+          <strong>Fold keeps source references</strong>
+          <code>d1 → m1–m4</code>
+          <code>d2 → m5–m8</code>
+          <span>m9–m10 can remain recent and raw.</span>
+        </section>
+
+        <section className="ci-fold-recent">
+          <GitBranch size={20} />
+          <strong>Hierarchy forms lineage</strong>
+          <code>h1 → d1 → m1–m4</code>
+          <code>h1 → d2 → m5–m8</code>
+          <span>Vertical compression carries the source path upward.</span>
+        </section>
+      </div>
+
+      <div className="ci-fold-next">
+        <ScanLine size={20} />
+        <div>
+          <strong>Recovery follows the path back down</strong>
+          <p>
+            Need the exact detail from m3? Start from h1, follow its reference to d1,
+            then follow d1 to m3 and read the retained original.
+          </p>
+          <code>h1 → d1 → m3 → retained source</code>
+        </div>
+      </div>
+
+      <p className="ch-muted">
+        Fold creates source references. Hierarchical Compression turns them into lineage.
+        Recovery follows that lineage back to the retained source.
+      </p>
+    </div>
+  );
+}
+
 const diagrams: Record<
   string,
   { label: string; title: string; Art: () => ReactNode }
 > = {
+  recovery: {
+    label: "SOURCE LINEAGE / RECOVERY",
+    title: "Follow the references back to m3.",
+    Art: RecoveryMap,
+  },
   fold: {
     label: "SOURCE INDEX / HORIZONTAL COMPRESSION",
     title: "Fold the view. Keep the way back.",
