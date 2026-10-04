@@ -34,7 +34,9 @@ export default async function Chapter({
   if (index < 0) notFound();
   const lesson = lessons[index];
   const files =
-    lesson.slug === "incremental-fold" || lesson.slug === "fold"
+    lesson.slug === "recovery"
+      ? ["src/decompress-shared.ts", "src/compress-tool.ts", "CONFIGURATION.md", "paper/model-driven-incremental-hierarchical-compression-training-free-multi-generational-context-management-for-long-lived-coding-agents.md"]
+      : lesson.slug === "incremental-fold" || lesson.slug === "fold"
       ? [
           "README.md",
           "paper/model-driven-incremental-hierarchical-compression-training-free-multi-generational-context-management-for-long-lived-coding-agents.md",
@@ -150,7 +152,7 @@ export default async function Chapter({
               The notes are Lawson’s learning interpretation of the reviewed repository.
             </p>
             {lesson.slug === "hierarchical-compression" ||
-            lesson.slug === "kernel" ? (
+            lesson.slug === "kernel" || lesson.slug === "recovery" ? (
               <a
                 href={`https://github.com/ranxianglei/acp-kernel/tree/${kernelCommit}`}
                 target="_blank"
@@ -160,6 +162,7 @@ export default async function Chapter({
               </a>
             ) : null}
             {lesson.slug === "kernel" ? ["src/compress.ts", "src/protected.ts", "src/tool-pairs.ts", "src/hide-consumed.ts", "src/refs.ts"].map(file => <a key={file} href={`https://github.com/ranxianglei/acp-kernel/blob/${kernelCommit}/${file}`} target="_blank" rel="noreferrer">acp-kernel / {file} ↗</a>) : null}
+            {lesson.slug === "recovery" ? <a href={`https://github.com/ranxianglei/acp-kernel/blob/${kernelCommit}/src/decompress.ts`} target="_blank" rel="noreferrer">acp-kernel / source collection and nested reads ↗</a> : null}
             {files.map((file) => (
               <a
                 key={file}

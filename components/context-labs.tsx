@@ -3,6 +3,7 @@ import { useState, type ReactNode } from "react";
 import { ArrowRight, Check, Undo2 } from "lucide-react";
 import { FoldLab } from "./context-fold-lab";
 import { HierarchyLab } from "./context-hierarchy-lab";
+import { RecoveryLab } from "./context-recovery-lab";
 const fmt = (n: number) => n.toLocaleString("en-US");
 function BudgetLab() {
   const [turns, setTurns] = useState(8),
@@ -272,6 +273,7 @@ export function ContextLab({ slug, number }: { slug: string; number: number }) {
     fold: FoldLab,
     "hierarchical-compression": HierarchyLab,
     "growth-gate": GateLab,
+    recovery: RecoveryLab,
   };
   const Lab = labs[slug];
   if (!Lab) return null;

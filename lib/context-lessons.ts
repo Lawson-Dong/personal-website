@@ -2,11 +2,12 @@ export const contextBase =
   "/coding/ai-engineering/context-harness/billion-context";
 export const sourceCommit = "03d27f963a73c4bd761b877d567e575c5896d75b";
 export const kernelCommit = "633b8c896c54340dec1d353eb8c14935e1c8f2a6";
-export const interactiveChapters = [
+export const interactiveChapters: string[] = [
   "long-context-problem",
   "fold",
   "hierarchical-compression",
   "growth-gate",
+  "recovery",
 ];
 export const lessons = [
   {
@@ -237,6 +238,20 @@ export const lessons = [
       correct: 1,
       explanation:
         "The gate invites evaluation. The model retains semantic choice; hard budget backstops are separate.",
+    },
+  },
+  {
+    slug: "recovery",
+    title: "11. Recovery",
+    subtitle: "Compressed does not mean forgotten.",
+    intro: "A digest keeps the broad account in view. Source lineage tells the system where to look when the next step needs an exact command, value or error. Restore the fidelity the task requires.",
+    clarification: "The lab uses representative messages and local keyword matching. In the pinned proxy, decompress returns source content while the digest stays active; one-level reads preserve nested active summaries, and full reads traverse originals. Large results may be written to a file. Exact-message retrieval and span restoration depend on the configured content store and available originals. Lineage alone cannot recover deleted text.",
+    notes: "### Resident ≠ retained\n\n**Resident:** instructions, active digests, recent turns and returned evidence in this request.\n\n**Retained:** originals and their source graph that the system can still reach. Stored history becomes usable evidence when it is read into the working context.\n\n### Three operations, different scopes\n\n| Need | Operation | Result |\n| --- | --- | --- |\n| Broad account | Read a digest | A compact account; exact details may be omitted |\n| Locate relevant history | `search_context` | Keyword matches over summaries and visible messages |\n| One exact piece | `acp_retrieve` | A stored original by message reference, when available |\n| Direct sources of a block | `decompress` | One level; nested active children remain summaries |\n| Originals across tiers | `decompress` with `full: true` | Source content through the hierarchy |\n\nThese operations are choices, not a mandatory pipeline. Search may be enough; a known reference may be retrieved directly. The source also supports message-span restoration when the content store is enabled.\n\n### Every generation keeps its path back\n\nA tier-2 digest can cover tier-1 blocks, which cover original messages. The working view shrinks while the lineage records that coverage. Chapter 7 introduced the hierarchy; here, its links become a route to evidence.\n\n**A summary with lineage and retained sources is an index.** A summary without a reachable original cannot recreate missing wording. A search miss is also inconclusive: the omitted detail may exist in an original even though no summary contains the keyword.\n\n### Lossy representation, recoverable architecture\n\nSummarization does not have a general inverse. Restoration reads retained source content; it does not reconstruct that content mathematically from the digest. In the reviewed proxy, returning content leaves the folded block active.\n\nNative host compaction, missing originals or unavailable storage can break recovery. The source explicitly rejects decompression of pre-compaction archived blocks whose originals are no longer reachable.\n\n### From doctrine to recovery\n\nDoctrine asks what meaning the next step still needs. Recovery asks how much detail that step needs back. Together they close the loop: **work → fold → retain → recover → work.**\n\n> Compression is lossy. The architecture is recoverable when its sources remain accessible.\n\n> A summary tells you what happened. Lineage tells you where it happened.\n\n> Keep important history reachable; restore it at the fidelity the task requires.\n",
+    quiz: {
+      question: "A tier-2 summary omits an exact error. The source graph and originals remain available. What recovers the wording?",
+      answers: ["Invert the summary", "Follow the source references and read the retained original", "Treat a summary-search miss as proof the error never occurred"],
+      correct: 1,
+      explanation: "A summary is lossy. Lineage locates the evidence; retained content supplies its exact wording. The proxy can return that content while the digest remains active.",
     },
   },
 ];
