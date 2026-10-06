@@ -47,12 +47,6 @@
 
 .slogan-list p {
   margin: 0;
-  font-family: Georgia, serif;
-  font-size: clamp(1.25rem, 2.4vw, 1.75rem);
-  line-height: 1.65;
-}
-
-.slogan-generalization p {
   font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, 'Iowan Old Style', 'Baskerville', Georgia, serif;
   font-weight: 400;
   font-style: italic;
