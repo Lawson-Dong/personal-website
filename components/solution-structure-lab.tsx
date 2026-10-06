@@ -59,20 +59,20 @@ function ColumnOutput({ id, matrix, coefficients, range, title, label, coefficie
   return <div className="la-geometry ss-output-card">
     <h3>{title}</h3>
     <p>{coefficientName === 'p' ? 'The column combination follows p anywhere in the input plane. Compare Ap with the fixed target b.' : 'Adding v changes the output by Av. Compare A(p + v) with Ap and the fixed target b.'}</p>
-    <div className="ss-output-tools"><span className="cs-caption">Column space · output plane (y₁, y₂)</span><button className="la-reset" onClick={onFit}>Fit output vectors</button></div>
+    <div className="ss-output-tools"><span className="cs-caption">Column space · fixed axes (y₁, y₂)</span><button className="la-reset" onClick={onFit}>Fit output vectors</button></div>
     <Plane id={id} range={range} label={label}>
       {result.rank === 2 ? <rect x="40" y="40" width="420" height="420" fill="var(--accent)" opacity=".09" /> : result.rank === 1 ? <line x1={250 - column[0] / norm * 800} y1={250 + column[1] / norm * 800} x2={250 + column[0] / norm * 800} y2={250 - column[1] / norm * 800} stroke="var(--accent)" strokeWidth="14" opacity=".17" /> : <circle cx="250" cy="250" r="10" fill="var(--accent)" opacity=".25" />}
       <VectorArrow to={a1} range={range} stroke="#477aa8" label="a₁" dashed offset={[-30, 20]} />
       <VectorArrow to={a2} range={range} stroke="#a16e39" label="a₂" dashed offset={[-30, -18]} />
-      {!matches && <VectorArrow to={b} range={range} stroke="#bc5757" label="b · target" offset={[12, 22]} />}
       <VectorArrow to={total} range={range} stroke={color.solution} label={`${coefficientName === 'p' ? 'Ap' : 'Ax'}${matches ? ' = b' : ''}`} offset={[16, 18]} />
       <VectorArrow to={term1} range={range} stroke={color.homogeneous} label={`${coefficientName}₁a₁`} offset={[10, -15]} />
       <VectorArrow from={term1} to={total} range={range} stroke="#b23b88" label={`${coefficientName}₂a₂`} offset={[10, -15]} />
       {coefficientName === 'x' && <><VectorArrow to={ap} range={range} stroke={color.particular} label="Ap" dashed offset={[-35, 20]} /><VectorArrow from={ap} to={total} range={range} stroke={color.homogeneous} label="Av" dashed offset={[14, -30]} /></>}
       <circle cx={250 + total[0] * 210 / range} cy={250 - total[1] * 210 / range} r="8" fill="var(--paper)" stroke={color.solution} strokeWidth="3" />
+      <VectorArrow to={b} range={range} stroke="#bc5757" label="b · target" dashed offset={[12, 22]} />
     </Plane>
-    <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁ · dashed</span><span style={{color:'#a16e39'}}>a₂ · dashed</span><span style={{color:color.homogeneous}}>{coefficientName}₁a₁</span><span style={{color:'#b23b88'}}>{coefficientName}₂a₂ · tip to tail</span><span style={{color:color.solution}}>Current output</span><span style={{color:'#bc5757'}}>b · target</span>{coefficientName === 'x' && <span>Dashed Av · change from Ap to Ax</span>}</div>
-    <div className="ss-output-result"><MathTex tex={`${coefficientName}=${vectorTex(coefficients)}`} /><MathTex display tex={`${fmt(coefficients[0])}a_1+(${fmt(coefficients[1])})a_2=${vectorTex(total)}${matches ? '=' : String.raw`\ne `}b`} />{coefficientName === 'x' && <MathTex display tex={`Av=${vectorTex(av)}`} />}<p className={matches ? 'cs-match' : ''}>{matches ? 'The current output reaches b.' : 'The current output does not reach b.'}</p></div>
+    <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁ · dashed</span><span style={{color:'#a16e39'}}>a₂ · dashed</span><span style={{color:color.homogeneous}}>{coefficientName}₁a₁</span><span style={{color:'#b23b88'}}>{coefficientName}₂a₂ · tip to tail</span><span style={{color:color.solution}}>Current output</span><span style={{color:'#bc5757'}}>b · fixed target, dashed</span>{coefficientName === 'x' && <span>Dashed Av · change from Ap to Ax</span>}</div>
+    <div className="ss-output-result"><MathTex tex={`b=${vectorTex(b)}`} /><MathTex tex={`${coefficientName}=${vectorTex(coefficients)}`} /><MathTex display tex={`${fmt(coefficients[0])}a_1+(${fmt(coefficients[1])})a_2=${vectorTex(total)}${matches ? '=' : String.raw`\ne `}b`} />{coefficientName === 'x' && <MathTex display tex={`Av=${vectorTex(av)}`} />}<p className={matches ? 'cs-match' : ''}>{matches ? 'The current output reaches b.' : 'The current output does not reach b.'}</p></div>
   </div>;
 }
 
@@ -90,7 +90,7 @@ export function SolutionStructureLab() {
   const [lastMatrix, setLastMatrix] = useState(examples[0].matrix);
   const [homogeneous, setHomogeneous] = useState(false);
   const [p, setP] = useState<Vec>([1, 1]), [v, setV] = useState<Vec>([-1.5, 1.5]);
-  const [range, setRange] = useState(6), [autoFit, setAutoFit] = useState(true);
+  const [range, setRange] = useState(6);
   const valid = values.every(n => n.trim() !== '' && Number.isFinite(Number(n)) && Math.abs(Number(n)) <= 20);
   const original = valid ? values.map(Number) as Augmented : lastMatrix;
   const matrix = original.map((n, i) => homogeneous && (i === 2 || i === 5) ? 0 : n) as Augmented;
@@ -104,24 +104,24 @@ export function SolutionStructureLab() {
   const familyTex = rank === 2 ? `x=${vectorTex(result.x)}` : rank === 1 ? `x=${vectorTex(result.x)}+t${vectorTex(direction)},\\quad t\\in\\mathbb R` : String.raw`x=\begin{pmatrix}t\\s\end{pmatrix},\quad t,s\in\mathbb R`;
   const example = examples.findIndex(e => e.matrix.every((n,i) => n === Number(values[i])));
   const fitRange = Math.max(2, ...[matrix[0],matrix[3],matrix[1],matrix[4],...b,...ap,...av,...ax,matrix[0]*p[0],matrix[3]*p[0],matrix[0]*x[0],matrix[3]*x[0]].filter(Number.isFinite).map(Math.abs)) * 1.3;
-  const outputRange = autoFit ? fitRange : range;
+  const outputRange = range;
   function resetVectors(m: Augmented) {const next=exampleVectors(m);setP(next.p);setV(next.v);}
   function edit(next: string[]) {
     setValues(next);
     if(next.every(n => n.trim() !== '' && Number.isFinite(Number(n)) && Math.abs(Number(n)) <= 20)) {
       const m=next.map(Number) as Augmented;setLastMatrix(m);resetVectors(m.map((n,i)=>homogeneous&&(i===2||i===5)?0:n) as Augmented);
     }
-    setAutoFit(true);
+    setRange(6);
   }
-  function preset(index: number) {const m=examples[index].matrix;setValues(m.map(String));setLastMatrix(m);setHomogeneous(false);resetVectors(m);setAutoFit(true);}
-  const fit=()=>setAutoFit(true);
+  function preset(index: number) {const m=examples[index].matrix;setValues(m.map(String));setLastMatrix(m);setHomogeneous(false);resetVectors(m);setRange(6);}
+  const fit=()=>setRange(fitRange);
   return <section id="solution-structure" className="la-module ss-lab" aria-labelledby={`${id}-title`}>
     <div className="la-module-head"><div><span className="la-label">04 / VISUALIZATION</span><h2 id={`${id}-title`}>Solutions &amp; <em>their structure.</em></h2></div><p>Move p and v freely anywhere in the input plane. Watch Ap, Av, and A(p + v) change, and test when adding v preserves the output.</p></div>
-    <div className="ss-identity"><MathTex tex={String.raw`Ap=b,\quad Av=0\quad\Longrightarrow\quad A(p+v)=b`} /><span>The conditions are tested; neither point is constrained.</span></div>
+    <div className="ss-identity"><MathTex tex={String.raw`Ap=b,\quad Av=0\quad\Longrightarrow\quad A(p+v)=b`} /><span>The conditions are tested; neither point is constrained. Dragging keeps b, a₁, a₂, and the output axes fixed.</span></div>
     <div className="cs-controls ss-controls">
-      <div><label htmlFor={`${id}-example`}>Examples · two equations, two unknowns</label><select id={`${id}-example`} value={example<0?'custom':example} onChange={e=>preset(Number(e.target.value))}><option value="custom" disabled>Custom matrix</option>{examples.map((e,i)=><option key={e.name} value={i}>{e.name}</option>)}</select><label className="ss-checkbox"><input type="checkbox" checked={homogeneous} onChange={e=>{setHomogeneous(e.target.checked);resetVectors(original.map((n,i)=>e.target.checked&&(i===2||i===5)?0:n) as Augmented);setAutoFit(true);}} /> Set b = 0 · compare the same A</label></div>
+      <div><label htmlFor={`${id}-example`}>Examples · two equations, two unknowns</label><select id={`${id}-example`} value={example<0?'custom':example} onChange={e=>preset(Number(e.target.value))}><option value="custom" disabled>Custom matrix</option>{examples.map((e,i)=><option key={e.name} value={i}>{e.name}</option>)}</select><label className="ss-checkbox"><input type="checkbox" checked={homogeneous} onChange={e=>{setHomogeneous(e.target.checked);resetVectors(original.map((n,i)=>e.target.checked&&(i===2||i===5)?0:n) as Augmented);setRange(6);}} /> Set b = 0 · compare the same A</label></div>
       <div><span className="cs-caption"><MathTex tex={String.raw`[A\mid b]`} /></span><div className="la-matrix cs-matrix">{[0,1].map(r=><div className="cs-matrix-row" key={r}>{[0,1,2].map(c=><input type="number" step="any" min="-20" max="20" key={c} disabled={homogeneous&&c===2} value={homogeneous&&c===2?'0':values[r*3+c]} aria-label={`Solution structure row ${r+1}, ${c===2?'target b':`column ${c+1}`}`} onChange={e=>edit(values.map((n,i)=>i===r*3+c?e.target.value:n))} />)}</div>)}</div></div>
-      <div className="ss-view-controls"><span className="cs-caption">Output extent: ±{fmt(outputRange)}</span><div className="la-step-actions"><button aria-label="Zoom in solution outputs" onClick={()=>{setRange(Math.max(.01,outputRange/1.4));setAutoFit(false);}}>+</button><button aria-label="Zoom out solution outputs" onClick={()=>{setRange(Math.min(1e18,outputRange*1.4));setAutoFit(false);}}>−</button><button onClick={fit}>Fit outputs</button><button onClick={()=>resetVectors(matrix)}>Reset p and v</button></div></div>
+      <div className="ss-view-controls"><span className="cs-caption">Fixed output extent: ±{fmt(outputRange)}</span><div className="la-step-actions"><button aria-label="Zoom in solution outputs" onClick={()=>{setRange(Math.max(.01,outputRange/1.4));}}>+</button><button aria-label="Zoom out solution outputs" onClick={()=>{setRange(Math.min(1e18,outputRange*1.4));}}>−</button><button onClick={fit}>Fit outputs</button><button onClick={()=>resetVectors(matrix)}>Reset p and v</button></div></div>
     </div>
     {!valid&&<p className="la-warning" role="alert">Enter six numbers between −20 and 20. The diagrams keep the last valid matrix while you edit.</p>}
     <div className={`cs-status ${consistent?'':'cs-inconsistent'}`} role="status"><strong>{!consistent?'System has no solution':rank===2?'System has a unique solution':'System has infinitely many solutions'}</strong><span><MathTex tex={`\\operatorname{rank}(A)=${rank},\\quad\\dim\\operatorname{Null}(A)=${2-rank}`} /></span><span>Both p and v move freely in two dimensions, regardless of rank. The equation lines show where the conditions hold.</span></div>
@@ -146,6 +146,6 @@ export function SolutionStructureLab() {
     </div>
     <div className="cs-calculation ss-calculation"><strong>{xMatches?'Current x = p + v reaches b':'Current x = p + v does not reach b'}</strong><div className="ss-verification"><MathTex tex={`p=${vectorTex(p)}`} /><MathTex tex={`v=${vectorTex(v)}`} /><MathTex tex={`x=p+v=${vectorTex(x)}`} /></div><MathTex display tex={`A(p+v)=Ap+Av=${vectorTex(ap)}+${vectorTex(av)}=${vectorTex(ax)}`} /><p>{vMatches?'Av = 0: adding v preserves the output Ap.':'Av is nonzero: adding v changes the output by Av.'} {pMatches?'p currently reaches b.':'p currently does not reach b.'}</p>{consistent?<><strong>All actual solutions of Ax = b</strong><MathTex display tex={familyTex} /><p>A particular solution plus any homogeneous solution gives another solution. The points above are free to move off these solution sets.</p></>:<p>No particular solution exists for this b. You can still move both input vectors and explore their outputs.</p>}</div>
     <div className="ss-takeaways"><p><MathTex tex={String.raw`Ax=0:\quad\text{nontrivial solution}\iff\text{free variable}\iff\operatorname{rank}(A)<n`} /></p><p>The left diagrams show row equations in input space. The right diagrams show column combinations in output space. For any p and v, A(p + v) = Ap + Av; the output stays unchanged exactly when Av = 0.</p></div>
-    <p className="cs-caption">Zoom out to explore more of the input plane, or enter coordinates directly. Fit recenters the view. Condition comparisons use relative numerical tolerance 10⁻⁸; rank uses 10⁻¹⁰.</p>
+    <p className="cs-caption">Zoom out to explore more of the input plane, or enter coordinates directly. Output axes stay fixed while dragging; use Fit outputs to include vectors outside the view. Condition comparisons use relative numerical tolerance 10⁻⁸; rank uses 10⁻¹⁰.</p>
   </section>;
 }
