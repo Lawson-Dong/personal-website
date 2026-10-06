@@ -58,20 +58,29 @@ function ColumnOutput({ id, matrix, coefficients, range, title, label, coefficie
   const total = multiply(matrix, coefficients), ap = multiply(matrix, p), av = multiply(matrix, v), matches = same(total, b);
   return <div className="la-geometry ss-output-card">
     <h3>{title}</h3>
-    <p>{coefficientName === 'p' ? 'The column combination follows p anywhere in the input plane. Compare Ap with the fixed target b.' : 'Adding v changes the output by Av. Compare A(p + v) with Ap and the fixed target b.'}</p>
+    <p>{coefficientName === 'p' ? 'The columns a₁, a₂ and target b stay fixed. Moving p changes only the scaled columns and their sum Ap.' : 'The same columns a₁, a₂ and target b stay fixed. Adding v changes the output by Av; compare A(p + v) with Ap.'}</p>
     <div className="ss-output-tools"><span className="cs-caption">Column space · fixed axes (y₁, y₂)</span><button className="la-reset" onClick={onFit}>Fit output vectors</button></div>
+    <div className="cs-caption">Fixed references · independent of p and v</div>
+    <div className="ss-vector-value" aria-label="Fixed column vectors and target">
+      <span style={{color:'#477aa8'}}><MathTex tex={`a_1=${vectorTex(a1)}`} /></span>
+      <span style={{color:'#a16e39'}}><MathTex tex={`a_2=${vectorTex(a2)}`} /></span>
+      <span style={{color:'#bc5757'}}><MathTex tex={`b=${vectorTex(b)}`} /></span>
+    </div>
     <Plane id={id} range={range} label={label}>
       {result.rank === 2 ? <rect x="40" y="40" width="420" height="420" fill="var(--accent)" opacity=".09" /> : result.rank === 1 ? <line x1={250 - column[0] / norm * 800} y1={250 + column[1] / norm * 800} x2={250 + column[0] / norm * 800} y2={250 - column[1] / norm * 800} stroke="var(--accent)" strokeWidth="14" opacity=".17" /> : <circle cx="250" cy="250" r="10" fill="var(--accent)" opacity=".25" />}
-      <VectorArrow to={a1} range={range} stroke="#477aa8" label="a₁" dashed offset={[-30, 20]} />
-      <VectorArrow to={a2} range={range} stroke="#a16e39" label="a₂" dashed offset={[-30, -18]} />
       <VectorArrow to={total} range={range} stroke={color.solution} label={`${coefficientName === 'p' ? 'Ap' : 'Ax'}${matches ? ' = b' : ''}`} offset={[16, 18]} />
       <VectorArrow to={term1} range={range} stroke={color.homogeneous} label={`${coefficientName}₁a₁`} offset={[10, -15]} />
       <VectorArrow from={term1} to={total} range={range} stroke="#b23b88" label={`${coefficientName}₂a₂`} offset={[10, -15]} />
       {coefficientName === 'x' && <><VectorArrow to={ap} range={range} stroke={color.particular} label="Ap" dashed offset={[-35, 20]} /><VectorArrow from={ap} to={total} range={range} stroke={color.homogeneous} label="Av" dashed offset={[14, -30]} /></>}
       <circle cx={250 + total[0] * 210 / range} cy={250 - total[1] * 210 / range} r="8" fill="var(--paper)" stroke={color.solution} strokeWidth="3" />
-      <VectorArrow to={b} range={range} stroke="#bc5757" label="b · target" dashed offset={[12, 22]} />
+      <g role="group" aria-label="Fixed reference vectors: first column a1, second column a2, and target b">
+        <title>a₁, a₂, and b stay fixed when p or v moves.</title>
+        <VectorArrow to={a1} range={range} stroke="#477aa8" label="a₁" dashed offset={[-30, 20]} />
+        <VectorArrow to={a2} range={range} stroke="#a16e39" label="a₂" dashed offset={[-30, -18]} />
+        <VectorArrow to={b} range={range} stroke="#bc5757" label="b · target" dashed offset={[12, 22]} />
+      </g>
     </Plane>
-    <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁ · dashed</span><span style={{color:'#a16e39'}}>a₂ · dashed</span><span style={{color:color.homogeneous}}>{coefficientName}₁a₁</span><span style={{color:'#b23b88'}}>{coefficientName}₂a₂ · tip to tail</span><span style={{color:color.solution}}>Current output</span><span style={{color:'#bc5757'}}>b · fixed target, dashed</span>{coefficientName === 'x' && <span>Dashed Av · change from Ap to Ax</span>}</div>
+    <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁ · fixed column, dashed</span><span style={{color:'#a16e39'}}>a₂ · fixed column, dashed</span><span style={{color:color.homogeneous}}>{coefficientName}₁a₁</span><span style={{color:'#b23b88'}}>{coefficientName}₂a₂ · tip to tail</span><span style={{color:color.solution}}>Current output</span><span style={{color:'#bc5757'}}>b · fixed target, dashed</span>{coefficientName === 'x' && <span>Dashed Av · change from Ap to Ax</span>}</div>
     <div className="ss-output-result"><MathTex tex={`b=${vectorTex(b)}`} /><MathTex tex={`${coefficientName}=${vectorTex(coefficients)}`} /><MathTex display tex={`${fmt(coefficients[0])}a_1+(${fmt(coefficients[1])})a_2=${vectorTex(total)}${matches ? '=' : String.raw`\ne `}b`} />{coefficientName === 'x' && <MathTex display tex={`Av=${vectorTex(av)}`} />}<p className={matches ? 'cs-match' : ''}>{matches ? 'The current output reaches b.' : 'The current output does not reach b.'}</p></div>
   </div>;
 }
