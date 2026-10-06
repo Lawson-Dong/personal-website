@@ -72,7 +72,7 @@ function ColumnOutput({ id, matrix, coefficients, range, title, label, coefficie
       <circle cx={250 + total[0] * 210 / range} cy={250 - total[1] * 210 / range} r="8" fill="var(--paper)" stroke={color.solution} strokeWidth="3" />
     </Plane>
     <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁ · dashed</span><span style={{color:'#a16e39'}}>a₂ · dashed</span><span style={{color:color.homogeneous}}>{coefficientName}₁a₁</span><span style={{color:'#b23b88'}}>{coefficientName}₂a₂ · tip to tail</span><span style={{color:color.solution}}>Current output</span><span style={{color:'#bc5757'}}>b · target</span>{coefficientName === 'x' && <span>Dashed Av · change from Ap to Ax</span>}</div>
-    <div className="ss-output-result"><MathTex tex={`${coefficientName}=${vectorTex(coefficients)}`} /><MathTex display tex={`${fmt(coefficients[0])}a_1+(${fmt(coefficients[1])})a_2=${vectorTex(total)}${matches ? '=' : String.raw`\ne`}b`} />{coefficientName === 'x' && <MathTex display tex={`Av=${vectorTex(av)}`} />}<p className={matches ? 'cs-match' : ''}>{matches ? 'The current output reaches b.' : 'The current output does not reach b.'}</p></div>
+    <div className="ss-output-result"><MathTex tex={`${coefficientName}=${vectorTex(coefficients)}`} /><MathTex display tex={`${fmt(coefficients[0])}a_1+(${fmt(coefficients[1])})a_2=${vectorTex(total)}${matches ? '=' : String.raw`\ne `}b`} />{coefficientName === 'x' && <MathTex display tex={`Av=${vectorTex(av)}`} />}<p className={matches ? 'cs-match' : ''}>{matches ? 'The current output reaches b.' : 'The current output does not reach b.'}</p></div>
   </div>;
 }
 
