@@ -69,7 +69,7 @@ export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--
       <g fill="var(--muted)" fontSize="14"><text x="440" y="240">x₁</text><text x="260" y="54">x₂</text><text x="40" y="480">{fmt(-range)}</text><text x="245" y="480">0</text><text x="418" y="480">{fmt(range)}</text></g>
     </svg>
     <div className="cs-legend"><span style={{color:'#477aa8'}}>R1 · solid line</span><span style={{color:'#a16e39'}}>R2 · dashed line</span>{x&&<span>{pointLabel} · {onChange?'draggable coefficients':'fixed coefficients'}</span>}</div>
-    {dragAnywhere&&onChange&&<p className="cs-caption">Hold the left mouse button and drag {pointLabel}, or left-click inside the grid to place it on the solution set. The view stays fixed while dragging; choose Fit to recenter.</p>}
+    {dragAnywhere&&onChange&&<p className="cs-caption">Hold the left mouse button and drag {pointLabel}, or left-click inside the grid to place it anywhere in the input plane. The view stays fixed while dragging; choose Fit to recenter.</p>}
     {offscreen&&<p className="cs-caption">A line is outside this view. Choose Fit or zoom out.</p>}
     <p className="cs-caption">Each row of [A | b] defines an equation in the input plane. Its coefficients form a normal vector to the line; these equation lines are not the subspace Row(A).</p>
   </div>;
