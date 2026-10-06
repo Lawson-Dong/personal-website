@@ -17,7 +17,7 @@ export function equationSegment(a:number,b:number,c:number,range:number):Vec[] {
   return points.slice(0,2);
 }
 
-export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--accent)',plotLabel}:{matrix:Augmented;x?:Vec;onChange?:(v:Vec)=>void;pointLabel?:string;pointColor?:string;plotLabel?:string}){
+export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--accent)',plotLabel,dragAnywhere=false}:{matrix:Augmented;x?:Vec;onChange?:(v:Vec)=>void;pointLabel?:string;pointColor?:string;plotLabel?:string;dragAnywhere?:boolean}){
   const id=useId().replace(/[^a-zA-Z0-9_-]/g,'');
   const drag=useRef<{pointer:number;offset:Vec}|null>(null);
   const result=solveColumns(matrix);
@@ -44,8 +44,16 @@ export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--
     <div className={`cs-status ${result.consistent?'':'cs-inconsistent'}`} role="status"><strong>{result.consistent?'Consistent':'Inconsistent'}</strong><span>{description}</span></div>
     <div className="cs-equation-list">{rows.map(([a,b,c],i)=><p key={i} style={{color:i===0?'#477aa8':'#a16e39'}}><MathTex tex={mathNotation(`R${i===0?'₁':'₂'}: ${equation(a,b,c)}`)} />{a===0&&b===0?c===0?' · whole plane':' · empty set':''}</p>)}</div>
     <div className="la-step-actions" role="group" aria-label="Equation plot zoom"><button aria-label="Zoom in equations" onClick={()=>setExtent(Math.max(.00001,range*.8))}>+</button><button aria-label="Zoom out equations" onClick={()=>setExtent(Math.min(1e15,range*1.25))}>−</button><button onClick={()=>setExtent(null)}>Fit</button></div>
-    <svg className="cs-plot" viewBox="0 0 500 500" role="img"
-      onPointerDown={e=>{const v=coordinates(e);if(!x||!onChange||!v||e.button!==0||Math.hypot(v[0]-x[0],v[1]-x[1])*210/range>24)return;e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);drag.current={pointer:e.pointerId,offset:[x[0]-v[0],x[1]-v[1]]};}}
+    <svg className={`cs-plot${dragAnywhere&&onChange?' cs-click-drag':''}`} viewBox="0 0 500 500" role="img"
+      onPointerDown={e=>{const v=coordinates(e);if(!x||!onChange||!v||e.button!==0)return;
+        const nearHandle=Math.hypot(v[0]-x[0],v[1]-x[1])*210/range<=24;
+        const anywhere=dragAnywhere&&e.pointerType==='mouse'&&Math.abs(v[0])<=range&&Math.abs(v[1])<=range;
+        if(!nearHandle&&!anywhere)return;
+        e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);
+        if(dragAnywhere)setExtent(range);
+        drag.current={pointer:e.pointerId,offset:nearHandle?[x[0]-v[0],x[1]-v[1]]:[0,0]};
+        if(!nearHandle)onChange(v);
+      }}
       onPointerMove={e=>{const v=coordinates(e),d=drag.current;if(!v||!d||d.pointer!==e.pointerId||!onChange)return;onChange([Math.round((v[0]+d.offset[0])*100)/100,Math.round((v[1]+d.offset[1])*100)/100]);}}
       onPointerUp={()=>{drag.current=null;}} onPointerCancel={()=>{drag.current=null;}} onLostPointerCapture={()=>{drag.current=null;}}
  aria-label={plotLabel??`Row equations in the x1 x2 input plane. ${result.consistent?'Consistent':'Inconsistent'}. ${description}`}>
@@ -56,11 +64,12 @@ export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--
         <g stroke="var(--muted)"><line x1="40" x2="460" y1="250" y2="250"/><line x1="250" x2="250" y1="40" y2="460"/></g>
         {lines.map((line,i)=>line.length===2&&<line key={i} x1={px(line[0][0])} y1={py(line[0][1])} x2={px(line[1][0])} y2={py(line[1][1])} stroke={i===0?'#477aa8':'#a16e39'} strokeWidth={i===0?5:3} strokeDasharray={i===1?'10 7':undefined}/>)}
         {result.consistent&&result.rank===2&&solutionFinite&&<g><circle cx={px(result.x[0])} cy={py(result.x[1])} r="7" fill="#328577" stroke="var(--paper)" strokeWidth="2"/><text x={px(result.x[0])+10} y={py(result.x[1])-12} fill="#328577" fontSize="14" stroke="var(--paper)" strokeWidth="3" paintOrder="stroke">({fmt(result.x[0])}, {fmt(result.x[1])})</text></g>}
-        {x&&<g><circle className={onChange?'cs-drag-handle':undefined} cx={px(x[0])} cy={py(x[1])} r="12" fill="var(--paper)" fillOpacity=".5" stroke={pointColor} strokeWidth="3"><title>{onChange?`Drag ${pointLabel} to change the column-combination coefficients`:`${pointLabel} is fixed`}</title></circle><text x={px(x[0])+15} y={py(x[1])+22} fill={pointColor} fontSize="14">{pointLabel}</text></g>}
+        {x&&<g><circle className={onChange?'cs-drag-handle':undefined} cx={px(x[0])} cy={py(x[1])} r={dragAnywhere?16:12} fill="var(--paper)" fillOpacity=".5" stroke={pointColor} strokeWidth="3"><title>{onChange?`Left-click and drag ${pointLabel} to change the column-combination coefficients`:`${pointLabel} is fixed`}</title></circle><text x={px(x[0])+20} y={py(x[1])+24} fill={pointColor} fontSize="14">{pointLabel}</text></g>}
       </g>
       <g fill="var(--muted)" fontSize="14"><text x="440" y="240">x₁</text><text x="260" y="54">x₂</text><text x="40" y="480">{fmt(-range)}</text><text x="245" y="480">0</text><text x="418" y="480">{fmt(range)}</text></g>
     </svg>
     <div className="cs-legend"><span style={{color:'#477aa8'}}>R1 · solid line</span><span style={{color:'#a16e39'}}>R2 · dashed line</span>{x&&<span>{pointLabel} · {onChange?'draggable coefficients':'fixed coefficients'}</span>}</div>
+    {dragAnywhere&&onChange&&<p className="cs-caption">Hold the left mouse button and drag {pointLabel}, or left-click inside the grid to place it on the solution set. The view stays fixed while dragging; choose Fit to recenter.</p>}
     {offscreen&&<p className="cs-caption">A line is outside this view. Choose Fit or zoom out.</p>}
     <p className="cs-caption">Each row of [A | b] defines an equation in the input plane. Its coefficients form a normal vector to the line; these equation lines are not the subspace Row(A).</p>
   </div>;

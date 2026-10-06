@@ -62,6 +62,9 @@
 .ss-local-parameters{margin-top:20px;display:grid;gap:20px}
 .ss-local-parameters .la-slider{margin:0}
 .ss-local-parameters input[type=range]{height:28px;margin:10px 0 0}
+.cs-click-drag{cursor:crosshair;user-select:none}
+.cs-click-drag .cs-drag-handle{cursor:grab}
+.cs-click-drag:active,.cs-click-drag .cs-drag-handle:active{cursor:grabbing}
 .ss-comparison .cs-row-equations .cs-caption{font-size:14px;line-height:1.6}
 .ss-identity>.math-tex{max-width:100%;overflow-x:auto;padding:3px 0}
 @media(max-width:720px){.ss-comparison{grid-template-columns:1fr}.ss-comparison .la-geometry{margin-top:0}.ss-comparison-heading{grid-template-columns:1fr}.ss-comparison-heading span:last-child{display:none}.ss-comparison h3{font-size:22px}.ss-output-result{font-size:16px}}
