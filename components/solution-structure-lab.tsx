@@ -29,14 +29,14 @@ function Plane({ id, range, label, children }: { id: string; range: number; labe
   </svg>;
 }
 
-function VectorArrow({ from = [0, 0], to, range, stroke, label, dashed = false, offset = [9, -12] }: { from?: Vec; to: Vec; range: number; stroke: string; label: string; dashed?: boolean; offset?: Vec }) {
+function VectorArrow({ from = [0, 0], to, range, stroke, label, dashed = false, offset = [9, -12], labelAtTip = false, endpointRadius = 4 }: { from?: Vec; to: Vec; range: number; stroke: string; label: string; dashed?: boolean; offset?: Vec; labelAtTip?: boolean; endpointRadius?: number }) {
   const sx = 250 + from[0] * 210 / range, sy = 250 - from[1] * 210 / range;
   const ex = 250 + to[0] * 210 / range, ey = 250 - to[1] * 210 / range;
   const angle = Math.atan2(ey - sy, ex - sx), zero = Math.hypot(ex - sx, ey - sy) < 1e-6;
   return <g stroke={stroke} fill={stroke}>
     <line x1={sx} y1={sy} x2={ex} y2={ey} strokeWidth="3" strokeDasharray={dashed ? '6 5' : undefined} />
     {!zero && <path d={`M ${ex - 10 * Math.cos(angle - .4)} ${ey - 10 * Math.sin(angle - .4)} L ${ex} ${ey} L ${ex - 10 * Math.cos(angle + .4)} ${ey - 10 * Math.sin(angle + .4)}`} fill="none" strokeWidth="2.5" />}
-    <circle cx={ex} cy={ey} r="4" /><text x={(sx + ex) / 2 + offset[0]} y={(sy + ey) / 2 + offset[1]} fontSize="16" stroke="var(--paper)" strokeWidth="4" paintOrder="stroke">{zero ? `${label} = 0` : label}</text>
+    <circle cx={ex} cy={ey} r={endpointRadius} /><text x={(labelAtTip ? ex : (sx + ex) / 2) + offset[0]} y={(labelAtTip ? ey : (sy + ey) / 2) + offset[1]} fontSize="16" stroke="var(--paper)" strokeWidth="4" paintOrder="stroke">{zero ? `${label} = 0` : label}</text>
   </g>;
 }
 
@@ -53,6 +53,7 @@ function ColumnOutput({ id, matrix, coefficients, range, title, label, coefficie
 }) {
   const result = solveColumns(matrix);
   const a1: Vec = [matrix[0], matrix[3]], a2: Vec = [matrix[1], matrix[4]], b: Vec = [matrix[2], matrix[5]];
+  const coincidentColumns = a1[0] === a2[0] && a1[1] === a2[1];
   const column = Math.hypot(...a1) >= Math.hypot(...a2) ? a1 : a2, norm = Math.hypot(...column);
   const term1: Vec = [a1[0] * coefficients[0], a1[1] * coefficients[0]];
   const total = multiply(matrix, coefficients), ap = multiply(matrix, p), av = multiply(matrix, v), matches = same(total, b);
@@ -75,12 +76,14 @@ function ColumnOutput({ id, matrix, coefficients, range, title, label, coefficie
       <circle cx={250 + total[0] * 210 / range} cy={250 - total[1] * 210 / range} r="8" fill="var(--paper)" stroke={color.solution} strokeWidth="3" />
       <g role="group" aria-label="Fixed reference vectors: first column a1, second column a2, and target b">
         <title>a₁, a₂, and b stay fixed when p or v moves.</title>
-        <VectorArrow to={a1} range={range} stroke="#477aa8" label="a₁" dashed offset={[-30, 20]} />
-        <VectorArrow to={a2} range={range} stroke="#a16e39" label="a₂" dashed offset={[-30, -18]} />
-        <VectorArrow to={b} range={range} stroke="#bc5757" label="b · target" dashed offset={[12, 22]} />
+        <VectorArrow to={a1} range={range} stroke="#477aa8" label={coincidentColumns ? 'a₁ = a₂' : 'a₁'} dashed offset={coincidentColumns ? [-72, 20] : [-30, 20]} />
+        {!coincidentColumns && <VectorArrow to={a2} range={range} stroke="#a16e39" label="a₂" dashed offset={[-30, -18]} />}
+        <g role="group" aria-label="Fixed target b: red dot at the arrow endpoint">
+          <VectorArrow to={b} range={range} stroke="#bc5757" label="b" labelAtTip endpointRadius={6} offset={[12, -12]} />
+        </g>
       </g>
     </Plane>
-    <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁ · fixed column, dashed</span><span style={{color:'#a16e39'}}>a₂ · fixed column, dashed</span><span style={{color:color.homogeneous}}>{coefficientName}₁a₁</span><span style={{color:'#b23b88'}}>{coefficientName}₂a₂ · tip to tail</span><span style={{color:color.solution}}>Current output</span><span style={{color:'#bc5757'}}>b · fixed target, dashed</span>{coefficientName === 'x' && <span>Dashed Av · change from Ap to Ax</span>}</div>
+    <div className="cs-legend"><span style={{color:'#477aa8'}}>a₁ · fixed column, dashed</span><span style={{color:'#a16e39'}}>a₂ · fixed column, dashed</span><span style={{color:color.homogeneous}}>{coefficientName}₁a₁</span><span style={{color:'#b23b88'}}>{coefficientName}₂a₂ · tip to tail</span><span style={{color:color.solution}}>Current output</span><span style={{color:'#bc5757'}}>b · red dot at the arrow tip</span>{coefficientName === 'x' && <span>Dashed Av · change from Ap to Ax</span>}</div>
     <div className="ss-output-result"><MathTex tex={`b=${vectorTex(b)}`} /><MathTex tex={`${coefficientName}=${vectorTex(coefficients)}`} /><MathTex display tex={`${fmt(coefficients[0])}a_1+(${fmt(coefficients[1])})a_2=${vectorTex(total)}${matches ? '=' : String.raw`\ne `}b`} />{coefficientName === 'x' && <MathTex display tex={`Av=${vectorTex(av)}`} />}<p className={matches ? 'cs-match' : ''}>{matches ? 'The current output reaches b.' : 'The current output does not reach b.'}</p></div>
   </div>;
 }
