@@ -16,12 +16,33 @@
 
 .slogan-list {
   max-width: 54rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.slogan-list li {
+  display: grid;
+  grid-template-columns: 3rem minmax(0, 1fr);
+  gap: 1.5rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--rule);
+  animation: slogan-reveal 900ms ease-out both;
+}
+
+.slogan-list li:nth-child(2) {
+  animation-delay: 180ms;
+}
+
+.slogan-number {
+  color: var(--accent);
+  font: 400 0.875rem/1.65 ui-monospace, monospace;
+  letter-spacing: 0.1em;
+  padding-top: 0.35rem;
 }
 
 .slogan-list blockquote {
   margin: 0;
-  padding: 2rem 0;
-  border-top: 1px solid var(--rule);
 }
 
 .slogan-list p {
@@ -31,7 +52,48 @@
   line-height: 1.65;
 }
 
+.slogan-generalization p {
+  font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, 'Iowan Old Style', 'Baskerville', Georgia, serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(1.375rem, 2.6vw, 1.875rem);
+  line-height: 1.75;
+}
+
+.slogan-shimmer {
+  color: var(--accent);
+  background-image: linear-gradient(110deg, var(--accent) 20%, var(--ink) 45%, var(--accent) 70%);
+  background-size: 250% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: slogan-shimmer 7s ease-in-out infinite;
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .slogan-shimmer { color: transparent; }
+}
+
+@keyframes slogan-reveal {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slogan-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 @media (max-width: 600px) {
   .research-slogan { padding-top: 2.5rem; padding-bottom: 4rem; }
   .research-slogan header { margin: 2.5rem 0 2rem; }
+  .slogan-list li { grid-template-columns: 2rem minmax(0, 1fr); gap: 0.75rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slogan-list li, .slogan-shimmer { animation: none; }
+  .slogan-shimmer { background: none; color: var(--accent); }
+}
+
+@media (forced-colors: active) {
+  .slogan-shimmer { background: none; color: CanvasText; }
 }
