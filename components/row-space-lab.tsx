@@ -1,7 +1,7 @@
 'use client';
 import { MathTex, mathNotation } from './math';
 import { useId, useRef, useState, type PointerEvent } from 'react';
-import { solveColumns, type Augmented, type Vec } from './column-space-math';
+import { nearbySolution, solveColumns, type Augmented, type Vec } from './column-space-math';
 
 const fmt=(n:number)=>Math.abs(n)<1e-10?'0':Number(n.toPrecision(5)).toString();
 const equation=(a:number,b:number,c:number)=>`${fmt(a)}x₁ ${b<0?'−':'+'} ${fmt(Math.abs(b))}x₂ = ${fmt(c)}`;
@@ -17,7 +17,7 @@ export function equationSegment(a:number,b:number,c:number,range:number):Vec[] {
   return points.slice(0,2);
 }
 
-export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--accent)',plotLabel,dragAnywhere=false}:{matrix:Augmented;x?:Vec;onChange?:(v:Vec)=>void;pointLabel?:string;pointColor?:string;plotLabel?:string;dragAnywhere?:boolean}){
+export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--accent)',plotLabel,dragAnywhere=false,snapToSolution=false}:{matrix:Augmented;x?:Vec;onChange?:(v:Vec)=>void;pointLabel?:string;pointColor?:string;plotLabel?:string;dragAnywhere?:boolean;snapToSolution?:boolean}){
   const id=useId().replace(/[^a-zA-Z0-9_-]/g,'');
   const drag=useRef<{pointer:number;offset:Vec}|null>(null);
   const result=solveColumns(matrix);
@@ -32,6 +32,12 @@ export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--
     const ctm=e.currentTarget.getScreenCTM();if(!ctm)return null;
     const point=new DOMPoint(e.clientX,e.clientY).matrixTransform(ctm.inverse());
     return [(point.x-250)*range/210,(250-point.y)*range/210];
+  }
+  function magneticPoint(point: Vec, e: PointerEvent<SVGSVGElement>): Vec {
+    if (!snapToSolution) return point;
+    const ctm = e.currentTarget.getScreenCTM();
+    const pixelsPerUnit = ctm ? Math.hypot(ctm.a, ctm.b) * 210 / range : 0;
+    return pixelsPerUnit > 0 ? nearbySolution(matrix, point, 12 / pixelsPerUnit) ?? point : point;
   }
   const lines=rows.map(([a,b,c])=>equationSegment(a,b,c,range));
   const ordinary=rows.every(([a,b])=>a!==0||b!==0);
@@ -52,9 +58,9 @@ export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--
         e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);
         if(dragAnywhere)setExtent(range);
         drag.current={pointer:e.pointerId,offset:nearHandle?[x[0]-v[0],x[1]-v[1]]:[0,0]};
-        if(!nearHandle)onChange(v);
+        if(!nearHandle)onChange(magneticPoint(v,e));
       }}
-      onPointerMove={e=>{const v=coordinates(e),d=drag.current;if(!v||!d||d.pointer!==e.pointerId||!onChange)return;onChange([Math.round((v[0]+d.offset[0])*100)/100,Math.round((v[1]+d.offset[1])*100)/100]);}}
+      onPointerMove={e=>{const v=coordinates(e),d=drag.current;if(!v||!d||d.pointer!==e.pointerId||!onChange)return;onChange(magneticPoint([Math.round((v[0]+d.offset[0])*100)/100,Math.round((v[1]+d.offset[1])*100)/100],e));}}
       onPointerUp={()=>{drag.current=null;}} onPointerCancel={()=>{drag.current=null;}} onLostPointerCapture={()=>{drag.current=null;}}
  aria-label={plotLabel??`Row equations in the x1 x2 input plane. ${result.consistent?'Consistent':'Inconsistent'}. ${description}`}>
       <defs><clipPath id={id+'-clip'}><rect x="40" y="40" width="420" height="420"/></clipPath></defs>
@@ -70,6 +76,7 @@ export function RowSpaceLab({matrix,x,onChange,pointLabel='x',pointColor='var(--
     </svg>
     <div className="cs-legend"><span style={{color:'#477aa8'}}>R1 · solid line</span><span style={{color:'#a16e39'}}>R2 · dashed line</span>{x&&<span>{pointLabel} · {onChange?'draggable coefficients':'fixed coefficients'}</span>}</div>
     {dragAnywhere&&onChange&&<p className="cs-caption">Hold the left mouse button and drag {pointLabel}, or left-click inside the grid to place it anywhere in the input plane. The view stays fixed while dragging; choose Fit to recenter.</p>}
+    {snapToSolution&&onChange&&<p className="cs-caption">Within 12 pixels of the solution set, {pointLabel} snaps onto it. Move farther away to leave the solution set. Inconsistent systems have no snap target.</p>}
     {offscreen&&<p className="cs-caption">A line is outside this view. Choose Fit or zoom out.</p>}
     <p className="cs-caption">Each row of [A | b] defines an equation in the input plane. Its coefficients form a normal vector to the line; these equation lines are not the subspace Row(A).</p>
   </div>;

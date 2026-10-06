@@ -21,3 +21,19 @@ export function solveColumns(m: Augmented) {
   const x:Vec=[(t/scale)*k1/(k1*k1+k2*k2),(t/scale)*k2/(k1*k1+k2*k2)];
   return {rank:1,consistent,x,projection:[u[0]*t,u[1]*t] as Vec};
 }
+
+// The nearest solution in input space; return null outside the magnetic radius.
+export function nearbySolution(m: Augmented, point: Vec, maxDistance: number): Vec | null {
+  const result = solveColumns(m);
+  if (!result.consistent || !point.every(Number.isFinite) || !(maxDistance >= 0)) return null;
+  if (result.rank === 0) return point;
+  let nearest = result.x;
+  if (result.rank === 1) {
+    const [a, b, target] = Math.hypot(m[0], m[1]) >= Math.hypot(m[3], m[4]) ? m.slice(0, 3) : m.slice(3, 6);
+    const scale = Math.max(Math.abs(a), Math.abs(b));
+    const nx = a / scale, ny = b / scale;
+    const shift = (target / scale - nx * point[0] - ny * point[1]) / (nx * nx + ny * ny);
+    nearest = [point[0] + shift * nx, point[1] + shift * ny];
+  }
+  return nearest.every(Number.isFinite) && Math.hypot(nearest[0] - point[0], nearest[1] - point[1]) <= maxDistance ? nearest : null;
+}

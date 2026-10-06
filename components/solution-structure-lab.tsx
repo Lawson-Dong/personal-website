@@ -101,6 +101,7 @@ export function SolutionStructureLab() {
   const [values, setValues] = useState(examples[0].matrix.map(String));
   const [lastMatrix, setLastMatrix] = useState(examples[0].matrix);
   const [homogeneous, setHomogeneous] = useState(false);
+  const [snapP, setSnapP] = useState(true);
   const [p, setP] = useState<Vec>([1, 1]), [v, setV] = useState<Vec>([-1.5, 1.5]);
   const [range, setRange] = useState(6);
   const valid = values.every(n => n.trim() !== '' && Number.isFinite(Number(n)) && Math.abs(Number(n)) <= 20);
@@ -140,7 +141,8 @@ export function SolutionStructureLab() {
     <div className="ss-comparison-heading"><span>Row pictures · move p and v freely</span><span>Column space · compare before and after</span></div>
     <div className="cs-workspace ss-comparison">
       <div className="la-geometry ss-input-card"><h3>Input vector p · test <MathTex tex="Ap=b" /></h3><p>Left-click and drag p anywhere. It is a particular solution exactly when it satisfies both row equations.</p>
-        <RowSpaceLab matrix={matrix} x={p} onChange={setP} pointLabel="p" pointColor={color.particular} plotLabel="Free input vector p: row equations Ap equals b in input space." dragAnywhere />
+        <label className="ss-checkbox"><input type="checkbox" checked={snapP} onChange={e=>setSnapP(e.target.checked)} /> Snap p to nearby particular solutions</label>
+        <RowSpaceLab matrix={matrix} x={p} onChange={setP} pointLabel="p" pointColor={color.particular} plotLabel="Free input vector p: row equations Ap equals b in input space." dragAnywhere snapToSolution={snapP} />
         <VectorControls id={`${id}-p`} label="p" values={p} onChange={setP} />
         <div className={`cs-status ${pMatches?'':'cs-inconsistent'}`} role="status"><strong>{pMatches?'Ap = b · p is a particular solution':'Ap ≠ b · p is not a particular solution'}</strong></div>
         <div className="ss-vector-value"><MathTex tex={`p=${vectorTex(p)}`} /><MathTex tex={`Ap=${vectorTex(ap)}`} /></div>
