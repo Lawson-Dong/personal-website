@@ -30,7 +30,7 @@ export default function HarnessEngineering() {
         <div>
           <p className="ch-kicker">02 / REUSABLE AGENT TOOLS</p>
           <h2>Agent Skills</h2>
-          <p>Reusable instructions and executable tools for an agent’s work, starting with high-dimensional vector visualization.</p>
+          <p>Reusable instructions and executable resources for high-dimensional vector visualization and reliable research artifact publishing.</p>
           <span className="ch-open">Explore Agent Skills ↗</span>
         </div>
         <div className="ch-feature-art" aria-hidden="true">
