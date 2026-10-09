@@ -16,6 +16,7 @@ const interestingSites = [
   { title: 'Anti-Glass', source: 'xkcd · comic 1251', description: 'A small piece of technology satire.', url: 'https://xkcd.com/1251/' },
   { title: 'Dr French’s physics notes', source: 'The Eclecticon', description: 'A delightfully sprawling index of physics notes.', url: 'https://eclecticon.info/physics_notes.htm' },
   { title: 'lvy-neko', source: 'lvyovo-wiki.tech', description: 'Another place worth wandering into.', url: 'https://lvyovo-wiki.tech/' },
+  { title: 'AI Alignment at UCSD', source: 'AI alignment community', description: 'Exploring AI alignment at UC San Diego.', url: 'https://aialignmentatucsd.org/' },
 ];
 
 export function LostExperience() {
