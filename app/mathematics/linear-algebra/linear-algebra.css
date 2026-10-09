@@ -18,10 +18,7 @@
 
 .cs-equation-list p{font:14px/1.7 ui-monospace,monospace;overflow-wrap:anywhere;margin:10px 0}.cs-row-equations .cs-status{font-size:14px;padding:12px}.cs-row-equations .cs-status>span:last-child{font-family:inherit}.cs-row-equations .la-step-actions{margin:12px 0}
 
-/* Four visualizations share the same notebook navigation and plot vocabulary. */
-.la-index{grid-template-columns:repeat(2,minmax(0,1fr))}
-.la-index a:nth-child(2n){border-right:0}
-.la-index a:nth-child(-n+2){border-bottom:1px solid var(--rule)}
+/* Solution structure styles retained for later use. */
 .ss-identity{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:12px 24px;border:1px solid var(--accent);background:var(--paper);padding:22px;font-size:22px;color:var(--accent)}
 .ss-identity>span:last-child{font:14px/1.6 ui-monospace,monospace;color:var(--muted)}
 .ss-checkbox{display:flex!important;align-items:center;gap:9px;margin-top:16px;cursor:pointer}
