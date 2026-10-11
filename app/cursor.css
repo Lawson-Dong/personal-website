@@ -1,0 +1,72 @@
+/* A native cursor keeps the arrow sharp and responsive without a moving overlay. */
+:root {
+  --site-cursor: url('/cursors/sky.svg') 3 2, default;
+}
+
+@media (any-pointer: fine) {
+  html, body, body *, body *::before, body *::after {
+    cursor: var(--site-cursor) !important;
+  }
+}
+
+.cursor-palette {
+  position: fixed;
+  z-index: 2147483647;
+  width: min(244px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+  overflow: auto;
+  padding: 16px;
+  border: 1px solid var(--rule);
+  border-radius: 16px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 12px 44px rgba(15, 35, 55, .22);
+  font: 12px/1.5 Arial, Helvetica, sans-serif;
+}
+
+.cursor-palette-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cursor-palette-heading button {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--blue-wash);
+  color: var(--ink);
+  font-size: 20px;
+}
+
+.cursor-palette-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.cursor-palette-swatch {
+  height: 36px;
+  border: 1px solid rgba(23, 43, 59, .2);
+  border-radius: 9px;
+  color: #172b3b;
+  font-size: 19px;
+}
+
+.cursor-palette-swatch[aria-checked='true'] {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.cursor-palette-swatch:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.cursor-palette p { margin: 10px 0 0; color: var(--muted); font-size: 11px; }
+.cursor-palette .cursor-palette-color { color: var(--ink); font-size: 12px; font-weight: 600; }
+.cursor-palette .cursor-palette-native { margin-top: 5px; font-size: 10px; }
