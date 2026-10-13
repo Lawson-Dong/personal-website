@@ -2,10 +2,11 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Linear Algebra — Lecture Note',
-  description: 'Linear algebra lecture notes: Lecture 7 on transformations and linear transformations.',
+  description: 'Handwritten linear algebra notes: Lecture 7 on transformations and Lecture 8 on standard matrices, one-to-one and onto mappings.',
 };
 
 const lecture7 = 'https://github.com/Lawson-Dong/personal-website/blob/main/notes/linear-algebra/lecture-7.pdf';
+const lecture8 = 'https://github.com/Lawson-Dong/personal-website/blob/main/notes/linear-algebra/lecture-8.pdf';
 
 export default function LectureNote() {
   return (
@@ -22,6 +23,12 @@ export default function LectureNote() {
         <span className="eyebrow">07 / LECTURE NOTE · PDF</span>
         <h2>Lecture 7</h2>
         <p>Transformations, matrix transformations, and linear transformations.</p>
+        <span className="portal-card-link">Open PDF on GitHub ↗</span>
+      </a>
+      <a className="portal-card" href={lecture8} target="_blank" rel="noopener noreferrer">
+        <span className="eyebrow">08 / LECTURE NOTE · PDF</span>
+        <h2>Lecture 8</h2>
+        <p>Standard matrices of linear transformations, geometric examples, and one-to-one and onto mappings.</p>
         <span className="portal-card-link">Open PDF on GitHub ↗</span>
       </a>
     </main>
