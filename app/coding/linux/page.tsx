@@ -13,11 +13,11 @@ export default function Linux() {
   return (
     <main className="section shell">
       <nav className="science-breadcrumb" aria-label="Breadcrumb">
-        <Link href="/coding">Coding and AI Engineering</Link><span>/</span><span>Linux</span>
+        <Link href="/coding">Context Engineering</Link><span>/</span><span>Linux</span>
       </nav>
       <p className="eyebrow">LEARNING BY BUILDING / LINUX</p>
       <h1 className="portal-title"><em>Linux.</em></h1>
-      <p className="portal-copy">From the first terminal commands to a working environment for training neural networks.</p>
+      <p className="portal-copy">Linux fundamentals, WSL2 setup, Python virtual environments, and PyTorch workflows.</p>
       <a className="portal-card" href={tutorialUrl} target="_blank" rel="noopener noreferrer">
         <span className="eyebrow">01 / HANDS-ON TUTORIAL</span>
         <h2>Training My First Neural Network on Windows with WSL 2 and PyTorch</h2>
