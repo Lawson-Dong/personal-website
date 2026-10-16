@@ -27,7 +27,7 @@ export default function LinearAlgebra() {
           <span className="folder-top"><BookOpen aria-hidden="true"/><span>02 / LECTURE NOTES</span><ArrowUpRight aria-hidden="true"/></span>
           <h2>Lecture Note</h2>
           <p>Notes from class, collected as PDFs for reading and review.</p>
-          <span className="folder-bottom">Lecture 7 <span aria-hidden="true">→</span></span>
+          <span className="folder-bottom">Lectures 7–9 <span aria-hidden="true">→</span></span>
         </Link>
       </div>
     </main>
