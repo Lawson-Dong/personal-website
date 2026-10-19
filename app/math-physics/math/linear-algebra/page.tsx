@@ -3,7 +3,7 @@ import { ArrowUpRight, BookOpen, Shapes } from 'lucide-react';
 
 export const metadata = {
   title: 'Linear Algebra',
-  description: 'Explore linear algebra through fun visualizations and lecture notes.',
+  description: 'Explore linear algebra through fun visualizations, lecture notes, and self-exploring notes.',
 };
 
 export default function LinearAlgebra() {
@@ -15,7 +15,7 @@ export default function LinearAlgebra() {
       </nav>
       <p className="eyebrow">MATHEMATICS / LINEAR ALGEBRA</p>
       <h1 className="portal-title">Linear <em>Algebra.</em></h1>
-      <p className="portal-copy">Explore the ideas in motion, or open the notes from class.</p>
+      <p className="portal-copy">Explore the ideas in motion, revisit notes from class, or follow an independent exploration.</p>
       <div className="science-folders">
         <Link className="science-folder blue-folder" href="/math-physics/math/linear-algebra/fun-visualization">
           <span className="folder-top"><Shapes aria-hidden="true"/><span>01 / VISUALIZATION</span><ArrowUpRight aria-hidden="true"/></span>
@@ -28,6 +28,12 @@ export default function LinearAlgebra() {
           <h2>Lecture Note</h2>
           <p>Notes from class, collected as PDFs for reading and review.</p>
           <span className="folder-bottom">Lectures 7–9 <span aria-hidden="true">→</span></span>
+        </Link>
+        <Link className="science-folder blue-folder" href="/math-physics/math/linear-algebra/self-exploring-note">
+          <span className="folder-top"><BookOpen aria-hidden="true"/><span>03 / SELF-EXPLORING NOTES</span><ArrowUpRight aria-hidden="true"/></span>
+          <h2>Self-exploring Note</h2>
+          <p>Independent explorations of linear algebra, collected as PDFs.</p>
+          <span className="folder-bottom">Covariance Matrix <span aria-hidden="true">→</span></span>
         </Link>
       </div>
     </main>
