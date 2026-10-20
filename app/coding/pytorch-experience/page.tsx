@@ -33,6 +33,18 @@ export default function PytorchExperience() {
       </a>
 
       <a className="text-link" href={githubUrl} target="_blank" rel="noopener noreferrer">View notebook on GitHub ↗</a>
+
+      <a className="python-notebook-link" href="https://colab.research.google.com/github/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-forward-and-hooks.ipynb" target="_blank" rel="noopener noreferrer">
+        <span className="notebook-code-icon"><Code2 aria-hidden="true" /></span>
+        <div>
+          <span className="eyebrow">02 / OPEN IN GOOGLE COLAB</span>
+          <h2>model(x) vs model.forward(x) — Hooks</h2>
+          <p>See how the forward call works, what a hook does, and when it runs.</p>
+          <small>1 visual diagram · 3 tiny runnable examples · Official PyTorch docs</small>
+        </div>
+        <ArrowUpRight className="notebook-launch" aria-hidden="true" />
+      </a>
+      <a className="text-link" href="https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-forward-and-hooks.ipynb" target="_blank" rel="noopener noreferrer">View notebook 02 on GitHub ↗</a>
     </main>
   );
 }
