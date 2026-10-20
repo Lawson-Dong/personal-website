@@ -45,6 +45,18 @@ export default function PytorchExperience() {
         <ArrowUpRight className="notebook-launch" aria-hidden="true" />
       </a>
       <a className="text-link" href="https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-forward-and-hooks.ipynb" target="_blank" rel="noopener noreferrer">View notebook 02 on GitHub ↗</a>
+
+      <a className="python-notebook-link" href="https://colab.research.google.com/github/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-train-vs-eval.ipynb" target="_blank" rel="noopener noreferrer">
+        <span className="notebook-code-icon"><Code2 aria-hidden="true" /></span>
+        <div>
+          <span className="eyebrow">03 / OPEN IN GOOGLE COLAB</span>
+          <h2>model.train() vs model.eval()</h2>
+          <p>Switch modes, compare Dropout behavior, and see why eval() does not run inference.</p>
+          <small>1 clear diagram · 2 runnable examples · Official PyTorch docs</small>
+        </div>
+        <ArrowUpRight className="notebook-launch" aria-hidden="true" />
+      </a>
+      <a className="text-link" href="https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-train-vs-eval.ipynb" target="_blank" rel="noopener noreferrer">View notebook 03 on GitHub ↗</a>
     </main>
   );
 }
