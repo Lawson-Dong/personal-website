@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="450" viewBox="0 0 1040 450" role="img" aria-labelledby="ttl dsc">
+<title id="ttl">model.train() versus model.eval()</title>
+<desc id="dsc">Both functions select a mode without performing a forward pass. A later model(x) call performs the forward pass. During training, Dropout is active. During evaluation, Dropout is disabled. Batch normalization also uses different statistics.</desc>
+<style>
+  text{font-family:Arial,Helvetica,sans-serif;fill:#162536}
+  .headline{font-size:25px;font-weight:700}
+  .subtitle{font-size:17px;fill:#475569}
+  .method{font-family:monospace;font-size:21px;font-weight:bold}
+  .small{font-size:17px}
+  .node{fill:#fff;stroke:#64748b;stroke-width:2}
+  .train{fill:#fef2dc;stroke:#c98917;stroke-width:2.5}
+  .eval{fill:#def4ef;stroke:#169784;stroke-width:2.5}
+  .arrow{fill:none;stroke:#8090a0;stroke-width:2.5}
+</style>
+<defs><marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0 0 L9 5 L0 10" fill="none" stroke="#8090a0" stroke-width="1.7"/></marker></defs>
+<rect width="1040" height="450" rx="16" fill="#ffffff"/>
+<text class="headline" x="520" y="37" text-anchor="middle">Choose a mode first. Run forward separately.</text>
+<rect x="455" y="61" width="130" height="48" rx="9" class="node"/>
+<text class="method" x="520" y="92" text-anchor="middle">model</text>
+<path d="M520 109 V132 H250 V154 M520 132 H790 V154" class="arrow" marker-end="url(#a)"/>
+<rect x="95" y="159" width="310" height="52" rx="10" class="train"/>
+<text class="method" x="250" y="192" text-anchor="middle">model.train()</text>
+<rect x="635" y="159" width="310" height="52" rx="10" class="eval"/>
+<text class="method" x="790" y="192" text-anchor="middle">model.eval()</text>
+<text class="subtitle" x="250" y="237" text-anchor="middle">Training mode ON</text>
+<text class="subtitle" x="790" y="237" text-anchor="middle">Evaluation mode ON</text>
+<path d="M250 245 V264 M790 245 V264" class="arrow" marker-end="url(#a)"/>
+<rect x="95" y="273" width="310" height="51" rx="9" class="node"/>
+<rect x="635" y="273" width="310" height="51" rx="9" class="node"/>
+<text class="method" x="250" y="305" text-anchor="middle">model(x)</text>
+<text class="method" x="790" y="305" text-anchor="middle">model(x)</text>
+<text class="small" x="250" y="350" text-anchor="middle">Dropout active</text>
+<text class="small" x="790" y="350" text-anchor="middle">Dropout inactive</text>
+<text class="small" x="250" y="378" text-anchor="middle">BatchNorm: batch statistics</text>
+<text class="small" x="790" y="378" text-anchor="middle">BatchNorm: stored statistics*</text>
+<line x1="24" y1="405" x2="1016" y2="405" stroke="#e2e8f0"/>
+<text class="subtitle" x="520" y="430" text-anchor="middle">train() / eval() do not compute outputs or update model weights.  *When running stats are tracked.</text>
+</svg>
