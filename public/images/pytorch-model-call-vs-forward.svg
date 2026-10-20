@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="350" viewBox="0 0 920 350" role="img" aria-labelledby="title desc">
+<title id="title">model(x) versus model.forward(x)</title><desc id="desc">Calling model(x) uses the Module call wrapper, which runs registered pre-hooks and forward hooks around forward. Calling model.forward(x) directly skips that module's hook handling.</desc>
+<style>
+  .title{font:700 26px Arial,sans-serif;fill:#172a3a}
+  .minor{font:16px Arial,sans-serif;fill:#415466}
+  .code{font:700 18px monospace;fill:#172a3a}
+  .small{font:14px Arial,sans-serif;fill:#475569}
+  .box{fill:#ffffff;stroke:#64748b;stroke-width:1.6}
+  .hook{fill:#daf4ed;stroke:#15977d;stroke-width:2}
+  .arrow{stroke:#64748b;stroke-width:2;fill:none;marker-end:url(#arrow)}
+</style>
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L8 4.5 L0 9" fill="none" stroke="#64748b" stroke-width="1.5"/></marker></defs>
+<rect width="920" height="350" fill="#f8fafc"/>
+<line x1="460" x2="460" y1="26" y2="321" stroke="#d8e1e8" stroke-width="2"/>
+<text class="title" x="230" y="44" text-anchor="middle">model(x)</text>
+<text class="minor" x="230" y="69" text-anchor="middle">Use the PyTorch call mechanism</text>
+<rect class="box" x="114" y="92" width="232" height="42" rx="8"/>
+<text class="code" x="230" y="119" text-anchor="middle">__call__(x)</text>
+<path class="arrow" d="M230 134 V153"/>
+<rect class="hook" x="114" y="158" width="232" height="40" rx="8"/>
+<text class="code" x="230" y="184" text-anchor="middle">pre-hooks</text>
+<path class="arrow" d="M230 198 V217"/>
+<rect class="box" x="114" y="221" width="232" height="40" rx="8"/>
+<text class="code" x="230" y="247" text-anchor="middle">forward(x)</text>
+<path class="arrow" d="M230 261 V279"/>
+<rect class="hook" x="114" y="283" width="232" height="40" rx="8"/>
+<text class="code" x="230" y="309" text-anchor="middle">forward hooks</text>
+<text class="title" x="690" y="44" text-anchor="middle">model.forward(x)</text>
+<text class="minor" x="690" y="69" text-anchor="middle">Call forward directly</text>
+<rect class="box" x="573" y="158" width="234" height="40" rx="8"/>
+<text class="code" x="690" y="184" text-anchor="middle">forward(x)</text>
+<path class="arrow" d="M690 198 V228"/>
+<rect x="573" y="234" width="234" height="58" rx="8" fill="#f1f5f9" stroke="#94a3b8" stroke-dasharray="6 4"/>
+<text class="code" x="690" y="256" text-anchor="middle" fill="#64748b">no module hooks</text>
+<text class="small" x="690" y="276" text-anchor="middle">on this module</text>
+</svg>
