@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1048 654" width="1048" height="654" role="img" aria-labelledby="title desc">
+<title id="title">Without hooks versus with hooks</title>
+<desc id="desc">Without a hook, the model returns only the final output. With hooks, the forward pass still produces the same final output, and hooks can separately save intermediate features after Layer 1 and Layer 2.</desc>
+<defs>
+  <marker id="arrow" markerWidth="12" markerHeight="12" refX="9" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1,1 L10,5.5 L1,10" stroke="#718096" stroke-width="1.8" fill="none"/></marker>
+  <marker id="hookarrow" markerWidth="12" markerHeight="12" refX="9" refY="5.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M1,1 L10,5.5 L1,10" stroke="#009988" stroke-width="1.8" fill="none"/></marker>
+  <style><![CDATA[
+    text{font-family:Arial,Helvetica,sans-serif;fill:#131b2c}
+    .heading{font-weight:600;font-size:23px}
+    .node{fill:#e9ecf1;stroke:#687990;stroke-width:3}
+    .end{fill:#daf2ef;stroke:#009c8b;stroke-width:3}
+    .boxLabel{font-weight:500;font-size:34px;text-anchor:middle;dominant-baseline:middle}
+    .flow{fill:none;stroke:#718096;stroke-width:3;marker-end:url(#arrow)}
+    .dash{fill:none;stroke:#009988;stroke-dasharray:11 8;stroke-width:4;marker-end:url(#hookarrow)}
+    .note{font-size:20px;fill:#475569}
+  ]]></style>
+</defs>
+<rect width="1048" height="654" rx="18" fill="#ffffff"/>
+<text x="14" y="35" class="heading">Without Hook: Only the final output is returned</text>
+<g>
+  <rect x="18" y="100" width="170" height="96" rx="18" class="node"/>
+  <text x="103" y="149" class="boxLabel">Input</text>
+  <path d="M198 148 H262" class="flow"/>
+  <rect x="278" y="100" width="192" height="96" rx="18" class="node"/>
+  <text x="374" y="149" class="boxLabel">Layer 1</text>
+  <path d="M480 148 H546" class="flow"/>
+  <rect x="563" y="100" width="192" height="96" rx="18" class="node"/>
+  <text x="659" y="149" class="boxLabel">Layer 2</text>
+  <path d="M765 148 H832" class="flow"/>
+  <rect x="847" y="100" width="177" height="96" rx="18" class="end"/>
+  <text x="935.5" y="149" class="boxLabel">Output</text>
+</g>
+<text x="14" y="278" class="heading">With Hook: Intermediate outputs can also be saved</text>
+<g>
+  <rect x="18" y="331" width="170" height="96" rx="18" class="node"/>
+  <text x="103" y="380" class="boxLabel">Input</text>
+  <path d="M198 379 H262" class="flow"/>
+  <rect x="278" y="331" width="192" height="96" rx="18" class="node"/>
+  <text x="374" y="380" class="boxLabel">Layer 1</text>
+  <path d="M480 379 H546" class="flow"/>
+  <rect x="563" y="331" width="192" height="96" rx="18" class="node"/>
+  <text x="659" y="380" class="boxLabel">Layer 2</text>
+  <path d="M765 379 H832" class="flow"/>
+  <rect x="847" y="331" width="177" height="96" rx="18" class="end"/>
+  <text x="935.5" y="380" class="boxLabel">Output</text>
+  <path d="M374 427 V499" class="dash"/>
+  <path d="M659 427 V499" class="dash"/>
+  <rect x="248" y="510" width="252" height="82" rx="17" class="end"/>
+  <text x="374" y="554" font-size="28" text-anchor="middle" dominant-baseline="middle">Save feature 1</text>
+  <rect x="533" y="510" width="252" height="82" rx="17" class="end"/>
+  <text x="659" y="554" font-size="28" text-anchor="middle" dominant-baseline="middle">Save feature 2</text>
+</g>
+<text class="note" x="14" y="634">Hooks can capture layer outputs without modifying the model's forward() code.</text>
+</svg>
