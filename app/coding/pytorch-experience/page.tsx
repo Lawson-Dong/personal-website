@@ -69,6 +69,18 @@ export default function PytorchExperience() {
         <ArrowUpRight className="notebook-launch" aria-hidden="true" />
       </a>
       <a className="text-link" href="https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-device-selection.ipynb" target="_blank" rel="noopener noreferrer">View notebook 04 on GitHub ↗</a>
+
+      <a className="python-notebook-link" href="https://colab.research.google.com/github/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-gradient-modes.ipynb" target="_blank" rel="noopener noreferrer">
+        <span className="notebook-code-icon"><Code2 aria-hidden="true" /></span>
+        <div>
+          <span className="eyebrow">05 / OPEN IN GOOGLE COLAB</span>
+          <h2>torch.no_grad() vs torch.inference_mode()</h2>
+          <p>Compare gradient tracking and learn when inference tensors have extra restrictions.</p>
+          <small>1 visual diagram · 2 runnable examples · Official PyTorch docs</small>
+        </div>
+        <ArrowUpRight className="notebook-launch" aria-hidden="true" />
+      </a>
+      <a className="text-link" href="https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-gradient-modes.ipynb" target="_blank" rel="noopener noreferrer">View notebook 05 on GitHub ↗</a>
     </main>
   );
 }
