@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="940" height="366" viewBox="0 0 940 366" role="img" aria-labelledby="title desc">
+<title id="title">Choosing a PyTorch device and moving model and input together</title>
+<desc id="desc">PyTorch checks whether CUDA is available. If yes, select CUDA GPU; otherwise, select CPU. Move both model and input tensor to the chosen device before running model(x).</desc>
+<defs><marker id="arrow" markerWidth="11" markerHeight="11" refX="8" refY="5" orient="auto"><path d="M1 1 L9 5 L1 9" stroke="#65788e" stroke-width="1.5" fill="none"/></marker><style>
+text{font-family:Arial,Helvetica,sans-serif;fill:#172b40}
+.title{font-size:20px;font-weight:600}
+.body{font-size:19px;font-weight:600}
+.small{font-size:16px}
+.box{fill:#f5f8fc;stroke:#7a8ba0;stroke-width:2}
+.sel{fill:#e3f5f1;stroke:#149b86;stroke-width:2.5}
+.arrow{fill:none;stroke:#65788e;stroke-width:2.5;marker-end:url(#arrow)}
+</style></defs>
+<rect width="940" height="366" rx="15" fill="#ffffff"/>
+<text x="24" y="33" class="title">1 · Choose a device</text>
+<rect class="box" x="236" y="53" width="468" height="53" rx="9"/>
+<text x="470" y="87" font-size="21" font-family="monospace" text-anchor="middle">torch.cuda.is_available()</text>
+<path class="arrow" d="M470 106 V133 H262 V151"/>
+<path class="arrow" d="M470 133 H688 V151"/>
+<text x="271" y="142" text-anchor="middle" class="small">True</text>
+<text x="695" y="142" text-anchor="middle" class="small">False</text>
+<rect class="sel" x="154" y="156" width="216" height="57" rx="10"/>
+<text x="262" y="191" class="body" text-anchor="middle">CUDA GPU</text>
+<rect class="box" x="580" y="156" width="216" height="57" rx="10"/>
+<text x="688" y="191" class="body" text-anchor="middle">CPU</text>
+<text x="24" y="253" class="title">2 · Move BOTH to the chosen device</text>
+<rect class="sel" x="66" y="271" width="260" height="52" rx="10"/>
+<text x="196" y="303" class="body" text-anchor="middle">model.to(device)</text>
+<rect class="sel" x="342" y="271" width="260" height="52" rx="10"/>
+<text x="472" y="303" class="body" text-anchor="middle">x.to(device)</text>
+<path class="arrow" d="M613 297 H660"/>
+<rect class="box" x="675" y="271" width="202" height="52" rx="10"/>
+<text x="776" y="303" class="body" text-anchor="middle">model(x)</text>
+<text x="470" y="349" text-anchor="middle" class="small">Selecting a device does not move tensors automatically.</text>
+</svg>
