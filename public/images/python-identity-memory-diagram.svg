@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="580" viewBox="0 0 900 580" role="img" aria-labelledby="title desc">
+<title id="title">Memory diagram: Python is versus equality</title>
+<desc id="desc">Variables a and b both reference list object one containing 1, 2, 3; c references a separate list object with identical contents. a is b is True, c is a is False, and c equals a is True.</desc>
+<defs>
+  <linearGradient id="header" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#edf2ff"/><stop offset="1" stop-color="#f6f8ff"/></linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff9e6"/><stop offset="1" stop-color="#fff4d0"/></linearGradient>
+  <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff5f7"/><stop offset="1" stop-color="#ffe4eb"/></linearGradient>
+  <marker id="blueArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0 L10 5 L0 10 Z" fill="#0868c6"/></marker>
+  <marker id="greenArrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth"><path d="M0 0 L10 5 L0 10 Z" fill="#009758"/></marker>
+  <style>
+    text{font-family:Arial,Helvetica,sans-serif;fill:#091940}
+    .code{font-family:Consolas,Monaco,monospace}
+    .var{fill:#dceeff;stroke:#1679d1;stroke-width:2.1}
+    .vtext{font-size:36px;font-weight:700}
+    .label{font-size:25px;font-weight:700}
+    .body{font-size:23px}
+    .test{font-size:28px;font-weight:700}
+  </style>
+</defs>
+<rect x="3" y="3" width="894" height="574" rx="18" fill="#fff" stroke="#d8ddf6" stroke-width="2"/>
+<path d="M21 4 H879 Q896 4 896 22 V68 H4 V22 Q4 4 21 4Z" fill="url(#header)"/>
+<text x="30" y="44" font-size="27" font-weight="700">Memory diagram <tspan font-weight="400">(objects and references)</tspan></text>
+<rect class="var" x="50" y="125" width="112" height="70" rx="15"/>
+<rect class="var" x="50" y="219" width="112" height="70" rx="15"/>
+<rect class="var" x="50" y="405" width="112" height="70" rx="15"/>
+<text x="106" y="171" class="vtext" text-anchor="middle">a</text>
+<text x="106" y="265" class="vtext" text-anchor="middle">b</text>
+<text x="106" y="451" class="vtext" text-anchor="middle">c</text>
+<line x1="162" y1="160" x2="294" y2="196" stroke="#0868c6" stroke-width="5" marker-end="url(#blueArrow)"/>
+<line x1="162" y1="254" x2="294" y2="212" stroke="#0868c6" stroke-width="5" marker-end="url(#blueArrow)"/>
+<line x1="162" y1="438" x2="297" y2="466" stroke="#009758" stroke-width="5" marker-end="url(#greenArrow)"/>
+<rect x="315" y="117" width="220" height="49" rx="15" fill="#fff3cc"/>
+<text x="425" y="150" class="label" text-anchor="middle">List object #1</text>
+<rect x="308" y="171" width="238" height="102" rx="18" fill="url(#gold)" stroke="#dfaa00" stroke-width="2.3"/>
+<text x="427" y="232" text-anchor="middle" class="code" font-size="36">[1, 2, 3]</text>
+<rect x="315" y="377" width="220" height="49" rx="15" fill="#ffe0e4"/>
+<text x="425" y="410" class="label" text-anchor="middle" fill="#a11d1c">List object #2</text>
+<rect x="308" y="431" width="238" height="102" rx="18" fill="url(#pink)" stroke="#e63137" stroke-width="2.3"/>
+<text x="427" y="492" text-anchor="middle" class="code" font-size="36">[1, 2, 3]</text>
+<rect x="584" y="108" width="289" height="65" rx="13" fill="#ecf9ee" stroke="#91c59b" stroke-width="2"/>
+<text x="603" y="151" class="test"><tspan>a </tspan><tspan fill="#1263d7">is</tspan><tspan> b → </tspan><tspan fill="#098639">True</tspan></text>
+<text x="727" y="207" class="body" text-anchor="middle">They point to the</text>
+<text x="727" y="236" class="body" text-anchor="middle">same object.</text>
+<rect x="584" y="287" width="289" height="65" rx="13" fill="#fff0f1" stroke="#ee9a9e" stroke-width="2"/>
+<text x="603" y="330" class="test"><tspan>c </tspan><tspan fill="#1263d7">is</tspan><tspan> a → </tspan><tspan fill="#c92a36">False</tspan></text>
+<text x="727" y="386" class="body" text-anchor="middle">They are different</text>
+<text x="727" y="415" class="body" text-anchor="middle">objects.</text>
+<rect x="584" y="443" width="289" height="65" rx="13" fill="#ecf9ee" stroke="#91c59b" stroke-width="2"/>
+<text x="603" y="486" class="test"><tspan>c </tspan><tspan fill="#00853e">==</tspan><tspan> a → </tspan><tspan fill="#098639">True</tspan></text>
+<text x="727" y="541" class="body" text-anchor="middle">Their contents are equal.</text>
+</svg>
