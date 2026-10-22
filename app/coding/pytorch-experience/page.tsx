@@ -81,6 +81,18 @@ export default function PytorchExperience() {
         <ArrowUpRight className="notebook-launch" aria-hidden="true" />
       </a>
       <a className="text-link" href="https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-gradient-modes.ipynb" target="_blank" rel="noopener noreferrer">View notebook 05 on GitHub ↗</a>
+
+      <a className="python-notebook-link" href="https://colab.research.google.com/github/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-random-seed.ipynb" target="_blank" rel="noopener noreferrer">
+        <span className="notebook-code-icon"><Code2 aria-hidden="true" /></span>
+        <div>
+          <span className="eyebrow">06 / OPEN IN GOOGLE COLAB</span>
+          <h2>torch.manual_seed(42) — Random Seeds</h2>
+          <p>Reproduce random tensors and understand why consecutive random calls still differ.</p>
+          <small>2 tiny runnable examples · Official PyTorch docs</small>
+        </div>
+        <ArrowUpRight className="notebook-launch" aria-hidden="true" />
+      </a>
+      <a className="text-link" href="https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/pytorch-random-seed.ipynb" target="_blank" rel="noopener noreferrer">View notebook 06 on GitHub ↗</a>
     </main>
   );
 }
