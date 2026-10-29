@@ -4,11 +4,14 @@ import styles from './pytorch.module.css';
 
 export const metadata = {
   title: 'PyTorch Experience',
-  description: 'PyTorch learning notes in one up-to-date Jupyter notebook.',
+  description: 'PyTorch learning notes and simplified experimental code in Jupyter notebooks.',
 };
 
 const notebookUrl =
   'https://colab.research.google.com/github/Lawson-Dong/personal-website/blob/main/notebooks/Learning_Deep_Learning_using_pytorch.ipynb';
+
+const experimentalNotebookUrl =
+  'https://colab.research.google.com/github/Lawson-Dong/personal-website/blob/main/notebooks/Simplified_Exprimental_Code.ipynb';
 
 export default function PytorchExperience() {
   return (
@@ -22,7 +25,7 @@ export default function PytorchExperience() {
         <p className="eyebrow">PYTORCH / HANDS-ON DEEP LEARNING</p>
         <h1 className="portal-title">PyTorch <em>Experience.</em></h1>
         <p className="portal-copy">
-          My evolving PyTorch notebook: pretrained model inference, ResNet
+          My evolving PyTorch notebooks: pretrained model inference, ResNet
           architecture and activation experiments, and CIFAR-10 data preparation.
         </p>
         <div className={styles.actions}>
@@ -31,9 +34,14 @@ export default function PytorchExperience() {
             Open latest PyTorch notebook
             <ArrowUpRight aria-hidden="true" />
           </a>
+          <a className={styles.secondary} href={experimentalNotebookUrl} target="_blank" rel="noopener noreferrer">
+            <Code2 aria-hidden="true" />
+            Simplified Experimental Code
+            <ArrowUpRight aria-hidden="true" />
+          </a>
         </div>
         <p className={styles.miniNote}>
-          One notebook · Latest uploaded version · Open in Google Colab
+          Two notebooks · Open in Google Colab
         </p>
       </header>
     </main>
