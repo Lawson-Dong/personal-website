@@ -25,8 +25,9 @@ export default function PytorchExperience() {
         <p className="eyebrow">PYTORCH / HANDS-ON DEEP LEARNING</p>
         <h1 className="portal-title">PyTorch <em>Experience.</em></h1>
         <p className="portal-copy">
-          My evolving PyTorch notebooks: pretrained model inference, ResNet
-          architecture and activation experiments, and CIFAR-10 data preparation.
+          My evolving PyTorch notebooks: tensor foundations, pretrained model
+          inference, ResNet architecture and activation experiments, CIFAR-10
+          data preparation, and a cat–dog feature extraction workflow.
         </p>
         <div className={styles.actions}>
           <a className={styles.primary} href={notebookUrl} target="_blank" rel="noopener noreferrer">
@@ -41,7 +42,7 @@ export default function PytorchExperience() {
           </a>
         </div>
         <p className={styles.miniNote}>
-          Two notebooks · Open in Google Colab
+          Two notebooks · Open in Google Colab · Work in progress
         </p>
       </header>
     </main>
