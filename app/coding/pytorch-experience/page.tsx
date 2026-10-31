@@ -27,7 +27,8 @@ export default function PytorchExperience() {
         <p className="portal-copy">
           My evolving PyTorch notebooks: tensor foundations, pretrained model
           inference, ResNet architecture and activation experiments, CIFAR-10
-          data preparation, and a cat–dog feature extraction workflow.
+          data preparation, and a cat–dog workflow covering blockwise feature extraction, reproducible
+          sampling, and within-class participation ratio (PR) analysis.
         </p>
         <div className={styles.actions}>
           <a className={styles.primary} href={notebookUrl} target="_blank" rel="noopener noreferrer">
@@ -43,6 +44,9 @@ export default function PytorchExperience() {
         </div>
         <p className={styles.miniNote}>
           Two notebooks · Open in Google Colab · Work in progress
+          <br />
+          Experimental notebook updated October 31, 2026 · Eight residual blocks,
+          global average pooling, L2 normalization, and Gram-matrix PR.
         </p>
       </header>
     </main>
