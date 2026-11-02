@@ -8,10 +8,13 @@ export const metadata = {
 };
 
 const notebookUrl =
-  'https://colab.research.google.com/github/Lawson-Dong/personal-website/blob/main/notebooks/Learning_Deep_Learning_using_pytorch.ipynb';
+  'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/Learning_Deep_Learning_using_pytorch.ipynb';
 
 const experimentalNotebookUrl =
-  'https://colab.research.google.com/github/Lawson-Dong/personal-website/blob/main/notebooks/Simplified_Exprimental_Code.ipynb';
+  'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/Simplified_Exprimental_Code.ipynb';
+
+const workflowNotebookUrl =
+  'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/1_PyTorch_Workflow_Fundamentals.ipynb';
 
 export default function PytorchExperience() {
   return (
@@ -27,13 +30,14 @@ export default function PytorchExperience() {
         <p className="portal-copy">
           My evolving PyTorch notebooks: tensor foundations, pretrained model
           inference, ResNet architecture and activation experiments, CIFAR-10
-          data preparation, and a cat–dog workflow covering blockwise feature extraction, reproducible
+          data preparation, an end-to-end linear regression workflow with training/test
+          splits, model building, gradient descent, and evaluation, and a cat–dog workflow covering blockwise feature extraction, reproducible
           sampling, and within-class participation ratio (PR) analysis.
         </p>
         <div className={styles.actions}>
           <a className={styles.primary} href={notebookUrl} target="_blank" rel="noopener noreferrer">
             <Code2 aria-hidden="true" />
-            Open latest PyTorch notebook
+            Learning Deep Learning using PyTorch
             <ArrowUpRight aria-hidden="true" />
           </a>
           <a className={styles.secondary} href={experimentalNotebookUrl} target="_blank" rel="noopener noreferrer">
@@ -41,9 +45,14 @@ export default function PytorchExperience() {
             Simplified Experimental Code
             <ArrowUpRight aria-hidden="true" />
           </a>
+          <a className={styles.secondary} href={workflowNotebookUrl} target="_blank" rel="noopener noreferrer">
+            <Code2 aria-hidden="true" />
+            PyTorch Workflow Fundamentals
+            <ArrowUpRight aria-hidden="true" />
+          </a>
         </div>
         <p className={styles.miniNote}>
-          Two notebooks · Open in Google Colab · Work in progress
+          Three notebooks · View on GitHub · Work in progress
           <br />
           Experimental notebook updated October 31, 2026 · Eight residual blocks,
           global average pooling, L2 normalization, and Gram-matrix PR.
