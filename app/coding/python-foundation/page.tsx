@@ -3,7 +3,7 @@ import { ArrowUpRight, Code2 } from 'lucide-react';
 
 export const metadata = {
   title: 'Python Foundation',
-  description: 'Nine Python notebooks covering introductions, tooling, variables, operators, functions, conditionals, collections, debugging, and loops.',
+  description: 'Ten Python notebooks covering introductions, tooling, variables, operators, functions, conditionals, collections, debugging, loops, and methods.',
 };
 
 const notebookBaseUrl =
@@ -54,6 +54,11 @@ const notebooks = [
     "filename": "09_Loops.ipynb",
     "title": "Python Loops & Control Flow",
     "description": "Practice for and while loops, range, break, and continue."
+  },
+  {
+    "filename": "10_Methods.ipynb",
+    "title": "Python Methods",
+    "description": "String, list, and dictionary methods, in-place changes, and their relationship to functions."
   }
 ];
 
@@ -67,7 +72,7 @@ export default function PythonFoundation() {
       </nav>
       <p className="eyebrow">THE FOUNDATIONS / HANDS-ON NOTEBOOKS</p>
       <h1 className="portal-title">Python <em>Foundation.</em></h1>
-      <p className="portal-copy">Python course notebooks and learning notes, from the first tools to loops and control flow. Browse all nine notebooks on GitHub.</p>
+      <p className="portal-copy">Python course notebooks and learning notes, from the first tools to loops, control flow, and methods. Browse all ten notebooks on GitHub.</p>
       {notebooks.map((notebook) => (
         <a className="python-notebook-link" key={notebook.filename} href={notebookBaseUrl + notebook.filename} target="_blank" rel="noopener noreferrer">
           <span className="notebook-code-icon">
