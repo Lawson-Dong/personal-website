@@ -8,6 +8,7 @@ Only the user's handwritten notes belong here. Do not upload instructor handouts
 | Lecture 8 | `lecture-8.pdf` | `69481c4b87d42b7375d2e15e910fb3780823ba5f718cbac37fcdfb4af5744c91` |
 | Lecture 9 | `lecture-9.pdf` | `cd3a8c11e72cc6a18b75b6fd89a8a7865e4ca1bb2a227c5df99d71f3c57b74a5` |
 | Lecture 10 | `lecture-10.pdf` | `4b123b11a198fa27d31bd24905a67431b2e4154996e52cfdc6bb31464af3e5b4` |
+| Lecture 14 | `lecture-14.pdf` | `30b00b1d9e073208548c6bcbfddabb68cb14175cdb7eef6f3e176e40e094f555` |
 | Covariance Matrix | `self-exploring/covariance-matrix.pdf` | `97a3e1b0cd174fb30b75e087774f38d12495c75c5382b6ed989e6ce9dffe09a9` |
 
 Lecture 8 was imported from the user's seven-page handwritten `Lecture 8.pdf` (Library reference `libfile_b9962f14a3648191b500de3b4263df13`). `Oct12.pdf` is the instructor handout and is excluded.

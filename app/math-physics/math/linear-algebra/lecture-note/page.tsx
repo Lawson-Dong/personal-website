@@ -2,7 +2,7 @@ import Link from 'next/link';
 
 export const metadata = {
   title: 'Linear Algebra — Lecture Note',
-  description: 'Handwritten linear algebra notes: Lecture 7 on transformations, Lecture 8 on standard matrices and mappings, Lecture 9 on matrix operations, powers, and transposes, Lecture 10 on matrix inverses and invertible transformations, Lecture 11 on vector spaces, subspaces, and spans, and Lecture 13 on null, column, and row spaces and the kernel and range of linear transformations.',
+  description: 'Handwritten linear algebra notes: Lecture 7 on transformations, Lecture 8 on standard matrices and mappings, Lecture 9 on matrix operations, powers, and transposes, Lecture 10 on matrix inverses and invertible transformations, Lecture 11 on vector spaces, subspaces, and spans, Lecture 13 on null, column, and row spaces and the kernel and range of linear transformations, and Lecture 14 on bases, linear independence, and the spanning set theorem.',
 };
 
 const lecture7 = 'https://github.com/Lawson-Dong/personal-website/blob/main/notes/linear-algebra/lecture-7.pdf';
@@ -15,6 +15,8 @@ const lecture10 = 'https://github.com/Lawson-Dong/personal-website/blob/main/not
 const lecture11 = 'https://github.com/Lawson-Dong/personal-website/blob/main/notes/linear-algebra/lecture-11.pdf';
 
 const lecture13 = 'https://github.com/Lawson-Dong/personal-website/blob/main/notes/linear-algebra/lecture-13.pdf';
+
+const lecture14 = 'https://github.com/Lawson-Dong/personal-website/blob/main/notes/linear-algebra/lecture-14.pdf';
 
 export default function LectureNote() {
   return (
@@ -61,6 +63,12 @@ export default function LectureNote() {
         <span className="eyebrow">13 / LECTURE NOTE · PDF</span>
         <h2>Lecture 13</h2>
         <p>Null, column, and row spaces, and the kernel and range of linear transformations.</p>
+        <span className="portal-card-link">Open PDF on GitHub ↗</span>
+      </a>
+      <a className="portal-card" href={lecture14} target="_blank" rel="noopener noreferrer">
+        <span className="eyebrow">14 / LECTURE NOTE · PDF</span>
+        <h2>Lecture 14</h2>
+        <p>Bases, linear independence, and the spanning set theorem.</p>
         <span className="portal-card-link">Open PDF on GitHub ↗</span>
       </a>
     </main>
