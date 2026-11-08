@@ -4,11 +4,13 @@ import styles from './pytorch.module.css';
 
 export const metadata = {
   title: 'PyTorch Experience',
-  description: 'PyTorch workflow fundamentals: data preparation, linear regression, training, and evaluation.',
+  description: 'Hands-on PyTorch notebooks on linear regression and nonlinearity in neural networks.',
 };
 
 const workflowNotebookUrl =
   'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/1_PyTorch_Workflow_Fundamentals.ipynb';
+const nonlinearityNotebookUrl =
+  'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/26_11_7_An_experiment_about_non_linearity_of__nn.ipynb';
 
 export default function PytorchExperience() {
   return (
@@ -22,9 +24,9 @@ export default function PytorchExperience() {
         <p className="eyebrow">PYTORCH / HANDS-ON DEEP LEARNING</p>
         <h1 className="portal-title">PyTorch <em>Experience.</em></h1>
         <p className="portal-copy">
-          My PyTorch workflow notebook: data preparation and visualization,
-          training/test splits, building a linear regression model, gradient
-          descent, and evaluation.
+          My PyTorch notebooks cover the training workflow through linear
+          regression and compare linear networks with ReLU networks on a
+          two-circle classification task.
         </p>
         <div className={styles.actions}>
           <a className={styles.primary} href={workflowNotebookUrl} target="_blank" rel="noopener noreferrer">
@@ -32,9 +34,14 @@ export default function PytorchExperience() {
             PyTorch Workflow Fundamentals
             <ArrowUpRight aria-hidden="true" />
           </a>
+          <a className={styles.secondary} href={nonlinearityNotebookUrl} target="_blank" rel="noopener noreferrer">
+            <Code2 aria-hidden="true" />
+            Nonlinearity in Neural Networks
+            <ArrowUpRight aria-hidden="true" />
+          </a>
         </div>
         <p className={styles.miniNote}>
-          One notebook · View on GitHub · Work in progress
+          Two notebooks · View on GitHub · Work in progress
         </p>
       </header>
     </main>
