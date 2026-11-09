@@ -4,15 +4,15 @@ import styles from './pytorch.module.css';
 
 export const metadata = {
   title: 'PyTorch Experience',
-  description: 'Hands-on PyTorch notebooks on linear regression, nonlinearity, and ReLU network width.',
+  description: 'Hands-on PyTorch notebooks on linear regression, nonlinearity, and ReLU network width and depth.',
 };
 
 const workflowNotebookUrl =
   'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/1_PyTorch_Workflow_Fundamentals.ipynb';
 const nonlinearityNotebookUrl =
   'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/26_11_7_An_experiment_about_non_linearity_of__nn.ipynb';
-const reluWidthNotebookUrl =
-  'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/26_11_8_How_to_improve_the_learning_ability_of_ReLU_network.ipynb';
+const reluClassificationNotebookUrl =
+  'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/26_11_8_How_to_improve_the_classification_ability_of_ReLU_network.ipynb';
 
 export default function PytorchExperience() {
   return (
@@ -28,8 +28,8 @@ export default function PytorchExperience() {
         <p className="portal-copy">
           My PyTorch notebooks cover the training workflow through linear
           regression and compare linear networks with ReLU networks on a
-          two-circle classification task. A follow-up experiment compares two
-          ReLU networks with 8 and 1,024 hidden units per layer on a four-class
+          two-circle classification task. A follow-up experiment compares a
+          baseline ReLU network with wider and deeper variants on a four-class
           concentric-ring dataset.
         </p>
         <div className={styles.actions}>
@@ -43,9 +43,9 @@ export default function PytorchExperience() {
             Nonlinearity in Neural Networks
             <ArrowUpRight aria-hidden="true" />
           </a>
-          <a className={styles.secondary} href={reluWidthNotebookUrl} target="_blank" rel="noopener noreferrer">
+          <a className={styles.secondary} href={reluClassificationNotebookUrl} target="_blank" rel="noopener noreferrer">
             <Code2 aria-hidden="true" />
-            How to Improve the Learning Ability of ReLU Networks
+            How to Improve the Classification Ability of ReLU Networks
             <ArrowUpRight aria-hidden="true" />
           </a>
         </div>
