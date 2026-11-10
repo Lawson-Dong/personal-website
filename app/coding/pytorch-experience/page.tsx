@@ -76,7 +76,7 @@ export default function PytorchExperience() {
         </p>
         <NotebookLinks notebooks={courseNotebooks} />
       </section>
-      <section className={styles.section} aria-labelledby="pytorch-explorations">
+      <section className={`${styles.section} ${styles.explorations}`} aria-labelledby="pytorch-explorations">
         <div className={styles.sectionHead}>
           <h2 id="pytorch-explorations">Personal PyTorch Explorations</h2>
         </div>
