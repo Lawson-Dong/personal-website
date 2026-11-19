@@ -14,6 +14,9 @@ export function Sidebar() {
       <blockquote className="sidebar-quote">
         The deeper we seek, the more is our wonder excited.
       </blockquote>
+      <p className="sidebar-quote" style={{ marginTop: 24, fontSize: 18 }}>
+        Do you understand what you built, and can you stand behind it?
+      </p>
       <div className="sidebar-foot">
         <span>PHYSICS × INTELLIGENCE</span>
         <p>Learning, experimenting,<br/>and making things.</p>
