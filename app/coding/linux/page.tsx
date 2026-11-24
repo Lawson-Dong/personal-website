@@ -13,7 +13,7 @@ export default function Linux() {
   return (
     <main className="section shell">
       <nav className="science-breadcrumb" aria-label="Breadcrumb">
-        <Link href="/coding">Context Engineering</Link><span>/</span><span>Linux</span>
+        <Link href="/coding">Coding</Link><span>/</span><span>Linux</span>
       </nav>
       <p className="eyebrow">LEARNING BY BUILDING / LINUX</p>
       <h1 className="portal-title"><em>Linux.</em></h1>

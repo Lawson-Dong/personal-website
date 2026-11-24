@@ -71,7 +71,7 @@ export default function PythonFoundation() {
   return (
     <main className="section shell empty-module python-foundation">
       <nav className="science-breadcrumb" aria-label="Breadcrumb">
-        <Link href="/coding">Coding and AI Engineering</Link>
+        <Link href="/coding">Coding</Link>
         <span>/</span>
         <span>Python Foundation</span>
       </nav>

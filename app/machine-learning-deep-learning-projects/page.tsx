@@ -1,10 +1,9 @@
-import Link from 'next/link';
 import { ArrowUpRight, Code2 } from 'lucide-react';
-import styles from './pytorch.module.css';
+import styles from './projects.module.css';
 
 export const metadata = {
-  title: 'PyTorch Experience',
-  description: 'Learn PyTorch course notebooks and personal experiments on nonlinearity and ReLU networks.',
+  title: 'Machine Learning and Deep Learning Projects',
+  description: 'PyTorch course notebooks, neural network experiments, and the Kaggle Digit Recognizer project.',
 };
 
 const notebooksUrl = 'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/';
@@ -31,6 +30,13 @@ const explorationNotebooks = [
   },
 ];
 
+const kaggleNotebooks = [
+  {
+    title: 'Digit Recognizer: Five-Fold Cross-Validation',
+    filename: 'Kaggle_Digit_Recognizer_5_fold_cross_validation.ipynb',
+  },
+];
+
 function NotebookLinks({ notebooks }: { notebooks: { title: string; filename: string }[] }) {
   return (
     <div className={styles.actions}>
@@ -51,20 +57,11 @@ function NotebookLinks({ notebooks }: { notebooks: { title: string; filename: st
   );
 }
 
-export default function PytorchExperience() {
+export default function MachineLearningProjects() {
   return (
     <main className={'section shell python-foundation ' + styles.page}>
-      <nav className="science-breadcrumb" aria-label="Breadcrumb">
-        <Link href="/coding">Coding and AI Engineering</Link>
-        <span>/</span>
-        <span>PyTorch Experience</span>
-      </nav>
       <header className={styles.intro}>
-        <p className="eyebrow">PYTORCH / HANDS-ON DEEP LEARNING</p>
-        <h1 className="portal-title">PyTorch <em>Experience.</em></h1>
-        <p className="portal-copy">
-          My notes from learning PyTorch and the experiments those lessons inspired.
-        </p>
+        <h1 className="portal-title">Machine Learning and Deep Learning Projects</h1>
       </header>
       <section className={styles.section} aria-labelledby="pytorch-course">
         <div className={styles.sectionHead}>
@@ -86,9 +83,16 @@ export default function PytorchExperience() {
         </p>
         <NotebookLinks notebooks={explorationNotebooks} />
       </section>
-      <p className={styles.miniNote}>
-        Four notebooks · View on GitHub · Work in progress
-      </p>
+      <section className={styles.section} aria-labelledby="kaggle">
+        <div className={styles.sectionHead}>
+          <h2 id="kaggle">Kaggle</h2>
+        </div>
+        <p className={styles.groupCopy}>
+          Three CNN configurations train across five stratified folds. The resulting 15 models
+          combine their predictions through soft voting to produce a Kaggle submission.
+        </p>
+        <NotebookLinks notebooks={kaggleNotebooks} />
+      </section>
     </main>
   );
 }

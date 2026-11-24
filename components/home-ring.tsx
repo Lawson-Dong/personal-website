@@ -12,10 +12,10 @@ const sections = [
     description: 'Investigating neural representations, their geometry, and how they evolve across layers.',
   },
   {
-    label: 'Coding & AI',
+    label: 'Coding',
     href: '/coding',
     id: 'coding-ai-engineering',
-    description: 'Python, Linux, algorithms, and practical workflows for AI development.',
+    description: 'Python, Linux, and algorithm practice.',
   },
   {
     label: 'Blogs & Articles',
@@ -30,10 +30,10 @@ const sections = [
     description: 'Interactive linear algebra notes, mathematical concepts, and physics explorations.',
   },
   {
-    label: 'Machine Learning',
-    href: '/machine-learning-cognitive-science',
+    label: 'Machine Learning and Deep Learning Projects',
+    href: '/machine-learning-deep-learning-projects',
     id: 'machine-learning-cognitive-science',
-    description: 'Exploring machine learning, neural networks, and the science of machine cognition.',
+    description: 'PyTorch course notebooks, neural network experiments, and Kaggle projects.',
   },
   {
     label: 'About',

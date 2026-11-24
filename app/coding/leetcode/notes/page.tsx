@@ -8,7 +8,7 @@ const github = 'https://github.com/Lawson-Dong/personal-website/blob/main/notebo
 export default function LeetCodeNotes() {
   return (
     <main className="section shell python-foundation">
-      <nav className="science-breadcrumb" aria-label="Breadcrumb"><Link href="/coding">Coding and AI Engineering</Link><span>/</span><Link href="/coding/leetcode">LeetCode</Link><span>/</span><span>LeetCode Notes</span></nav>
+      <nav className="science-breadcrumb" aria-label="Breadcrumb"><Link href="/coding">Coding</Link><span>/</span><Link href="/coding/leetcode">LeetCode</Link><span>/</span><span>LeetCode Notes</span></nav>
       <p className="eyebrow">LEETCODE / ALGORITHM FOUNDATIONS</p>
       <h1 className="portal-title">LeetCode <em>Notes.</em></h1>
       <p className="portal-copy">Concise concepts and examples to revisit before solving problems.</p>

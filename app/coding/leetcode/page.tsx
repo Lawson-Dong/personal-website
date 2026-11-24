@@ -6,7 +6,7 @@ export const metadata = { title: 'LeetCode' };
 export default function LeetCode() {
   return (
     <main className="section shell python-foundation">
-      <nav className="science-breadcrumb" aria-label="Breadcrumb"><Link href="/coding">Coding and AI Engineering</Link><span>/</span><span>LeetCode</span></nav>
+      <nav className="science-breadcrumb" aria-label="Breadcrumb"><Link href="/coding">Coding</Link><span>/</span><span>LeetCode</span></nav>
       <p className="eyebrow">ALGORITHMS / PRACTICE & UNDERSTANDING</p>
       <h1 className="portal-title">Leet<em>Code.</em></h1>
       <p className="portal-copy">Solutions and conceptual notes, organized for reviewing algorithms one idea at a time.</p>

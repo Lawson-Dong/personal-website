@@ -4,8 +4,6 @@ import './globals.css';
 import { ThemeProvider } from '@/components/theme';
 import { NotebookFrame } from '@/components/notebook-frame';
 import './portal.css';
-import './residents.css';
-import { AIResidents } from '@/components/ai-residents';
 import { SiteCursor } from '@/components/site-cursor';
 import './cursor.css';
 
@@ -16,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning><body><ThemeProvider><NotebookFrame>{children}</NotebookFrame><AIResidents/><SiteCursor/></ThemeProvider></body></html>;
+  return <html lang="en" suppressHydrationWarning><body><ThemeProvider><NotebookFrame>{children}</NotebookFrame><SiteCursor/></ThemeProvider></body></html>;
 }
