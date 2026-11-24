@@ -17,6 +17,10 @@ const courseNotebooks = [
     title: 'PyTorch Neural Network Classification',
     filename: '2_PyTorch_Neural_Network_Classification.ipynb',
   },
+  {
+    title: 'PyTorch Computer Vision',
+    filename: '3_PyTorch_Computer_Vision.ipynb',
+  },
 ];
 
 const explorationNotebooks = [
@@ -69,7 +73,7 @@ export default function MachineLearningProjects() {
         </div>
         <p className={styles.groupCopy}>
           Notebooks following <a href="https://www.learnpytorch.io/">LearnPyTorch.io</a>,
-          from the training workflow with linear regression to binary and multiclass classification.
+          from the training workflow with linear regression through neural network classification and computer vision.
         </p>
         <NotebookLinks notebooks={courseNotebooks} />
       </section>
