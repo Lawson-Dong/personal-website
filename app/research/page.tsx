@@ -6,11 +6,11 @@ export default function Research() {
   return (
     <main className="section shell" id="research">
       <h1 className="portal-title">Research</h1>
-      <article aria-labelledby="resnet-anisotropy">
+      <article className="research-project" aria-labelledby="resnet-anisotropy">
         <h2 id="resnet-anisotropy">
           Depth-Associated Late-Stage Representational Anisotropy in Pretrained ResNets
         </h2>
-        <p>
+        <p className="research-summary">
           Across 100 Tiny ImageNet class pairs, this study uses the participation ratio to
           track how many directions account for the variance in feature representations
           at each residual block of five pretrained ResNets. From the end of Layer 3 to
@@ -18,7 +18,7 @@ export default function Research() {
           ResNet-34 and fell in ResNet-50, ResNet-101, and ResNet-152, indicating more
           concentrated variance at the final block in the three deeper models.
         </p>
-        <p>
+        <p className="research-actions">
           <a
             className="research-repo-link"
             href="https://github.com/Lawson-Dong/Depth-Associated-Late-Stage-Representational-Anisotropy-in-Pretrained-ResNets"
@@ -33,6 +33,25 @@ export default function Research() {
         </p>
       </article>
       <style>{`
+        #research .research-project {
+          max-width: 48rem;
+          margin-block: clamp(2rem, 5vw, 3.75rem) clamp(3rem, 7vw, 6rem);
+        }
+        #research .research-project h2 {
+          margin: 0;
+          font-size: clamp(1.5rem, 3vw, 2.25rem);
+          line-height: 1.2;
+          text-wrap: balance;
+        }
+        #research .research-summary {
+          max-width: 65ch;
+          margin: 1.25rem 0 0;
+          font-size: 1rem;
+          line-height: 1.75;
+        }
+        #research .research-actions {
+          margin: clamp(1.5rem, 4vw, 2.25rem) 0 0;
+        }
         #research .research-repo-link {
           display: inline-flex;
           align-items: center;
