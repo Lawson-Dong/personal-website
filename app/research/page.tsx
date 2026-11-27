@@ -84,6 +84,10 @@ export default function Research() {
           #research .research-repo-link,
           #research .research-repo-link .research-repo-icon {
             transition: none;
+          }
+          #research .research-repo-link:hover,
+          #research .research-repo-link:active,
+          #research .research-repo-link:hover .research-repo-icon {
             transform: none;
           }
         }
