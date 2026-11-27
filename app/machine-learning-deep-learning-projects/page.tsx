@@ -3,7 +3,7 @@ import styles from './projects.module.css';
 
 export const metadata = {
   title: 'Machine Learning and Deep Learning Projects',
-  description: 'PyTorch course notebooks, neural network experiments, and the Kaggle Digit Recognizer project.',
+  description: 'PyTorch course notebooks, neural network experiments, the Kaggle Digit Recognizer project, and nano-GPT.',
 };
 
 const notebooksUrl = 'https://github.com/Lawson-Dong/personal-website/blob/main/notebooks/';
@@ -96,6 +96,23 @@ export default function MachineLearningProjects() {
           combine their predictions through soft voting to produce a Kaggle submission.
         </p>
         <NotebookLinks notebooks={kaggleNotebooks} />
+      </section>
+      <section className={styles.section} aria-labelledby="nano-gpt">
+        <div className={styles.sectionHead}>
+          <h2 id="nano-gpt">nano-GPT</h2>
+        </div>
+        <div className={styles.actions}>
+          <a
+            className={styles.primary}
+            href="https://github.com/Lawson-Dong/nano-GPT"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Code2 aria-hidden="true" />
+            <span>View on GitHub</span>
+            <ArrowUpRight aria-hidden="true" />
+          </a>
+        </div>
       </section>
     </main>
   );
