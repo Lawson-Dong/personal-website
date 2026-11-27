@@ -77,16 +77,6 @@ export default function MachineLearningProjects() {
         </p>
         <NotebookLinks notebooks={courseNotebooks} />
       </section>
-      <section className={`${styles.section} ${styles.explorations}`} aria-labelledby="pytorch-explorations">
-        <div className={styles.sectionHead}>
-          <h2 id="pytorch-explorations">Personal PyTorch Explorations</h2>
-        </div>
-        <p className={styles.groupCopy}>
-          Experiments on how nonlinear activations, network width, and depth affect
-          classification on concentric circles.
-        </p>
-        <NotebookLinks notebooks={explorationNotebooks} />
-      </section>
       <section className={styles.section} aria-labelledby="kaggle">
         <div className={styles.sectionHead}>
           <h2 id="kaggle">Kaggle</h2>
@@ -120,6 +110,16 @@ export default function MachineLearningProjects() {
             <ArrowUpRight aria-hidden="true" />
           </a>
         </div>
+      </section>
+      <section className={`${styles.section} ${styles.explorations}`} aria-labelledby="pytorch-explorations">
+        <div className={styles.sectionHead}>
+          <h2 id="pytorch-explorations">Personal PyTorch Explorations</h2>
+        </div>
+        <p className={styles.groupCopy}>
+          Experiments on how nonlinear activations, network width, and depth affect
+          classification on concentric circles.
+        </p>
+        <NotebookLinks notebooks={explorationNotebooks} />
       </section>
     </main>
   );
