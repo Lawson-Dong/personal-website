@@ -101,6 +101,13 @@ export default function MachineLearningProjects() {
         <div className={styles.sectionHead}>
           <h2 id="nano-gpt">nano-GPT</h2>
         </div>
+        <p className={styles.groupCopy}>
+          A four-layer, decoder-only Transformer built from scratch in PyTorch, inspired by Andrej Karpathy’s
+          nanoGPT and trained on Tiny Shakespeare. The code covers GPT-2 tokenization, causal multi-head
+          self-attention, and autoregressive text generation with temperature and top-k sampling.
+          Baseline training averaged about 1,776 tokens per second on a Windows laptop CPU, and a
+          separate benchmark compared five CPU thread counts.
+        </p>
         <div className={styles.actions}>
           <a
             className={styles.primary}
