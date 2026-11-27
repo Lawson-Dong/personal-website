@@ -13,6 +13,11 @@ export default function Coding() {
         <h2>Python Foundation</h2>
         <span className="portal-card-link">Open Python Foundation</span>
       </Link>
+      <Link className="portal-card" href="/coding/numpy">
+        <h2>Numpy</h2>
+        <p>An introductory notebook and a visual guide to array indexing.</p>
+        <span className="portal-card-link">Explore Numpy</span>
+      </Link>
       <Link className="portal-card" href="/coding/linux">
         <span className="eyebrow">02 / LINUX</span>
         <h2>Linux</h2>
