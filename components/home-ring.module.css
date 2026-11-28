@@ -70,14 +70,6 @@
   text-align: center;
 }
 
-.scatter {
-  display: block;
-  width: min(108px, 35%);
-  height: auto;
-  margin: 0 auto 12px;
-  color: var(--accent);
-}
-
 .detail h2 {
   margin: 0 0 7px;
   font: 400 clamp(17px, 3.4cqi, 24px)/1.15 Georgia, serif;
@@ -126,8 +118,6 @@
     min-height: 175px;
     padding: 12px 8px;
   }
-
-  .scatter { width: 74px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -43,8 +43,6 @@ const sections = [
   },
 ] as const;
 
-const points = [[18, 46], [23, 42], [26, 50], [29, 37], [31, 46], [35, 41], [36, 49], [41, 44], [43, 36], [53, 25], [58, 19], [62, 27], [64, 15], [68, 21], [71, 30], [73, 17], [78, 23], [82, 13]];
-
 export function HomeRing() {
   const [active, setActive] = useState(0);
   const { label: title, description, href } = sections[active];
@@ -67,10 +65,6 @@ export function HomeRing() {
           </Link>
         ))}
         <div className={styles.detail}>
-          <svg viewBox="0 0 98 64" className={styles.scatter} aria-hidden="true">
-            <path d="M8 4v54h85" fill="none" stroke="currentColor" strokeWidth=".7" />
-            {points.map(([x, y]) => <circle key={x} cx={x} cy={y} r="1.3" fill="currentColor" />)}
-          </svg>
           <div aria-live="polite">
             <h2>{title}</h2>
             <p>{description}</p>
